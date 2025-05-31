@@ -83,7 +83,7 @@
     </div>
   </Form>
   <!-- 第三方登录相关弹框 -->
-  <ThirdModal ref="thirdModalRef"></ThirdModal>
+  <!-- <ThirdModal ref="thirdModalRef"></ThirdModal> -->
 </template>
 <script lang="ts" setup>
   import { reactive, ref, toRaw, unref, computed, onMounted } from 'vue';
@@ -91,7 +91,7 @@
   import { Checkbox, Form, Input, Row, Col, Button, Divider } from 'ant-design-vue';
   import { GithubFilled, WechatFilled, DingtalkCircleFilled, createFromIconfontCN } from '@ant-design/icons-vue';
   import LoginFormTitle from './LoginFormTitle.vue';
-  import ThirdModal from './ThirdModal.vue';
+  // import ThirdModal from './ThirdModal.vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
 
