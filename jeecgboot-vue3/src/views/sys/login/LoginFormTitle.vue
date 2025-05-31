@@ -16,7 +16,7 @@
     const titleObj = {
       [LoginStateEnum.RESET_PASSWORD]: t('sys.login.forgetFormTitle'),
       [LoginStateEnum.LOGIN]: t('sys.login.signInFormTitle'),
-      // [LoginStateEnum.REGISTER]: t('sys.login.signUpFormTitle'),
+      [LoginStateEnum.REGISTER]: t('sys.login.signUpFormTitle'),
       // [LoginStateEnum.MOBILE]: t('sys.login.mobileSignInFormTitle'),
       // [LoginStateEnum.QR_CODE]: t('sys.login.qrSignInFormTitle'),
     };

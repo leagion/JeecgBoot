@@ -52,8 +52,12 @@
         {{ t('sys.login.loginButton') }}
       </Button>
       <!-- <Button size="large" class="mt-4 enter-x" block @click="handleRegister">
-              {{ t('sys.login.registerButton') }}
-            </Button> -->
+        {{ t('sys.login.registerButton') }}
+      </Button> -->
+      <Button size="large" class="mt-4 enter-x" block >
+        {{ t('sys.login.registerButton') }}
+      </Button>
+
     </FormItem>
     <!-- <ARow class="enter-x">
       <ACol :md="8" :xs="24">
