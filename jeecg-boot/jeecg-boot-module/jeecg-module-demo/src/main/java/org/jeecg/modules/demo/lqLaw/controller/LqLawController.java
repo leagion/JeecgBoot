@@ -1,9 +1,6 @@
 package org.jeecg.modules.demo.lqLaw.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,6 +19,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.demo.lqUtils.DictService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -52,7 +50,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class LqLawController extends JeecgController<LqLaw, ILqLawService> {
 	@Autowired
 	private ILqLawService lqLawService;
-	
+	 @Autowired
+	 private DictService dictService;
 	/**
 	 * 分页列表查询
 	 *
@@ -155,6 +154,86 @@ public class LqLawController extends JeecgController<LqLaw, ILqLawService> {
 		}
 		return Result.OK(lqLaw);
 	}
+
+	 // 定义 type 排序顺序的列表
+	 private static final List<String> TYPE_ORDER = Arrays.asList("治安", "渔业", "缉私", "资源", "环境", "救援", "其他");
+	 // 定义 name 排序顺序的列表
+	 private static final List<String> NAME_ORDER = Arrays.asList("广东", "广西", "海南", "第三", "第四", "第五");
+
+	 @Operation(summary = "综合执法查询返回指定月份内的JSON数据")
+	 @GetMapping("/getJsondataByYear")
+	 public List<Map<String, Object>> getJsondata() {
+		 // 获取本年度 1 月 1 日的日期
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.set(Calendar.MONTH, Calendar.JANUARY);
+		 calendar.set(Calendar.DAY_OF_MONTH, 1);
+		 calendar.set(Calendar.HOUR_OF_DAY, 0);
+		 calendar.set(Calendar.MINUTE, 0);
+		 calendar.set(Calendar.SECOND, 0);
+		 calendar.set(Calendar.MILLISECOND, 0);
+		 Date startDate = calendar.getTime();
+
+		 // 创建查询条件
+		 QueryWrapper<LqLaw> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.ge("law_date", startDate); // 大于等于本年度 1 月 1 日
+
+		 // 根据条件查询数据
+		 List<LqLaw> lqlawList = lqLawService.list(queryWrapper);
+
+		 // 用于存储每种类型下每个单位的统计数据
+		 Map<String, Map<String, Integer>> typeNameValueMap = new LinkedHashMap<>();
+
+		 for (LqLaw lqLaw : lqlawList) {
+			 // 获取单位编码
+			 String unitCode = lqLaw.getUnitLaw();
+			 // 将单位编码转换为单位名称
+			 String unit = dictService.getDictTextByCodeAndValue("unit_name", unitCode);
+
+			 // 处理治安警情数量
+			 processData(typeNameValueMap, unit, lqLaw.getCriminal(), "治安");
+
+			 // 处理渔业警情数量
+			 processData(typeNameValueMap, unit, lqLaw.getIncident(), "渔业");
+
+			 // 处理缉私警情数量
+			 processData(typeNameValueMap, unit, lqLaw.getAntismuggling(), "缉私");
+
+			 // 处理海洋资源警情数量
+			 processData(typeNameValueMap, unit, lqLaw.getMarinefisheries(), "资源");
+
+			 // 处理环境开发警情数量
+			 processData(typeNameValueMap, unit, lqLaw.getMarineresources(), "环境");
+
+			 // 处理海洋救援警情数量
+			 processData(typeNameValueMap, unit, lqLaw.getMarineecological(), "救援");
+
+			 // 处理其他警情数量
+			 processData(typeNameValueMap, unit, lqLaw.getForeignLaw(), "其他");
+		 }
+
+		 List<Map<String, Object>> result = new ArrayList<>();
+		 // 按照指定顺序生成最终结果
+		 for (String type : TYPE_ORDER) {
+			 Map<String, Integer> nameValueMap = typeNameValueMap.getOrDefault(type, new HashMap<>());
+			 for (String name : NAME_ORDER) {
+				 Integer value = nameValueMap.getOrDefault(name, 0);
+				 Map<String, Object> dataMap = new HashMap<>();
+				 dataMap.put("name", name);
+				 dataMap.put("value", value);
+				 dataMap.put("type", type);
+				 result.add(dataMap);
+			 }
+		 }
+
+		 return result;
+	 }
+
+	 private void processData(Map<String, Map<String, Integer>> typeNameValueMap, String name, Integer value, String type) {
+		 if (value != null) {
+			 typeNameValueMap.computeIfAbsent(type, k -> new HashMap<>())
+					 .merge(name, value, Integer::sum);
+		 }
+	 }
 
     /**
     * 导出excel

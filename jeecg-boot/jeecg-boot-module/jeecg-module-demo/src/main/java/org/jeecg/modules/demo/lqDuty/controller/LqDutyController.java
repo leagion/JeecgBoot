@@ -1,9 +1,7 @@
 package org.jeecg.modules.demo.lqDuty.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,6 +20,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.demo.lqUtils.DictService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -52,7 +51,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class LqDutyController extends JeecgController<LqDuty, ILqDutyService> {
 	@Autowired
 	private ILqDutyService lqDutyService;
-	
+	 @Autowired
+	 private DictService dictService;
 	/**
 	 * 分页列表查询
 	 *
@@ -155,7 +155,62 @@ public class LqDutyController extends JeecgController<LqDuty, ILqDutyService> {
 		}
 		return Result.OK(lqDuty);
 	}
+	 @GetMapping("/getJsondataByDay")
+	 @Operation(summary= "值班人员查询返回最近一天的所有JSON数据")
+	 public List<List<String>> getJsondata() {
+		 // 获取今天的起始和结束时间
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.set(Calendar.HOUR_OF_DAY, 0);
+		 calendar.set(Calendar.MINUTE, 0);
+		 calendar.set(Calendar.SECOND, 0);
+		 calendar.set(Calendar.MILLISECOND, 0);
+		 Date startOfDay = calendar.getTime();
 
+		 calendar.set(Calendar.HOUR_OF_DAY, 23);
+		 calendar.set(Calendar.MINUTE, 59);
+		 calendar.set(Calendar.SECOND, 59);
+		 calendar.set(Calendar.MILLISECOND, 999);
+		 Date endOfDay = calendar.getTime();
+
+		 // 创建查询条件，筛选今天的数据
+		 QueryWrapper<LqDuty> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.between("duty_date", startOfDay, endOfDay);
+
+		 // 根据条件查询数据
+		 List<LqDuty> latestDuties = lqDutyService.list(queryWrapper);
+
+		 // 如果今天没有数据，查询数据库中最近一天的记录
+		 if (latestDuties.isEmpty()) {
+			 // 查询数据库中最大的值班日期
+			 LqDuty maxDateDuty = lqDutyService.getOne(new QueryWrapper<LqDuty>().select("MAX(duty_date) as duty_date"));
+			 if (maxDateDuty != null) {
+				 Date maxDate = maxDateDuty.getDutyDate();
+				 // 构造新的查询条件，查询最大日期的数据
+				 queryWrapper = new QueryWrapper<>();
+				 queryWrapper.eq("duty_date", maxDate);
+				 latestDuties = lqDutyService.list(queryWrapper);
+			 }
+		 }
+
+		 // 按照 unitCode 升序排序，处理 null 值
+		 latestDuties.sort(Comparator.nullsFirst(Comparator.comparing(LqDuty::getDutyunit)));
+
+		 List<List<String>> data = new ArrayList<>();
+		 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		 for (LqDuty duty : latestDuties) {
+			 List<String> row = new ArrayList<>();
+			 // 获取单位编码
+			 String unitCode = duty.getDutyunit();
+			 // 将单位编码转换为单位名称
+			 String unit = dictService.getDictTextByCodeAndValue("unit_name", unitCode);
+			 row.add(unit);
+			 row.add(duty.getDutyofficer());
+			 row.add(duty.getDutychief());
+			 row.add(duty.getComprehensiveplanning());
+			 data.add(row);
+		 }
+		 return data;
+	 }
     /**
     * 导出excel
     *

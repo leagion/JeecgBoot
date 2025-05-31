@@ -1,9 +1,8 @@
 package org.jeecg.modules.demo.lqWeathersea.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -177,4 +176,97 @@ public class LqWeatherseaController extends JeecgController<LqWeathersea, ILqWea
         return super.importExcel(request, response, LqWeathersea.class);
     }
 
+	 @Operation(summary = "气象海况查询返回最近一天的所有JSON数据")
+	 @GetMapping("/getJsondataByDay")
+	 public List<List<String>> getJsondata() {
+		 // 获取今天的起始和结束时间
+		 LocalDate today = LocalDate.now();
+		 LocalDateTime startOfToday = today.atStartOfDay();
+		 LocalDateTime endOfToday = today.atTime(LocalTime.MAX);
+
+		 // 将 LocalDateTime 转换为 Date
+		 Date startDateOfToday = Date.from(startOfToday.atZone(ZoneId.systemDefault()).toInstant());
+		 Date endDateOfToday = Date.from(endOfToday.atZone(ZoneId.systemDefault()).toInstant());
+
+		 // 创建查询条件，筛选今天的数据
+		 QueryWrapper<LqWeathersea> todayQueryWrapper = new QueryWrapper<>();
+		 todayQueryWrapper.between("record_time", startDateOfToday, endDateOfToday);
+
+		 // 根据条件查询今天的数据
+		 List<LqWeathersea> todayWeatherSeaData = lqWeatherseaService.list(todayQueryWrapper);
+
+		 List<LqWeathersea> latestWeatherSeaData;
+		 if (todayWeatherSeaData.isEmpty()) {
+			 // 今天没有数据，查询数据库中最近一天的数据
+			 // 先查询最近一天的最大日期
+			 QueryWrapper<LqWeathersea> maxDateQueryWrapper = new QueryWrapper<>();
+			 maxDateQueryWrapper.select("MAX(record_time) as record_time");
+			 LqWeathersea maxDateRecord = lqWeatherseaService.getOne(maxDateQueryWrapper);
+
+			 if (maxDateRecord != null && maxDateRecord.getRecordTime() != null) {
+				 Date maxDate = maxDateRecord.getRecordTime();
+				 // 将 Date 类型的 maxDate 转换为 LocalDateTime
+				 Instant instant = maxDate.toInstant();
+				 LocalDateTime maxDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+				 LocalDate maxDateLocal = maxDateTime.toLocalDate();
+
+				 // 获取最近一天的起始和结束时间
+				 LocalDateTime startOfMaxDate = maxDateLocal.atStartOfDay();
+				 LocalDateTime endOfMaxDate = maxDateLocal.atTime(LocalTime.MAX);
+
+				 // 将 LocalDateTime 转换为 Date
+				 Date startDateOfMaxDate = Date.from(startOfMaxDate.atZone(ZoneId.systemDefault()).toInstant());
+				 Date endDateOfMaxDate = Date.from(endOfMaxDate.atZone(ZoneId.systemDefault()).toInstant());
+
+				 // 根据最近一天的起始和结束时间查询当天所有记录
+				 QueryWrapper<LqWeathersea> latestDayQueryWrapper = new QueryWrapper<>();
+				 latestDayQueryWrapper.between("record_time", startDateOfMaxDate, endDateOfMaxDate);
+				 latestWeatherSeaData = lqWeatherseaService.list(latestDayQueryWrapper);
+			 } else {
+				 latestWeatherSeaData = new ArrayList<>();
+			 }
+		 } else {
+			 latestWeatherSeaData = todayWeatherSeaData;
+		 }
+
+		 List<List<String>> data = new ArrayList<>();
+		 DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM.dd");
+
+		 for (LqWeathersea weatherSea : latestWeatherSeaData) {
+			 List<String> row = new ArrayList<>();
+			 // 处理 recordTime
+			 // row.add(formatDate(weatherSea.getRecordTime(), dateFormat));
+			 // 处理 location
+			 row.add(getValueOrDefault(weatherSea.getLocation(), ""));
+			 // 处理 weather
+			 row.add(getValueOrDefault(weatherSea.getWeather(), ""));
+			 // 处理 windDirection
+			 row.add(getValueOrDefault(weatherSea.getWindDirection(), ""));
+			 // 处理 windScale
+			 row.add(getValueOrDefault(weatherSea.getWindScale() != null ? weatherSea.getWindScale().toString() : null, ""));
+			 // 处理 waveHeight
+			 row.add(getValueOrDefault(weatherSea.getWaveHeight() != null ? weatherSea.getWaveHeight().toString() : null, ""));
+			 // 处理 waveDirection
+			 row.add(getValueOrDefault(weatherSea.getWaveDirection(), ""));
+			 // 处理 seaCondition
+			 row.add(getValueOrDefault(weatherSea.getSeaCondition(), ""));
+			 // 处理 visibility
+			 row.add(getValueOrDefault(weatherSea.getVisibility() != null ? weatherSea.getVisibility().toString() : null, ""));
+			 data.add(row);
+		 }
+		 return data;
+	 }
+
+	 private String formatDate(Date date, DateTimeFormatter formatter) {
+		 if (date == null) {
+			 return "";
+		 }
+		 Instant instant = date.toInstant();
+		 LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+		 return localDateTime.format(formatter);
+	 }
+
+	 private String getValueOrDefault(String value, String defaultValue) {
+		 return value != null ? value : defaultValue;
+	 }
 }

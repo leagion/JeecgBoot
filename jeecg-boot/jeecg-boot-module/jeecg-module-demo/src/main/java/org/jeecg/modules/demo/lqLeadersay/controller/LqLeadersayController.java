@@ -1,9 +1,7 @@
 package org.jeecg.modules.demo.lqLeadersay.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +13,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.demo.lqLeadersay.entity.LqLeadersay;
+import org.jeecg.modules.demo.lqLeadersay.entity.ResultItemLeaderSay;
 import org.jeecg.modules.demo.lqLeadersay.service.ILqLeadersayService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -152,6 +151,165 @@ public class LqLeadersayController extends JeecgController<LqLeadersay, ILqLeade
 		return Result.OK(lqLeadersay);
 	}
 
+	 // 新增方法，返回自定义 JSON 结构
+	 /**
+	  * 生成并返回封装为 Map 格式的 JSON 数据
+	  * @return 包含指定格式数据的 Result 对象
+	  */
+	 @Operation(summary="首长指示查询返回JSON")
+	 @GetMapping("/getJsondata")
+	 public List<List<String>> getJsondata() {
+		 List<LqLeadersay> leadersayList = lqLeadersayService.list();
+		 List<List<String>> data = new ArrayList<>();
+		 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		 for (LqLeadersay leadersay : leadersayList) {
+			 List<String> row = new ArrayList<>();
+			 if (leadersay.getSayDate() != null) {
+				 row.add(dateFormat.format(leadersay.getSayDate()));
+			 } else {
+				 row.add("");
+			 }
+			 row.add(leadersay.getLeadername());
+			 row.add(leadersay.getLeadersay());
+			 data.add(row);
+		 }
+		 return data;
+	 }
+
+
+	 @Operation(summary="首长指示查询返回指定月份内的JSON数据")
+	 @GetMapping("/getJsondataByMonth0")
+	 public List<List<String>> getJsondata(@RequestParam(required = false, defaultValue = "6") int months) {
+		 // 计算指定月份前的日期
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.add(Calendar.MONTH, -months);
+		 Date monthsAgo = calendar.getTime();
+
+		 // 创建查询条件
+		 QueryWrapper<LqLeadersay> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.ge("say_date", monthsAgo); // 大于等于指定月份前的日期
+
+		 // 根据条件查询数据
+		 List<LqLeadersay> leadersayList = lqLeadersayService.list(queryWrapper);
+
+		 List<List<String>> data = new ArrayList<>();
+		 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM");
+		 for (LqLeadersay leadersay : leadersayList) {
+			 List<String> row = new ArrayList<>();
+			 if (leadersay.getSayDate() != null) {
+				 row.add(dateFormat.format(leadersay.getSayDate()));
+			 } else {
+				 row.add("");
+			 }
+			 row.add(leadersay.getLeadername());
+			 row.add(leadersay.getLeadersay());
+			 data.add(row);
+		 }
+		 return data;
+	 }
+
+	 @Operation(summary = "首长指示查询返回指定一周内的JSON数据")
+	 @GetMapping("/getJsondataByWeek")
+	 public List<ResultItemLeaderSay> getJsondataByWeek(@RequestParam(required = false, defaultValue = "3") int months) {
+		 // 计算指定月份前的日期
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.add(Calendar.MONTH, -months);
+		 Date monthsAgo = calendar.getTime();
+
+		 // 创建查询条件
+		 QueryWrapper<LqLeadersay> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.ge("say_date", monthsAgo); // 大于等于指定月份前的日期
+
+		 // 根据条件查询数据
+		 List<LqLeadersay> leadersayList = lqLeadersayService.list(queryWrapper);
+
+		 // 用于存储按周分组的数据
+		 Map<String, List<String>> weeklyDataMap = new TreeMap<>();
+		 SimpleDateFormat dateFormat = new SimpleDateFormat("MM.dd");
+
+		 for (LqLeadersay leadersay : leadersayList) {
+			 if (leadersay.getSayDate() != null) {
+				 Calendar recordCalendar = Calendar.getInstance();
+				 recordCalendar.setTime(leadersay.getSayDate());
+				 // 设置一周的第一天为周一
+				 recordCalendar.setFirstDayOfWeek(Calendar.MONDAY);
+				 recordCalendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+				 Date startOfWeek = recordCalendar.getTime();
+				 recordCalendar.add(Calendar.DAY_OF_WEEK, 6);
+				 Date endOfWeek = recordCalendar.getTime();
+
+				 // 格式化周的日期范围
+				 String weekRange = dateFormat.format(startOfWeek) + "-" + dateFormat.format(endOfWeek);
+
+				 // 拼接 leadername 和 leadersay
+				 String combinedInfo = leadersay.getLeadername() + ": " + leadersay.getLeadersay();
+
+				 // 将数据添加到对应的周分组中
+				 weeklyDataMap.computeIfAbsent(weekRange, k -> new ArrayList<>()).add(combinedInfo);
+			 }
+		 }
+
+		 // 整理最终结果
+		 List<ResultItemLeaderSay> data = new ArrayList<>();
+		 for (Map.Entry<String, List<String>> entry : weeklyDataMap.entrySet()) {
+			 String weekRange = entry.getKey();
+			 List<String> combinedInfos = entry.getValue();
+			 for (String info : combinedInfos) {
+				 data.add(new ResultItemLeaderSay(weekRange, info));
+			 }
+		 }
+
+		 // 对结果进行排序
+		 data.sort(Comparator.comparing(ResultItemLeaderSay::getYear));
+
+		 return data;
+
+	 }
+
+	 @Operation(summary = "首长指示查询返回指定月份内按年月汇聚的JSON数据")
+	 @GetMapping("/getJsondataByMonth")
+	 public List<ResultItemLeaderSay> getJsondataByMonth(@RequestParam(required = false, defaultValue = "6") int months) {
+		 // 计算指定月份前的日期
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.add(Calendar.MONTH, -months);
+		 Date monthsAgo = calendar.getTime();
+
+		 // 创建查询条件
+		 QueryWrapper<LqLeadersay> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.ge("say_date", monthsAgo); // 大于等于指定月份前的日期
+
+		 // 根据条件查询数据
+		 List<LqLeadersay> leadersayList = lqLeadersayService.list(queryWrapper);
+
+		 // 用于存储按年月分组的数据
+		 Map<String, List<String>> yearMonthDataMap = new TreeMap<>();
+		 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMM");
+
+		 for (LqLeadersay leadersay : leadersayList) {
+			 if (leadersay.getSayDate() != null) {
+				 // 格式化日期为年月
+				 String yearMonth = dateFormat.format(leadersay.getSayDate());
+
+				 // 拼接 leadername 和 leadersay
+				 String combinedInfo = leadersay.getLeadername() + ": " + leadersay.getLeadersay()+"\n";
+
+				 // 将数据添加到对应的年月分组中
+				 yearMonthDataMap.computeIfAbsent(yearMonth, k -> new ArrayList<>()).add(combinedInfo);
+			 }
+		 }
+
+		 // 整理最终结果
+		 List<ResultItemLeaderSay> data = new ArrayList<>();
+		 for (Map.Entry<String, List<String>> entry : yearMonthDataMap.entrySet()) {
+			 String yearMonth = entry.getKey();
+			 List<String> combinedInfos = entry.getValue();
+			 for (String info : combinedInfos) {
+				 data.add(new ResultItemLeaderSay(yearMonth, info));
+			 }
+		 }
+
+		 return data;
+	 }
     /**
     * 导出excel
     *

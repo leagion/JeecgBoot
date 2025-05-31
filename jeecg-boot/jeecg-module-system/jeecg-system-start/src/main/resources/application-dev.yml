@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8386
   undertow:
     # max-http-post-size: 10MB # 平替 tomcat server.tomcat.max-swallow-siz， undertow该值默认为-1
     worker-threads: 16  # 4核CPU标准配置
@@ -11,7 +11,7 @@ server:
     include-stacktrace: ALWAYS
     include-message: ALWAYS
   servlet:
-    context-path: /jeecg-boot
+    context-path: /aiccg
   compression:
     enabled: true
     min-response-size: 1024

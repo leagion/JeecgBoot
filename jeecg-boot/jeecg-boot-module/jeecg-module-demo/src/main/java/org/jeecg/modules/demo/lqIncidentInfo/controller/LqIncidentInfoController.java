@@ -1,9 +1,6 @@
 package org.jeecg.modules.demo.lqIncidentInfo.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +12,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.demo.lqIncidentInfo.entity.LqIncidentInfo;
+import org.jeecg.modules.demo.lqIncidentInfo.entity.StatisticResultItem;
 import org.jeecg.modules.demo.lqIncidentInfo.service.ILqIncidentInfoService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,6 +20,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 
+import org.jeecg.modules.demo.lqUtils.DictService;
 import org.jeecgframework.poi.excel.ExcelImportUtil;
 import org.jeecgframework.poi.excel.def.NormalExcelConstants;
 import org.jeecgframework.poi.excel.entity.ExportParams;
@@ -29,6 +28,7 @@ import org.jeecgframework.poi.excel.entity.ImportParams;
 import org.jeecgframework.poi.excel.view.JeecgEntityExcelView;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -52,7 +52,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 public class LqIncidentInfoController extends JeecgController<LqIncidentInfo, ILqIncidentInfoService> {
 	@Autowired
 	private ILqIncidentInfoService lqIncidentInfoService;
-	
+	 @Autowired
+	 private DictService dictService;
 	/**
 	 * 分页列表查询
 	 *
@@ -177,4 +178,114 @@ public class LqIncidentInfoController extends JeecgController<LqIncidentInfo, IL
         return super.importExcel(request, response, LqIncidentInfo.class);
     }
 
-}
+	 /**
+	  * 按事发地统计从指定日期到指定日期的事件数量，默认查询当年累计
+	  *
+	  * @param startDate 开始日期
+	  * @param endDate   结束日期
+	  * @return 统计结果列表
+	  */
+	 @Operation(summary="按事发地统计查询")
+	 @GetMapping("/statisticsByLocation")
+	 public List<StatisticResultItem> statisticsByLocation(
+			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+		 // 如果没有传入日期参数，默认查询当年累计数据
+		 if (startDate == null || endDate == null) {
+			 Calendar calendar = Calendar.getInstance();
+			 calendar.set(Calendar.DAY_OF_YEAR, 1);
+			 calendar.set(Calendar.HOUR_OF_DAY, 0);
+			 calendar.set(Calendar.MINUTE, 0);
+			 calendar.set(Calendar.SECOND, 0);
+			 calendar.set(Calendar.MILLISECOND, 0);
+			 startDate = calendar.getTime();
+			 calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR));
+			 calendar.set(Calendar.HOUR_OF_DAY, 23);
+			 calendar.set(Calendar.MINUTE, 59);
+			 calendar.set(Calendar.SECOND, 59);
+			 calendar.set(Calendar.MILLISECOND, 999);
+			 endDate = calendar.getTime();
+		 }
+		 // 创建查询条件
+		 QueryWrapper<LqIncidentInfo> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.between("start_time", startDate, endDate);
+		 // 查询指定日期范围内的数据
+		 List<LqIncidentInfo> allData = lqIncidentInfoService.list(queryWrapper);
+		 // 用于存储每个事发地的统计结果
+		 Map<String, Integer> locationCountMap = new HashMap<>();
+		 // 遍历数据列表，进行统计
+		 for (LqIncidentInfo item : allData) {
+			 String incidentLocation = item.getIncidentLocation();
+			 if (incidentLocation != null) {
+				 //	 locationCountMap.put(incidentLocation, locationCountMap.getOrDefault(incidentLocation, 0) + 1);
+				 // 将事发地编码转换为地点名称
+				 String locationName = dictService.getDictTextByCodeAndValue("placeName", incidentLocation);
+				 locationCountMap.put(locationName, locationCountMap.getOrDefault(locationName, 0) + 1);
+
+			 }
+		 }
+		 // 将结果从 Map 转换为列表
+		 List<StatisticResultItem> resultList = new ArrayList<>();
+		 for (Map.Entry<String, Integer> entry : locationCountMap.entrySet()) {
+			 resultList.add(new StatisticResultItem(entry.getValue(), entry.getKey()));
+		 }
+		 return resultList;
+	 }
+
+	 /**
+	  * 按国家统计从指定日期到指定日期的事件数量，默认查询当年累计
+	  *
+	  * @param startDate 开始日期
+	  * @param endDate   结束日期
+	  * @return 统计结果列表
+	  */
+	 @Operation(summary="按国家统计查询")
+	 @GetMapping("/statisticsByCountry")
+	 public List<StatisticResultItem> statisticsByCountry(
+			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+		 // 如果没有传入日期参数，默认查询当年累计数据
+		 if (startDate == null || endDate == null) {
+			 Calendar calendar = Calendar.getInstance();
+			 calendar.set(Calendar.DAY_OF_YEAR, 1);
+			 calendar.set(Calendar.HOUR_OF_DAY, 0);
+			 calendar.set(Calendar.MINUTE, 0);
+			 calendar.set(Calendar.SECOND, 0);
+			 calendar.set(Calendar.MILLISECOND, 0);
+			 startDate = calendar.getTime();
+			 calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR));
+			 calendar.set(Calendar.HOUR_OF_DAY, 23);
+			 calendar.set(Calendar.MINUTE, 59);
+			 calendar.set(Calendar.SECOND, 59);
+			 calendar.set(Calendar.MILLISECOND, 999);
+			 endDate = calendar.getTime();
+		 }
+		 // 创建查询条件
+		 QueryWrapper<LqIncidentInfo> queryWrapper = new QueryWrapper<>();
+		 queryWrapper.between("start_time", startDate, endDate);
+		 // 查询指定日期范围内的数据
+		 List<LqIncidentInfo> allData = lqIncidentInfoService.list(queryWrapper);
+		 // 用于存储每个国家的统计结果
+		 Map<String, Integer> countryCountMap = new HashMap<>();
+		 // 遍历数据列表，进行统计
+		 for (LqIncidentInfo item : allData) {
+			 String shipRegistrationCountry = item.getShipRegistrationCountry();
+			 if (shipRegistrationCountry != null) {
+
+
+
+				 // countryCountMap.put(shipRegistrationCountry, countryCountMap.getOrDefault(shipRegistrationCountry, 0) + 1);
+				 // 将国家编码转换为国家名称
+				 String countryName = dictService.getDictTextByCodeAndValue("countryName", shipRegistrationCountry);
+				 countryCountMap.put(countryName, countryCountMap.getOrDefault(countryName, 0) + 1);
+			 }
+		 }
+		 // 将结果从 Map 转换为列表
+		 List<StatisticResultItem> resultList = new ArrayList<>();
+		 for (Map.Entry<String, Integer> entry : countryCountMap.entrySet()) {
+			 resultList.add(new StatisticResultItem(entry.getValue(), entry.getKey()));
+		 }
+		 return resultList;
+	 }
+
+ }

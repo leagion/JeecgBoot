@@ -1,9 +1,7 @@
 package org.jeecg.modules.demo.lqVesselSupplyInfo.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +13,7 @@ import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
 import org.jeecg.common.util.oConvertUtils;
 import org.jeecg.modules.demo.lqVesselSupplyInfo.entity.LqVesselSupplyInfo;
+import org.jeecg.modules.demo.lqVesselSupplyInfo.entity.ResultItem;
 import org.jeecg.modules.demo.lqVesselSupplyInfo.service.ILqVesselSupplyInfoService;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -176,5 +175,115 @@ public class LqVesselSupplyInfoController extends JeecgController<LqVesselSupply
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, LqVesselSupplyInfo.class);
     }
+
+	 @Operation(summary="查询补给量")
+	 // 通用的数据查询逻辑
+	 private List<LqVesselSupplyInfo> getTargetDataList() {
+		 // 获取当天日期
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.set(Calendar.HOUR_OF_DAY, 0);
+		 calendar.set(Calendar.MINUTE, 0);
+		 calendar.set(Calendar.SECOND, 0);
+		 calendar.set(Calendar.MILLISECOND, 0);
+		 Date todayStart = calendar.getTime();
+		 calendar.set(Calendar.HOUR_OF_DAY, 23);
+		 calendar.set(Calendar.MINUTE, 59);
+		 calendar.set(Calendar.SECOND, 59);
+		 calendar.set(Calendar.MILLISECOND, 999);
+		 Date todayEnd = calendar.getTime();
+
+		 // 查询当天的数据
+		 QueryWrapper<LqVesselSupplyInfo> todayQueryWrapper = new QueryWrapper<>();
+		 todayQueryWrapper.between("report_time", todayStart, todayEnd);
+		 List<LqVesselSupplyInfo> todayDataList = lqVesselSupplyInfoService.list(todayQueryWrapper);
+		 List<LqVesselSupplyInfo> targetDataList;
+		 Map<String, LqVesselSupplyInfo> latestDataMap = new HashMap<>();
+
+		 if (!todayDataList.isEmpty()) {
+			 targetDataList = todayDataList;
+		 } else {
+			 // 如果当天没有数据，查询最近一天的数据
+			 QueryWrapper<LqVesselSupplyInfo> latestQueryWrapper = new QueryWrapper<>();
+			 latestQueryWrapper.orderByDesc("report_time");
+			 List<LqVesselSupplyInfo> allData = lqVesselSupplyInfoService.list(latestQueryWrapper);
+			 if (!allData.isEmpty()) {
+				 Date latestDate = allData.get(0).getReportTime();
+				 for (LqVesselSupplyInfo data : allData) {
+					 if (data.getReportTime().equals(latestDate)) {
+						 latestDataMap.put(data.getShipNumber(), data);
+					 } else {
+						 break;
+					 }
+				 }
+				 targetDataList = new ArrayList<>(latestDataMap.values());
+			 } else {
+				 // 如果都没有数据，返回空列表
+				 return new ArrayList<>();
+			 }
+		 }
+		 return targetDataList;
+	 }
+
+	 // 计算天数差
+	 private long calculateDayDifference(Date reportTime) {
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.set(Calendar.HOUR_OF_DAY, 0);
+		 calendar.set(Calendar.MINUTE, 0);
+		 calendar.set(Calendar.SECOND, 0);
+		 calendar.set(Calendar.MILLISECOND, 0);
+		 Date todayStart = calendar.getTime();
+		 return (todayStart.getTime() - reportTime.getTime()) / (1000 * 60 * 60 * 24);
+	 }
+
+	 // 查询主副食数据的 API 方法
+	 @Operation(summary="查询主副食")
+	 @GetMapping("/getStapleAndNonStapleFoodData")
+	 public List<ResultItem> getStapleAndNonStapleFoodData() {
+		 List<LqVesselSupplyInfo> targetDataList = getTargetDataList();
+		 if (targetDataList.isEmpty()) {
+			 return new ArrayList<>();
+		 }
+		 long dayDifference = calculateDayDifference(targetDataList.get(0).getReportTime());
+
+		 List<ResultItem> foodResultList = new ArrayList<>();
+		 for (LqVesselSupplyInfo targetData : targetDataList) {
+			 String shipNumber = targetData.getShipNumber();
+
+			 // 处理剩余主食
+			 Integer remainingStapleFoodDays = targetData.getRemainingStapleFoodDays();
+			 if (remainingStapleFoodDays != null) {
+				 remainingStapleFoodDays = Math.max(0, remainingStapleFoodDays - (int) dayDifference);
+				 foodResultList.add(new ResultItem(shipNumber, remainingStapleFoodDays, "主食"));
+			 }
+
+			 // 处理剩余副食
+			 Integer remainingNonStapleFoodDays = targetData.getRemainingNonStapleFoodDays();
+			 if (remainingNonStapleFoodDays != null) {
+				 remainingNonStapleFoodDays = Math.max(0, remainingNonStapleFoodDays - (int) dayDifference);
+				 foodResultList.add(new ResultItem(shipNumber, remainingNonStapleFoodDays, "副食"));
+			 }
+		 }
+		 return foodResultList;
+	 }
+
+	 // 查询燃油数据的 API 方法
+	 @Operation(summary="查询燃油数据")
+	 @GetMapping("/getFuelData")
+	 public List<ResultItem> getFuelData() {
+		 List<LqVesselSupplyInfo> targetDataList = getTargetDataList();
+		 if (targetDataList.isEmpty()) {
+			 return new ArrayList<>();
+		 }
+
+		 List<ResultItem> fuelResultList = new ArrayList<>();
+		 for (LqVesselSupplyInfo targetData : targetDataList) {
+			 String shipNumber = targetData.getShipNumber();
+			 BigDecimal remainingFuel = targetData.getRemainingFuel();
+			 if (remainingFuel != null) {
+				 fuelResultList.add(new ResultItem(shipNumber, remainingFuel.intValue(), "燃油"));
+			 }
+		 }
+		 return fuelResultList;
+	 }
 
 }

@@ -1,9 +1,10 @@
 package org.jeecg.modules.demo.lqFocus.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -151,8 +152,160 @@ public class LqFocusController extends JeecgController<LqFocus, ILqFocusService>
 		}
 		return Result.OK(lqFocus);
 	}
+	 @Operation(summary= "关注信息查询返回本周和上周的所有JSON数据")
+	 @GetMapping("/getJsondataBy2Week")
+	 public Map<String, String> getJsondata() {
+		 List<List<String>> data = new ArrayList<>();
 
-    /**
+		 // 获取本周和上周的日期范围
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.setFirstDayOfWeek(Calendar.MONDAY);
+
+		 // 计算上周的日期范围
+		 calendar.add(Calendar.WEEK_OF_YEAR, -1);
+		 calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		 calendar.set(Calendar.HOUR_OF_DAY, 0);
+		 calendar.set(Calendar.MINUTE, 0);
+		 calendar.set(Calendar.SECOND, 0);
+		 calendar.set(Calendar.MILLISECOND, 0);
+		 Date startOfLastWeek = calendar.getTime();
+
+		 calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		 calendar.set(Calendar.HOUR_OF_DAY, 23);
+		 calendar.set(Calendar.MINUTE, 59);
+		 calendar.set(Calendar.SECOND, 59);
+		 calendar.set(Calendar.MILLISECOND, 999);
+		 Date endOfLastWeek = calendar.getTime();
+
+		 // 查询上周的数据
+		 QueryWrapper<LqFocus> lastWeekQueryWrapper = new QueryWrapper<>();
+		 lastWeekQueryWrapper.between("create_time", startOfLastWeek, endOfLastWeek);
+		 List<LqFocus> lastWeekFocuses = lqFocusService.list(lastWeekQueryWrapper);
+		 data.addAll(processFocuses(lastWeekFocuses));
+
+		 // 计算本周的日期范围
+		 calendar.add(Calendar.WEEK_OF_YEAR, 1);
+		 calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		 calendar.set(Calendar.HOUR_OF_DAY, 0);
+		 calendar.set(Calendar.MINUTE, 0);
+		 calendar.set(Calendar.SECOND, 0);
+		 calendar.set(Calendar.MILLISECOND, 0);
+		 Date startOfThisWeek = calendar.getTime();
+
+		 calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		 calendar.set(Calendar.HOUR_OF_DAY, 23);
+		 calendar.set(Calendar.MINUTE, 59);
+		 calendar.set(Calendar.SECOND, 59);
+		 calendar.set(Calendar.MILLISECOND, 999);
+		 Date endOfThisWeek = calendar.getTime();
+
+		 // 查询本周的数据
+		 QueryWrapper<LqFocus> thisWeekQueryWrapper = new QueryWrapper<>();
+		 thisWeekQueryWrapper.between("create_time", startOfThisWeek, endOfThisWeek);
+		 List<LqFocus> thisWeekFocuses = lqFocusService.list(thisWeekQueryWrapper);
+		 data.addAll(processFocuses(thisWeekFocuses));
+
+		 StringBuilder sb = new StringBuilder();
+		 for (List<String> row : data) {
+			 if (row.size() >= 2) {
+				 String place = row.get(0);
+				 String content = row.get(1);
+				 String line = place + ": " + content;
+
+				 // 对拼接后的行进行处理，超过18个字符换行
+				 if (line.length() > 18) {
+					 for (int i = 0; i < line.length(); i += 18) {
+						 sb.append(line.substring(i, Math.min(i + 18, line.length()))).append("\n");
+					 }
+				 } else {
+					 sb.append(line).append("\n\n");
+				 }
+			 }
+		 }
+
+		 // 构建最终结果
+		 Map<String, String> result = new HashMap<>();
+		 result.put("value", sb.toString());
+		 return result;
+	 }
+
+	 @Operation(summary= "关注信息查询返回今日的所有JSON数据")
+	 @GetMapping("/getJsondataByToday")
+	 public Map<String, String> getJsondataByToday() {
+		 // 获取今日的日期范围
+		 LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+		 LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX);
+		 Date startDate = Date.from(startOfToday.atZone(ZoneId.systemDefault()).toInstant());
+		 Date endDate = Date.from(endOfToday.atZone(ZoneId.systemDefault()).toInstant());
+
+		 // 查询今日的数据
+		 QueryWrapper<LqFocus> todayQueryWrapper = new QueryWrapper<>();
+		 todayQueryWrapper.between("create_time", startDate, endDate);
+		 List<LqFocus> todayFocuses = lqFocusService.list(todayQueryWrapper);
+		 List<List<String>> data = processFocuses(todayFocuses);
+
+		 String resultString = formatData(data);
+
+		 // 构建最终结果
+		 Map<String, String> result = new HashMap<>();
+		 result.put("value", resultString);
+		 return result;
+	 }
+	 private String formatData(List<List<String>> data) {
+		 StringBuilder sb = new StringBuilder();
+		 for (List<String> row : data) {
+			 if (row.size() >= 2) {
+				 String place = row.get(0);
+				 String content = row.get(1);
+				 String line = place + ": " + content;
+
+				 // 计算冒号及之前字符长度，用于后续对齐
+				 int paddingLength = place.length() + 2;
+
+				 // 按换行符分割内容
+				 String[] lines = line.split("\n");
+				 for (int i = 0; i < lines.length; i++) {
+					 if (i > 0) {
+						 // 非第一行添加对齐空格
+						 for (int j = 0; j < paddingLength; j++) {
+							 sb.append(" ");
+						 }
+					 }
+					 sb.append(lines[i]).append("\n");
+				 }
+				 // 每个条目最后添加空行
+				 sb.append("\n");
+			 }
+		 }
+		 return sb.toString();
+	 }
+
+	 // 判断字符是否为标点符号（包括中文标点）
+	 private static boolean isPunctuation(char c ) {
+		 // 英文标点
+		 if (c  == ',' || c == '.' || c  == '!' || c  == '?' || c  == ';' || c  == ':') {
+			 return true;
+		 }
+		 // 中文标点
+		 if (c  == '，' || c  == '。' || c  == '！' || c  == '？' || c  == '；' || c  == '：' || c  == '、' || c  == '“' || c  == '”' || c  == '‘' || c  == '’') {
+			 return true;
+		 }
+		 return false;
+	 }
+
+	 private List<List<String>> processFocuses(List<LqFocus> focuses) {
+		 List<List<String>> result = new ArrayList<>();
+		 for (LqFocus focus : focuses) {
+			 List<String> row = new ArrayList<>();
+			 row.add(focus.getFocusplace());
+			 row.add(focus.getFocuscontent());
+			 result.add(row);
+		 }
+		 return result;
+	 }
+
+
+	 /**
     * 导出excel
     *
     * @param request
