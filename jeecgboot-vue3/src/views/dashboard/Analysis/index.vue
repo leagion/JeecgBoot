@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div id="cesiumContainer">
     <div class="map-controls">
       <a-select v-model:value="currentMap" style="width: 200px">
