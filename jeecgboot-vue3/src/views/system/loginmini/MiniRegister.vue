@@ -3,9 +3,9 @@
     <div class="aui-container">
       <div class="aui-form">
         <div class="aui-image">
-          <div class="aui-image-text">
+          <!-- <div class="aui-image-text">
             <img :src="jeecgAdTextImg" alt="" />
-          </div>
+          </div> -->
         </div>
         <div class="aui-formBox">
           <div class="aui-formWell">

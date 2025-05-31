@@ -9,7 +9,7 @@
         </div>
         <div class="aui-formBox aui-formEwm">
           <div class="aui-formWell">
-            <form>
+            <!-- <form>
               <div class="aui-flex aui-form-nav investment_title" style="padding-bottom: 19px">
                 <div class="aui-flex-box activeNav">{{t('sys.login.qrSignInFormTitle')}}</div>
               </div>
@@ -23,7 +23,7 @@
               <div class="aui-formButton">
                 <a class="aui-linek-code aui-link-register" @click="goBackHandleClick">{{t('sys.login.backSignIn')}}</a>
               </div>
-            </form>
+            </form> -->
           </div>
           <div class="aui-flex aui-third-text">
             <div class="aui-flex-box aui-third-border">
@@ -57,7 +57,7 @@
     </div>
   </div>
   <!-- 第三方登录相关弹框 -->
-  <ThirdModal ref="thirdModalRef"></ThirdModal>
+  <!-- <ThirdModal ref="thirdModalRef"></ThirdModal> -->
 </template>
 
 <script lang="ts" setup name="mini-code-login">
