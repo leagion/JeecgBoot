@@ -6,6 +6,7 @@
   import { onMounted, onUnmounted } from 'vue';
   import * as Cesium from 'cesium';
   import 'cesium/Build/Cesium/Widgets/widgets.css';
+ 
 
   // Cesium基础配置
   window.CESIUM_BASE_URL = '/node_modules/cesium/Build/Cesium/';
