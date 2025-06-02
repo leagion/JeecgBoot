@@ -31,10 +31,10 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
 
   const isBuild = command === 'build';
 
-  const serverOptions: Recordable = {}
+  const serverOptions: Recordable = {};
 
   // ----- [begin] 【JEECG作为乾坤子应用】 -----
-  const {VITE_GLOB_QIANKUN_MICRO_APP_NAME, VITE_GLOB_QIANKUN_MICRO_APP_ENTRY} = viteEnv;
+  const { VITE_GLOB_QIANKUN_MICRO_APP_NAME, VITE_GLOB_QIANKUN_MICRO_APP_ENTRY } = viteEnv;
   const isQiankunMicro = VITE_GLOB_QIANKUN_MICRO_APP_NAME != null && VITE_GLOB_QIANKUN_MICRO_APP_NAME !== '';
   if (isQiankunMicro && !isBuild) {
     serverOptions.cors = true;
@@ -98,10 +98,10 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
           manualChunks: {
             // vue vue-router合并打包
             'vue-vendor': ['vue', 'vue-router'],
-            'antd-vue-vendor': ['ant-design-vue','@ant-design/icons-vue','@ant-design/colors'],
-            'vxe-table-vendor': ['vxe-table','vxe-table-plugin-antd','xe-utils'],
+            'antd-vue-vendor': ['ant-design-vue', '@ant-design/icons-vue', '@ant-design/colors'],
+            'vxe-table-vendor': ['vxe-table', 'vxe-table-plugin-antd', 'xe-utils'],
             'emoji-mart-vue-fast': ['emoji-mart-vue-fast'],
-            'china-area-data-vendor': ['china-area-data']
+            'china-area-data-vendor': ['china-area-data'],
           },
         },
       },
