@@ -24,6 +24,15 @@ import { useAppStoreWithOut } from '@/store/modules/app';
 
 // 注册online模块lib
 import { registerPackages } from '/@/utils/monorepo/registerPackages';
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/reset.css'; // 全局引入Ant Design样式
+import './styles/main.css'; // 自定义样式
+
+// 引入Cesium样式
+import 'cesium/Build/Cesium/Widgets/widgets.css';
+
+// 设置Cesium基础URL
+window.CESIUM_BASE_URL = '/node_modules/cesium/Build/Cesium/';
 
 // 程序入口
 async function main() {
@@ -98,6 +107,7 @@ async function bootstrap(props?: MainAppProps) {
   app.mount(getMountContainer(props), true);
 
   // console.log(" vue3 app 加载完成！")
+  app.use(Antd);
 
   return app;
 }
