@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { useMeasurement } from './lqMeasureTool';
   import {
     EnvironmentOutlined,
@@ -67,6 +67,26 @@
       });
     }
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if ((e.key === 'm' || e.key === 'M') && props.viewer) {
+      startMeasure();
+    } else if ((e.key === 'c' || e.key === 'C') && props.viewer) {
+      clearMeasure();
+    } else if ((e.key === 'r' || e.key === 'R') && props.viewer) {
+      resetView();
+    } else if (e.key === 'f' || e.key === 'F') {
+      toggleCollapse();
+    }
+  }
+
+  onMounted(() => {
+    window.addEventListener('keydown', handleKeydown);
+  });
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown);
+  });
 </script>
 
 <style scoped>
