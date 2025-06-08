@@ -6,6 +6,7 @@ import * as Cesium from 'cesium';
 export interface MeasurementResult {
   distanceText: Ref<string>;
   startMeasure: () => void;
+  clearMeasure: () => void;
 }
 
 export function useMeasurement(viewer: Ref<Cesium.Viewer | null>): MeasurementResult {
@@ -32,7 +33,13 @@ export function useMeasurement(viewer: Ref<Cesium.Viewer | null>): MeasurementRe
     // 清理现有实体
     clearExistingEntities();
   }
-
+  function clearMeasure() {
+    distanceText.value = '';
+    points = [];
+    totalDistance = 0;
+    measureActive = false;
+    clearExistingEntities();
+  }
   // 清理历史实体
   function clearExistingEntities() {
     if (entity && viewer.value) {
@@ -123,7 +130,7 @@ export function useMeasurement(viewer: Ref<Cesium.Viewer | null>): MeasurementRe
           },
         });
       }
-    }, Cesium.ScreenSpaceEventType.MIDDLE_CLICK);
+    }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
   }
 
   // 计算距离
@@ -182,5 +189,6 @@ export function useMeasurement(viewer: Ref<Cesium.Viewer | null>): MeasurementRe
   return {
     distanceText,
     startMeasure,
+    clearMeasure,
   };
 }
