@@ -47,8 +47,8 @@
       <!-- 其他内容保持不变 -->
       <!-- 操作按钮 -->
       <div class="measure-actions">
-        <a-button type="primary" :loading="isMeasuring" @click="startMeasurement" class="frosted-btn">
-          {{ isMeasuring ? '测量中...' : '开始测量' }}
+        <a-button class="frosted-btn" type="primary" :loading="isMeasuring" :disabled="isMeasuring" @click="startMeasure">
+          {{ isMeasuring ? '正在测量' : '开始测量' }}
         </a-button>
         <a-button danger @click="clearMeasurement" class="frosted-btn">
           <delete-outlined />
@@ -90,6 +90,7 @@
     totalDistance: string;
     area: string;
     isPanelOpen: boolean;
+    isMeasuring: boolean;
     viewerContainer: HTMLElement;
   }>();
 
@@ -120,9 +121,6 @@
         ];
   });
 
-  // 测量状态
-  const isMeasuring = ref(false);
-
   // 检查是否有测量结果
   const hasResults = computed(() => {
     return props.currentMeasureType === 'distance' ? props.totalDistance || props.distanceResults.length > 0 : !!props.area;
@@ -149,15 +147,13 @@
   }
 
   // 开始测量
-  function startMeasurement() {
-    isMeasuring.value = true;
+  function startMeasure() {
     emit('startMeasure');
   }
 
   // 清除测量
   function clearMeasurement() {
     emit('clearMeasure');
-    isMeasuring.value = false; // 确保清除后重置测量状态
   }
 
   // 面板拖拽

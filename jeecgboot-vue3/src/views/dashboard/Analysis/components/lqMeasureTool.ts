@@ -475,6 +475,7 @@ export function useMeasurement(viewer: ComputedRef<any>) {
     if (entity) {
       measureEntities.value.push(entity);
     }
+
     // 销毁事件处理器
     if (handler) {
       handler.destroy();
