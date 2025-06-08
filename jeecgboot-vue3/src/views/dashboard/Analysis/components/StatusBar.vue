@@ -239,11 +239,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 90px;
+    /* height: 90px;  // 删除这一行 */
+    min-height: 90px; /* 可选，保证最小高度 */
     background: rgba(30, 30, 30, 0.7);
     color: #fff;
     display: flex;
-
+    flex-wrap: wrap; /* 允许自动换行 */
     justify-content: space-between;
     align-items: flex-center;
     gap: 6px;
@@ -252,29 +253,34 @@
     z-index: 9999;
     pointer-events: auto;
     user-select: none;
+    transition: height 0.2s;
   }
   .bar-section {
-    flex: 1;
-    text-align: center;
+    flex: 1 1 260px; /* 最小宽度260px，允许收缩和增长 */
+    text-align: left;
     min-width: 240px;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.8;
+    margin-bottom: 2px;
   }
   .wide-section {
     min-width: 31%;
     text-align: left;
+    white-space: normal; /* 允许换行 */
   }
   .bar-section3 {
     flex: 1;
     text-align: left;
     min-width: 23%;
+    white-space: normal; /* 允许换行 */
   }
   .bar-section4 {
     flex: 1;
     text-align: left;
     min-width: 10%;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
   }

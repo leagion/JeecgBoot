@@ -30,7 +30,7 @@
           <BarcodeOutlined />
           测量
         </a-button>
-        <a-button class="frosted-btn" @click="locateHome" :disabled="!viewer" title="快捷键：H">
+        <a-button class="frosted-btn" @click="openLocationPanel" :disabled="!viewer" title="快捷键：H">
           <aim-outlined />
           定位
         </a-button>
@@ -59,10 +59,12 @@
     @setUnit="setUnit"
     @panelToggle="togglePanel"
   />
+  <!-- 定位面板 -->
+  <LocationPanel v-if="viewer" :isPanelOpen="showLocationPanel" :viewer="viewer" @panelToggle="showLocationPanel = false" />
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, onMounted, onUnmounted } from 'vue';
+  import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
   import { useMeasurement } from './LqMeasureTool';
   import {
     MenuFoldOutlined,
@@ -74,8 +76,10 @@
     SettingOutlined,
   } from '@ant-design/icons-vue';
   import MeasurementPanel from './MeasurementPanel.vue';
+  import LocationPanel from './LocationPanel.vue';
 
   const props = defineProps<{ viewer: any }>();
+
   const {
     distanceResults,
     totalDistance,
@@ -88,6 +92,7 @@
     currentUnit,
     isPanelOpen,
     togglePanel,
+    isMeasuring,
   } = useMeasurement(computed(() => props.viewer));
 
   const isCollapsed = ref(false);
@@ -105,6 +110,13 @@
   function handleMeasureEnd() {
     isMeasuring.value = false;
   }
+  watch(
+    () => props.isMeasuring,
+    (newVal) => {
+      // 可选：添加调试日志
+      console.log('isMeasuring updated:', newVal);
+    }
+  );
   // 放大
   function zoomIn() {
     if (props.viewer) {
@@ -127,14 +139,9 @@
     togglePanel(true);
   }
   // 定位
-  function locateHome() {
-    if (props.viewer) {
-      props.viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(112, 15, 2000000),
-        orientation: { heading: 0, roll: 0 },
-        duration: 2,
-      });
-    }
+  const showLocationPanel = ref(false);
+  function openLocationPanel() {
+    showLocationPanel.value = true;
   }
   // 设置
   function openSettingPanel() {
@@ -178,7 +185,7 @@
     window.removeEventListener('touchmove', onDragging);
     window.removeEventListener('touchend', onDragEnd);
   }
-  const isMeasuring = ref(false);
+
   function handleKeydown(e: KeyboardEvent) {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
     switch (e.key) {
@@ -206,7 +213,7 @@
         break;
       case 'h':
       case 'H':
-        locateHome();
+        openLocationPanel();
         break;
       case 's':
       case 'S':

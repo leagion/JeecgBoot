@@ -13,7 +13,7 @@ export function useMeasurement(viewer: ComputedRef<any>) {
 
   // 面板状态
   const isPanelOpen = ref(false);
-
+  const isMeasuring = ref(false);
   // 测量相关实体
   const measureEntities = ref<Cesium.Entity[]>([]);
   let activeShapePoints = ref<Cesium.Cartesian3[]>([]);
@@ -47,6 +47,7 @@ export function useMeasurement(viewer: ComputedRef<any>) {
 
   // 开始测量
   function startMeasure(type: string = currentMeasureType.value) {
+    isMeasuring.value = true; // 添加状态更新
     if (!viewer.value) return;
 
     setMeasureType(type);
@@ -356,6 +357,7 @@ export function useMeasurement(viewer: ComputedRef<any>) {
   }
   // 清除测量
   function clearMeasure() {
+    isMeasuring.value = false;
     if (!viewer.value) return;
     // 移除所有测量相关实体
     measureEntities.value.forEach((entity) => {
@@ -483,6 +485,7 @@ export function useMeasurement(viewer: ComputedRef<any>) {
     }
   }
   return {
+    isMeasuring,
     distanceResults,
     totalDistance,
     area,

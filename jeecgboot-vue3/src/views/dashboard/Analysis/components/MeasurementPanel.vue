@@ -47,10 +47,10 @@
       <!-- 其他内容保持不变 -->
       <!-- 操作按钮 -->
       <div class="measure-actions">
-        <a-button class="frosted-btn" type="primary" :loading="isMeasuring" :disabled="isMeasuring" @click="startMeasure">
+        <a-button class="frosted-btn" type="primary" :loading="isMeasuring" :disabled="isMeasuring" @click="$emit('startMeasure')">
           {{ isMeasuring ? '正在测量' : '开始测量' }}
         </a-button>
-        <a-button danger @click="clearMeasurement" class="frosted-btn">
+        <a-button danger @click="$emit('clearMeasure')" class="frosted-btn">
           <delete-outlined />
           <span>清除测量</span>
         </a-button>
