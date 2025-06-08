@@ -8,7 +8,7 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import CesiumMap from './components/CesiumMap.vue';
-  import MeasureToolbar from './components/MeasureToolbar.vue';
+  import MeasureToolbar from './components/LqToolbar.vue';
   const cesiumMapRef = ref();
 </script>
 
