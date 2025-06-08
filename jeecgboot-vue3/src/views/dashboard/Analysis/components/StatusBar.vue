@@ -1,10 +1,12 @@
 <template>
   <div class="status-bar">
     <div class="bar-section wide-section">
-      视角（经度:{{ cameraLonDMS }} 纬度:{{ cameraLatDMS }} 视高:{{ cameraHeightKm }}km 方向:{{ cameraHeading }}° 俯仰:{{ cameraPitch }}°）
+      视角（lon:{{ cameraLonDMS }} lat:{{ cameraLatDMS }} 视高:{{ cameraHeightKm }}km 方向:{{ cameraHeading }}° 俯仰:{{ cameraPitch }}°）
     </div>
-    <div class="bar-section wide-section"> 目标（经度:{{ targetLonDMS }} 纬度:{{ targetLatDMS }}，{{ targetLon }} {{ targetLat }}） </div>
-    <div class="bar-section bar-section3"> 鼠标（经度:{{ mouseLonDMS }} 纬度:{{ mouseLatDMS }} 海拔:{{ mouseHeight }}） </div>
+    <div class="bar-section wide-section" @dblclick="copyTargetCoords">
+      双击目标（lon:{{ targetLonDMS }} lat:{{ targetLatDMS }}，{{ targetLon }} {{ targetLat }}）
+    </div>
+    <div class="bar-section bar-section3"> 鼠标（lon:{{ mouseLonDMS }} lat:{{ mouseLatDMS }} 海拔:{{ mouseHeight }}） </div>
     <div class="bar-section bar-section4"> 层级:13 {{ now }} </div>
   </div>
 </template>
@@ -14,6 +16,7 @@
   import * as Cesium from 'cesium';
 
   const props = defineProps<{ viewer?: Cesium.Viewer }>();
+  let flashPoint: { horizontal: Cesium.Entity; vertical: Cesium.Entity } | null = null;
 
   // 视角（相机）参数
   const cameraLon = ref('--');
@@ -42,6 +45,8 @@
   const now = ref('');
 
   let handler: Cesium.ScreenSpaceEventHandler | null = null;
+  let dblClickHandler: Cesium.ScreenSpaceEventHandler | null = null;
+  // 声明类型
 
   // 监听 viewer 初始化
   watch(
@@ -64,8 +69,8 @@
           const carto = Cesium.Cartographic.fromCartesian(cartesian);
           const lon = Cesium.Math.toDegrees(carto.longitude);
           const lat = Cesium.Math.toDegrees(carto.latitude);
-          mouseLon.value = lon.toFixed(6);
-          mouseLat.value = lat.toFixed(6);
+          mouseLon.value = lon.toFixed(3);
+          mouseLat.value = lat.toFixed(3);
           mouseLonDMS.value = toDMS(lon);
           mouseLatDMS.value = toDMS(lat);
           mouseHeight.value = carto.height ? carto.height.toFixed(2) : '0.00';
@@ -73,10 +78,74 @@
           mouseLon.value = mouseLat.value = mouseLonDMS.value = mouseLatDMS.value = mouseHeight.value = '--';
         }
       }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+      // 双击获取目标经纬度
+      if (dblClickHandler) {
+        dblClickHandler.destroy();
+        dblClickHandler = null;
+      }
+      dblClickHandler = new Cesium.ScreenSpaceEventHandler(val.scene.canvas);
+      dblClickHandler.setInputAction((movement: any) => {
+        const cartesian = val.scene.pickPosition(movement.position);
+        if (cartesian) {
+          const carto = Cesium.Cartographic.fromCartesian(cartesian);
+          const tLon = Cesium.Math.toDegrees(carto.longitude);
+          const tLat = Cesium.Math.toDegrees(carto.latitude);
+          targetLon.value = tLon.toFixed(3);
+          targetLat.value = tLat.toFixed(3);
+          targetLonDMS.value = toDMS(tLon);
+          targetLatDMS.value = toDMS(tLat);
+
+          // --- 十字标记 ---
+          if (flashPoint) {
+            if (flashPoint.horizontal) val.entities.remove(flashPoint.horizontal);
+            if (flashPoint.vertical) val.entities.remove(flashPoint.vertical);
+            flashPoint = null;
+          }
+          const crossSize = 10000; // 十字标记大小
+          const transform = Cesium.Transforms.eastNorthUpToFixedFrame(cartesian);
+          const left = Cesium.Matrix4.multiplyByPoint(transform, new Cesium.Cartesian3(-crossSize, 0, 0), new Cesium.Cartesian3());
+          const right = Cesium.Matrix4.multiplyByPoint(transform, new Cesium.Cartesian3(crossSize, 0, 0), new Cesium.Cartesian3());
+          const top = Cesium.Matrix4.multiplyByPoint(transform, new Cesium.Cartesian3(0, crossSize, 0), new Cesium.Cartesian3());
+          const bottom = Cesium.Matrix4.multiplyByPoint(transform, new Cesium.Cartesian3(0, -crossSize, 0), new Cesium.Cartesian3());
+
+          const horizontal = val.entities.add({
+            polyline: {
+              positions: [left, right],
+              width: 3,
+              material: Cesium.Color.WHITE,
+              clampToGround: true,
+            },
+          });
+          const vertical = val.entities.add({
+            polyline: {
+              positions: [top, bottom],
+              width: 3,
+              material: Cesium.Color.WHITE,
+              clampToGround: true,
+            },
+          });
+          flashPoint = { horizontal, vertical };
+          setTimeout(() => {
+            if (flashPoint) {
+              val.entities.remove(flashPoint.horizontal);
+              val.entities.remove(flashPoint.vertical);
+              flashPoint = null;
+            }
+          }, 1000);
+          // --- 十字标记 end ---
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
     },
     { immediate: true }
   );
-
+  function copyTargetCoords() {
+    const text = `经度: ${targetLonDMS.value} / ${targetLon.value}\n纬度: ${targetLatDMS.value} / ${targetLat.value}`;
+    navigator.clipboard.writeText(text).then(() => {
+      alert(`已复制坐标：\n${text}`);
+      // 如果用 Element Plus，可用 ElMessage.success(`已复制坐标：${text}`)
+    });
+  }
   // 度转度分秒
   function toDMS(val: string | number) {
     if (val === '--' || val === undefined) return '--';
@@ -170,7 +239,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 86px;
+    height: 90px;
     background: rgba(30, 30, 30, 0.7);
     color: #fff;
     display: flex;
@@ -179,9 +248,9 @@
     align-items: flex-center;
     gap: 6px;
     padding: 0 20px;
-    font-size: 16px;
+    font-size: 17px;
     z-index: 9999;
-    pointer-events: none;
+    pointer-events: auto;
     user-select: none;
   }
   .bar-section {
@@ -193,16 +262,18 @@
     text-overflow: ellipsis;
   }
   .wide-section {
-    min-width: 30%;
+    min-width: 31%;
+    text-align: left;
   }
   .bar-section3 {
     flex: 1;
-    min-width: 25%;
+    text-align: left;
+    min-width: 23%;
   }
   .bar-section4 {
     flex: 1;
-    text-align: center;
-    min-width: 80px;
+    text-align: left;
+    min-width: 10%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
