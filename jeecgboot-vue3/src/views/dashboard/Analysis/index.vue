@@ -1,11 +1,15 @@
 <template>
-  <div id="app">
-    <CesiumMap />
+  <div style="width: 100vw; height: 100vh; position: relative">
+    <CesiumMap ref="cesiumMapRef" />
+    <MeasureToolbar :viewer="cesiumMapRef?.viewer" />
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { ref } from 'vue';
   import CesiumMap from './components/CesiumMap.vue';
+  import MeasureToolbar from './components/MeasureToolbar.vue';
+  const cesiumMapRef = ref();
 </script>
 
 <style>
