@@ -65,7 +65,6 @@
   import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { useMeasurement } from './LqMeasureTool';
   import {
-    EnvironmentOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     PlusOutlined,

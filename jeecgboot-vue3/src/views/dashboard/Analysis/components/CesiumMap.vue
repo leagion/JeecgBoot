@@ -1,11 +1,13 @@
 <template>
-  <div id="cesiumContainer" class="cesium-map-container"></div>
+  <div class="cesium-map-container">
+    <div id="cesiumContainer" class="cesium-canvas"></div>
+  </div>
 </template>
 
 <script lang="ts" setup>
   import { ref, onMounted, onUnmounted, defineExpose } from 'vue';
   import * as Cesium from 'cesium';
-
+  import StatusBar from './StatusBar.vue';
   window.CESIUM_BASE_URL = '/node_modules/cesium/Build/Cesium/';
   Cesium.buildModuleUrl.setBaseUrl('/node_modules/cesium/Build/Cesium/');
 
@@ -52,8 +54,16 @@
 
 <style scoped>
   .cesium-map-container {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    left: 0;
+    top: 0;
+    overflow: hidden;
+  }
+  .cesium-canvas {
+    width: 100vw;
+    height: 100vh;
     position: absolute;
     left: 0;
     top: 0;

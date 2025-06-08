@@ -1,0 +1,210 @@
+<template>
+  <div class="status-bar">
+    <div class="bar-section wide-section">
+      视角（经度:{{ cameraLonDMS }} 纬度:{{ cameraLatDMS }} 视高:{{ cameraHeightKm }}km 方向:{{ cameraHeading }}° 俯仰:{{ cameraPitch }}°）
+    </div>
+    <div class="bar-section wide-section"> 目标（经度:{{ targetLonDMS }} 纬度:{{ targetLatDMS }}，{{ targetLon }} {{ targetLat }}） </div>
+    <div class="bar-section bar-section3"> 鼠标（经度:{{ mouseLonDMS }} 纬度:{{ mouseLatDMS }} 海拔:{{ mouseHeight }}） </div>
+    <div class="bar-section bar-section4"> 层级:13 {{ now }} </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+  import { ref, onMounted, onUnmounted, watch } from 'vue';
+  import * as Cesium from 'cesium';
+
+  const props = defineProps<{ viewer?: Cesium.Viewer }>();
+
+  // 视角（相机）参数
+  const cameraLon = ref('--');
+  const cameraLat = ref('--');
+  const cameraHeight = ref('--');
+  const cameraHeightKm = ref('--');
+  const cameraLonDMS = ref('--');
+  const cameraLatDMS = ref('--');
+  const cameraHeading = ref('--');
+  const cameraPitch = ref('--');
+
+  // 目标点参数
+  const targetLon = ref('--');
+  const targetLat = ref('--');
+  const targetLonDMS = ref('--');
+  const targetLatDMS = ref('--');
+
+  // 鼠标参数
+  const mouseLon = ref('--');
+  const mouseLat = ref('--');
+  const mouseHeight = ref('--');
+  const mouseLonDMS = ref('--');
+  const mouseLatDMS = ref('--');
+
+  // 当前时间
+  const now = ref('');
+
+  let handler: Cesium.ScreenSpaceEventHandler | null = null;
+
+  // 监听 viewer 初始化
+  watch(
+    () => props.viewer,
+    (val) => {
+      if (!val) return;
+
+      // 避免重复注册
+      if (handler) {
+        handler.destroy();
+        handler = null;
+      }
+      val.camera.changed.addEventListener(updateCameraInfo);
+      updateCameraInfo();
+
+      handler = new Cesium.ScreenSpaceEventHandler(val.scene.canvas);
+      handler.setInputAction((movement: any) => {
+        const cartesian = val.scene.pickPosition(movement.endPosition);
+        if (cartesian) {
+          const carto = Cesium.Cartographic.fromCartesian(cartesian);
+          const lon = Cesium.Math.toDegrees(carto.longitude);
+          const lat = Cesium.Math.toDegrees(carto.latitude);
+          mouseLon.value = lon.toFixed(6);
+          mouseLat.value = lat.toFixed(6);
+          mouseLonDMS.value = toDMS(lon);
+          mouseLatDMS.value = toDMS(lat);
+          mouseHeight.value = carto.height ? carto.height.toFixed(2) : '0.00';
+        } else {
+          mouseLon.value = mouseLat.value = mouseLonDMS.value = mouseLatDMS.value = mouseHeight.value = '--';
+        }
+      }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    },
+    { immediate: true }
+  );
+
+  // 度转度分秒
+  function toDMS(val: string | number) {
+    if (val === '--' || val === undefined) return '--';
+    const num = typeof val === 'string' ? parseFloat(val) : val;
+    const d = Math.floor(num);
+    const m = Math.floor((Math.abs(num) - Math.abs(d)) * 60);
+    const s = (((Math.abs(num) - Math.abs(d)) * 60 - m) * 60).toFixed(2);
+    return `${d}°${m}′${s}″`;
+  }
+
+  function updateCameraInfo() {
+    if (!props.viewer) return;
+    const camera = props.viewer.camera;
+    const carto = Cesium.Cartographic.fromCartesian(camera.position);
+    const lon = Cesium.Math.toDegrees(carto.longitude);
+    const lat = Cesium.Math.toDegrees(carto.latitude);
+    cameraLon.value = lon.toFixed(6);
+    cameraLat.value = lat.toFixed(6);
+    cameraHeight.value = carto.height.toFixed(0);
+    cameraHeightKm.value = (carto.height / 1000).toFixed(0);
+    cameraLonDMS.value = toDMS(lon);
+    cameraLatDMS.value = toDMS(lat);
+
+    cameraHeading.value = Cesium.Math.toDegrees(camera.heading).toFixed(0);
+    cameraPitch.value = Cesium.Math.toDegrees(camera.pitch).toFixed(0);
+
+    // 计算目标点（相机视线中心点）
+    const ray = camera.getPickRay(new Cesium.Cartesian2(props.viewer.scene.canvas.width / 2, props.viewer.scene.canvas.height / 2));
+    if (ray) {
+      const target = props.viewer.scene.globe.pick(ray, props.viewer.scene);
+      if (target) {
+        const targetCarto = Cesium.Cartographic.fromCartesian(target);
+        const tLon = Cesium.Math.toDegrees(targetCarto.longitude);
+        const tLat = Cesium.Math.toDegrees(targetCarto.latitude);
+        targetLon.value = tLon.toFixed(6);
+        targetLat.value = tLat.toFixed(6);
+        targetLonDMS.value = toDMS(tLon);
+        targetLatDMS.value = toDMS(tLat);
+      } else {
+        targetLon.value = targetLat.value = targetLonDMS.value = targetLatDMS.value = '--';
+      }
+    }
+  }
+
+  function updateTime() {
+    const d = new Date();
+    now.value = d.toLocaleString();
+  }
+
+  onMounted(() => {
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    if (!props.viewer) return;
+
+    props.viewer.camera.changed.addEventListener(updateCameraInfo);
+    updateCameraInfo();
+
+    handler = new Cesium.ScreenSpaceEventHandler(props.viewer.scene.canvas);
+    handler.setInputAction((movement: any) => {
+      const cartesian = props.viewer!.scene.pickPosition(movement.endPosition);
+      if (cartesian) {
+        const carto = Cesium.Cartographic.fromCartesian(cartesian);
+        const lon = Cesium.Math.toDegrees(carto.longitude);
+        const lat = Cesium.Math.toDegrees(carto.latitude);
+        mouseLon.value = lon.toFixed(6);
+        mouseLat.value = lat.toFixed(6);
+        mouseLonDMS.value = toDMS(lon);
+        mouseLatDMS.value = toDMS(lat);
+        mouseHeight.value = carto.height ? carto.height.toFixed(2) : '0.00';
+      } else {
+        mouseLon.value = mouseLat.value = mouseLonDMS.value = mouseLatDMS.value = mouseHeight.value = '--';
+      }
+    }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+  });
+
+  onUnmounted(() => {
+    if (handler) {
+      handler.destroy();
+      handler = null;
+    }
+    if (props.viewer) {
+      props.viewer.camera.changed.removeEventListener(updateCameraInfo);
+    }
+  });
+</script>
+
+<style scoped>
+  .status-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 86px;
+    background: rgba(30, 30, 30, 0.7);
+    color: #fff;
+    display: flex;
+
+    justify-content: space-between;
+    align-items: flex-center;
+    gap: 6px;
+    padding: 0 20px;
+    font-size: 16px;
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+  }
+  .bar-section {
+    flex: 1;
+    text-align: center;
+    min-width: 240px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .wide-section {
+    min-width: 30%;
+  }
+  .bar-section3 {
+    flex: 1;
+    min-width: 25%;
+  }
+  .bar-section4 {
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
