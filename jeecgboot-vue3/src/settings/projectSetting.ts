@@ -72,15 +72,15 @@ const setting: ProjectConfig = {
     // 背景色
     bgColor: HEADER_PRESET_BG_COLOR_LIST[4],
     // 固定头部
-    fixed: true,
+    fixed: false,
     // 是否显示顶部
     show: true,
     // 主题
     theme: ThemeEnum.LIGHT,
     // 开启锁屏功能
-    useLockPage: false,
+    useLockPage: true,
     // 显示全屏按钮
-    showFullScreen: false,
+    showFullScreen: true,
     // 显示官网按钮
     showDoc: false,
     // 显示消息中心按钮
@@ -96,12 +96,12 @@ const setting: ProjectConfig = {
     // 是否固定住左侧菜单
     fixed: true,
     // 菜单折叠
-    collapsed: false,
+    collapsed: true,
     // 折叠菜单时候是否显示菜单名
-    collapsedShowTitle: false,
+    collapsedShowTitle: true,
     // 是否可拖拽
     // Only limited to the opening of the left menu, the mouse has a drag bar on the right side of the menu
-    canDrag: false,
+    canDrag: true,
     // Whether to show no dom
     show: true,
     // Whether to show dom

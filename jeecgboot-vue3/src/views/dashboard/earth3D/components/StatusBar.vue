@@ -1,13 +1,14 @@
 <template>
   <div class="status-bar">
-    <div class="bar-section wide-section">
-      视角（lon:{{ cameraLonDMS }} lat:{{ cameraLatDMS }} 视高:{{ cameraHeightKm }}km 方向:{{ cameraHeading }}° 俯仰:{{ cameraPitch }}°）
+    <div class="bar-section1">
+      <!-- 视角（lon:{{ cameraLonDMS }} lat:{{ cameraLatDMS }} 视高:{{ cameraHeightKm }}km 方向:{{ cameraHeading }}° 俯仰:{{ cameraPitch }}°） -->
+      视角（ 视高:{{ cameraHeightKm }}km 方向:{{ cameraHeading }}° 俯仰:{{ cameraPitch }}° ）
     </div>
-    <div class="bar-section wide-section" @dblclick="copyTargetCoords">
+    <div class="bar-section2" @dblclick="copyTargetCoords">
       双击目标（lon:{{ targetLonDMS }} lat:{{ targetLatDMS }}，{{ targetLon }} {{ targetLat }}）
     </div>
-    <div class="bar-section bar-section3"> 鼠标（lon:{{ mouseLonDMS }} lat:{{ mouseLatDMS }} 海拔:{{ mouseHeight }}） </div>
-    <div class="bar-section bar-section4"> 层级:13 {{ now }} </div>
+    <div class="bar-section3"> 鼠标（lon:{{ mouseLonDMS }} lat:{{ mouseLatDMS }} 海拔:{{ mouseHeight }}） </div>
+    <div class="bar-section4"> {{ now }} </div>
   </div>
 </template>
 
@@ -169,8 +170,10 @@
     cameraLonDMS.value = toDMS(lon);
     cameraLatDMS.value = toDMS(lat);
 
-    cameraHeading.value = Cesium.Math.toDegrees(camera.heading).toFixed(0);
-    cameraPitch.value = Cesium.Math.toDegrees(camera.pitch).toFixed(0);
+    // 修正：加有效性判断，防止报错
+    cameraHeading.value =
+      typeof camera.heading === 'number' && Number.isFinite(camera.heading) ? Cesium.Math.toDegrees(camera.heading).toFixed(0) : '--';
+    cameraPitch.value = typeof camera.pitch === 'number' && Number.isFinite(camera.pitch) ? Cesium.Math.toDegrees(camera.pitch).toFixed(0) : '--';
 
     // 计算目标点（相机视线中心点）
     const ray = camera.getPickRay(new Cesium.Cartesian2(props.viewer.scene.canvas.width / 2, props.viewer.scene.canvas.height / 2));
@@ -255,30 +258,30 @@
     user-select: none;
     transition: height 0.2s;
   }
-  .bar-section {
-    flex: 1 1 260px; /* 最小宽度260px，允许收缩和增长 */
+  .bar-section1 {
+    flex: 1 1 130px; /* 最小宽度260px，允许收缩和增长 */
     text-align: left;
-    min-width: 240px;
+    min-width: 100px;
     white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.8;
     margin-bottom: 2px;
   }
-  .wide-section {
-    min-width: 31%;
+  .bar-section2 {
+    min-width: 26%;
     text-align: left;
     white-space: normal; /* 允许换行 */
   }
   .bar-section3 {
     flex: 1;
-    text-align: left;
-    min-width: 23%;
+    text-align: center;
+    min-width: 28%;
     white-space: normal; /* 允许换行 */
   }
   .bar-section4 {
     flex: 1;
-    text-align: left;
+    text-align: center;
     min-width: 10%;
     white-space: normal;
     overflow: hidden;

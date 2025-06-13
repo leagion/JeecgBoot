@@ -21,6 +21,10 @@
       geocoder: true,
       sceneModePicker: true,
       homeButton: true,
+      fullscreenButton: true,
+      navigationHelpButton: true,
+      infoBox: true,
+      selectionIndicator: true,
       sceneMode: Cesium.SceneMode.SCENE3D,
       terrainProvider: new Cesium.EllipsoidTerrainProvider(),
     });

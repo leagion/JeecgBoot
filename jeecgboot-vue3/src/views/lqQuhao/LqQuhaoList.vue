@@ -17,7 +17,7 @@
             </a-form-item>
           </a-col>
           <template v-if="toggleSearchStatus">
-            <a-col :lg="6">
+            <a-col :lg="9">
               <a-form-item name="name">
                 <template #label><span title="文件名称">文件名称</span></template>
                 <a-input placeholder="请输入文件名称" v-model:value="queryParam.name" allow-clear ></a-input>

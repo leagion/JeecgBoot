@@ -17,7 +17,7 @@ const dashboard: AppRouteModule = {
     {
       path: 'analysis',
       name: 'Analysis',
-      component: () => import('/@/views/dashboard/Analysis/index.vue'),
+      component: () => import('/@/views/dashboard/earth3D/index.vue'),
       meta: {
         // affix: true,
         title: t('routes.dashboard.analysis'),
