@@ -1,43 +1,79 @@
+<!-- filepath: e:\GitProjcetLQ\AIccgLQ\jeecgboot-vue3\src\views\dashboard\earth3D\components\LqToolbar.vue -->
 <template>
   <a-card
     class="measurement-toolbar"
-    :style="{ left: toolbarPos.x + 'px', top: toolbarPos.y + 'px', borderRadius: '8px', position: 'absolute', zIndex: 1000, userSelect: 'none' }"
-    :body-style="{ padding: '8px 12px' }"
+    :style="{
+      left: toolbarPos.x + 'px',
+      top: toolbarPos.y + 'px',
+      borderRadius: '8px',
+      position: 'absolute',
+      zIndex: 1000,
+      userSelect: 'none',
+      width: '48px',
+      padding: 0,
+    }"
+    :body-style="{ padding: '8px 4px' }"
   >
-    <div
-      class="toolbar-container drag-handle"
-      @mousedown="onDragStart"
-      @touchstart="onDragStart"
-      style="width: 100%; display: flex; align-items: center; gap: 12px"
-    >
-      <div class="collapse-btn" @click.stop="toggleCollapse" style="cursor: pointer">
-        <component :is="isCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined" style="font-size: 18px" />
+    <div class="toolbar-container drag-handle" @mousedown="onDragStart" @touchstart="onDragStart">
+      <div class="collapse-btn" @click.stop="toggleCollapse">
+        <component :is="isCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined" style="font-size: 20px" />
       </div>
       <template v-if="!isCollapsed">
-        <a-button class="frosted-btn" @click="zoomIn" :disabled="!viewer" title="快捷键：+ 或 =">
-          <plus-outlined />
-          放大
-        </a-button>
-        <a-button class="frosted-btn" @click="zoomOut" :disabled="!viewer" title="快捷键：-">
-          <minus-outlined />
-          缩小
-        </a-button>
-        <a-button class="frosted-btn" @click="openLayerPanel" title="快捷键：L">
-          <appstore-outlined />
-          图层
-        </a-button>
-        <a-button class="frosted-btn" type="primary" @click="openPanel" :disabled="!viewer" title="快捷键：M">
-          <BarcodeOutlined />
-          测量
-        </a-button>
-        <a-button class="frosted-btn" @click="openLocationPanel" :disabled="!viewer" title="快捷键：H">
-          <aim-outlined />
-          定位
-        </a-button>
-        <a-button class="frosted-btn" @click="openSettingPanel" title="快捷键：S">
-          <setting-outlined />
-          设置
-        </a-button>
+        <a-tooltip placement="right" title="打开 (O)">
+          <a-button class="frosted-btn" @click="openFile" type="text">
+            <folder-open-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="图层 (L)">
+          <a-button class="frosted-btn" @click="openLayerPanel" type="text">
+            <appstore-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="测量 (M)">
+          <a-button class="frosted-btn" type="primary" @click="openPanel" :disabled="!viewer">
+            <barcode-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="定位 (H)">
+          <a-button class="frosted-btn" @click="openLocationPanel" :disabled="!viewer" type="text">
+            <aim-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="标绘 (P)">
+          <a-button class="frosted-btn" @click="openPlotPanel" type="text">
+            <edit-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="搜索 (F)">
+          <a-button class="frosted-btn" @click="openSearchPanel" type="text">
+            <search-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="复盘 (R)">
+          <a-button class="frosted-btn" @click="openReplayPanel" type="text">
+            <redo-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="模拟 (S)">
+          <a-button class="frosted-btn" @click="openSimulatePanel" type="text">
+            <play-circle-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="通信 (C)">
+          <a-button class="frosted-btn" @click="openCommPanel" type="text">
+            <message-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="AI (A)">
+          <a-button class="frosted-btn" @click="openAIPanel" type="text">
+            <robot-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="设置 (T)">
+          <a-button class="frosted-btn" @click="openSettingPanel" type="text">
+            <setting-outlined />
+          </a-button>
+        </a-tooltip>
       </template>
     </div>
   </a-card>
@@ -64,15 +100,21 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+  import { ref, computed, onMounted, onUnmounted } from 'vue';
   import { useMeasurement } from './LqMeasureTool';
   import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    PlusOutlined,
-    MinusOutlined,
+    FolderOpenOutlined,
+    AppstoreOutlined,
     BarcodeOutlined,
     AimOutlined,
+    EditOutlined,
+    SearchOutlined,
+    RedoOutlined,
+    PlayCircleOutlined,
+    MessageOutlined,
+    RobotOutlined,
     SettingOutlined,
   } from '@ant-design/icons-vue';
   import MeasurementPanel from './MeasurementPanel.vue';
@@ -110,43 +152,53 @@
   function handleMeasureEnd() {
     isMeasuring.value = false;
   }
-  watch(
-    () => props.isMeasuring,
-    (newVal) => {
-      // 可选：添加调试日志
-      console.log('isMeasuring updated:', newVal);
-    }
-  );
-  // 放大
-  function zoomIn() {
-    if (props.viewer) {
-      props.viewer.camera.zoomIn(500000);
-    }
-  }
-  // 缩小
-  function zoomOut() {
-    if (props.viewer) {
-      props.viewer.camera.zoomOut(500000);
-    }
+
+  // 打开
+  function openFile() {
+    alert('打开功能开发中');
   }
   // 图层
   function openLayerPanel() {
-    // TODO: 打开图层面板
     alert('图层功能开发中');
   }
-  // 测量按钮已实现 openPanel
-  function openPanel() {
-    togglePanel(true);
+  // 标绘
+  function openPlotPanel() {
+    alert('标绘功能开发中');
   }
-  // 定位
-  const showLocationPanel = ref(false);
-  function openLocationPanel() {
-    showLocationPanel.value = true;
+  // 搜索
+  function openSearchPanel() {
+    alert('搜索功能开发中');
+  }
+  // 复盘
+  function openReplayPanel() {
+    alert('复盘功能开发中');
+  }
+  // 模拟
+  function openSimulatePanel() {
+    alert('模拟功能开发中');
+  }
+  // 通信
+  function openCommPanel() {
+    alert('通信功能开发中');
+  }
+  // AI
+  function openAIPanel() {
+    alert('AI功能开发中');
   }
   // 设置
   function openSettingPanel() {
-    // TODO: 打开设置面板
     alert('设置功能开发中');
+  }
+
+  // 测量按钮
+  function openPanel() {
+    togglePanel(true);
+  }
+
+  // 定位面板
+  const showLocationPanel = ref(false);
+  function openLocationPanel() {
+    showLocationPanel.value = true;
   }
 
   // 拖拽相关
@@ -166,7 +218,6 @@
     window.addEventListener('touchmove', onDragging, { passive: false });
     window.addEventListener('touchend', onDragEnd);
   }
-
   function onDragging(e: MouseEvent | TouchEvent) {
     if (!dragging) return;
     const evt = (e as TouchEvent).touches ? (e as TouchEvent).touches[0] : (e as MouseEvent);
@@ -175,9 +226,8 @@
     // 防止拖出窗口
     toolbarPos.value.x = Math.max(0, toolbarPos.value.x);
     toolbarPos.value.y = Math.max(0, toolbarPos.value.y);
-    if (e.cancelable) e.preventDefault();
+    if ((e as any).cancelable) (e as any).preventDefault();
   }
-
   function onDragEnd() {
     dragging = false;
     window.removeEventListener('mousemove', onDragging);
@@ -186,59 +236,48 @@
     window.removeEventListener('touchend', onDragEnd);
   }
 
+  // 快捷键支持
   function handleKeydown(e: KeyboardEvent) {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-    switch (e.key) {
-      case '+':
-      case '=':
-        zoomIn();
-        break;
-      case '-':
-        zoomOut();
+    switch (e.key.toLowerCase()) {
+      case 'o':
+        openFile();
         break;
       case 'l':
-      case 'L':
         openLayerPanel();
         break;
       case 'm':
-      case 'M':
-        if (!isPanelOpen.value) {
-          openPanel();
-        } else {
-          if (!isMeasuring.value) {
-            isMeasuring.value = true;
-            startMeasure();
-          }
-        }
+        openPanel();
         break;
       case 'h':
-      case 'H':
         openLocationPanel();
         break;
-      case 's':
-      case 'S':
-        openSettingPanel();
+      case 'p':
+        openPlotPanel();
         break;
       case 'f':
-      case 'F':
-        toggleCollapse();
+        openSearchPanel();
+        break;
+      case 'r':
+        openReplayPanel();
+        break;
+      case 's':
+        openSimulatePanel();
         break;
       case 'c':
-      case 'C':
-        clearMeasure();
+        openCommPanel();
         break;
-      default:
+      case 'a':
+        openAIPanel();
+        break;
+      case 't':
+        openSettingPanel();
         break;
     }
-  }
-  // 测量结束或清除时重置
-  function onMeasureEndOrClear() {
-    isMeasuring.value = false;
   }
   onMounted(() => {
     window.addEventListener('keydown', handleKeydown);
   });
-
   onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown);
   });
@@ -252,35 +291,41 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
     user-select: none;
+    width: 48px !important;
+    min-width: 48px !important;
+    padding: 0 !important;
   }
-
   .toolbar-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
+    width: 100%;
   }
-
   .collapse-btn {
     cursor: pointer;
     display: flex;
     align-items: center;
-    margin-right: 8px;
+    margin-bottom: 4px;
     user-select: none;
+    width: 100%;
+    justify-content: center;
   }
   .frosted-btn {
     background: rgba(255, 255, 255, 0.35) !important;
-    backdrop-filter: blur(8px) saturate(180%);
-    -webkit-backdrop-filter: blur(8px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border: none !important;
     color: #333 !important;
     border-radius: 8px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: none;
     transition: background 0.2s;
-    padding: 0 10px;
-    height: 32px;
+    padding: 0;
+    height: 38px;
+    width: 38px;
+    min-width: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 20px;
   }
   .frosted-btn:hover,
   .frosted-btn:focus {
