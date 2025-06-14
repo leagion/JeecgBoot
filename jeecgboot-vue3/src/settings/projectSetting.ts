@@ -46,7 +46,7 @@ const setting: ProjectConfig = {
   themeColor: primaryColor,
   // update-begin--author:liaozhiyang---date:20250414--for：【QQYUN-11956】修复projectSetting中配置主题模式不生效
   // 项目主题模式
-  themeMode: darkMode,
+  themeMode: 'light',
   // update-end--author:liaozhiyang---date:20250414--for：【QQYUN-11956】修复projectSetting中配置主题模式不生效
 
   // 网站灰色模式，用于可能悼念的日期开启
@@ -96,7 +96,7 @@ const setting: ProjectConfig = {
     // 是否固定住左侧菜单
     fixed: true,
     // 菜单折叠
-    collapsed: true,
+    collapsed: false,
     // 折叠菜单时候是否显示菜单名
     collapsedShowTitle: true,
     // 是否可拖拽
@@ -121,7 +121,7 @@ const setting: ProjectConfig = {
     // 分割菜单
     split: false,
     // 顶部菜单布局
-    topMenuAlign: 'center',
+    topMenuAlign: 'start',
     // 折叠触发器的位置
     trigger: TriggerEnum.HEADER,
     // 手风琴模式，只展示一个菜单
@@ -139,7 +139,7 @@ const setting: ProjectConfig = {
     // 刷新后是否保留已经打开的标签页
     cache: false,
     // 开启
-    show: true,
+    show: false,
     // 是否可以拖拽
     canDrag: true,
     // 开启快速操作
@@ -170,10 +170,10 @@ const setting: ProjectConfig = {
   },
 
   // 是否开启KeepAlive缓存  开发时候最好关闭,不然每次都需要清除缓存
-  openKeepAlive: true,
+  openKeepAlive: false,
 
   // 自动锁屏时间，为0不锁屏。 单位分钟 默认1个小时
-  lockTime: 0,
+  lockTime: 120,
 
   // 显示面包屑
   showBreadCrumb: false,
