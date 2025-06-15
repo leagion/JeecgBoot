@@ -2,7 +2,7 @@
   <div
     class="measurement-panel"
     :style="{
-      left: isPanelOpen ? panelPosition.x + 'px' : '-320px',
+      left: isPanelOpen ? panelPosition.x+50 + 'px' : '-320px',
       top: panelPosition.y + 'px',
       zIndex: 1000,
       maxWidth: '320px',

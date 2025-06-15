@@ -47,7 +47,7 @@ public class CodeGenerateDbConfig {
                 }
             }
             CodegenDatasourceConfig.initDbConfig(driverClassName,url, username, password);
-            log.info(" Init CodeGenerate Config [ Get Db Config From application.yml ] ");
+            log.info(" Init CodeGenerate Config [ Get Db Config From application-dev.yml ] ");
         }
         return null;
     }
