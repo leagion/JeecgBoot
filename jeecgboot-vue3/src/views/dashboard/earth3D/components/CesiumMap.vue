@@ -32,6 +32,21 @@
       terrainProvider: new Cesium.EllipsoidTerrainProvider(),
     });
 
+    // 添加WMS服务图层
+    const layerWMS = new Cesium.WebMapServiceImageryProvider({
+      url: 'http://localhost:8080/geoserver/aiccgmap/wms?',
+      layers: 'aiccgmap:lq_poi_static',
+      parameters: {
+        transparent: true,
+        format: 'image/png',
+      },
+    });
+    const imageryLayer = new Cesium.ImageryLayer(layerWMS, {
+      alpha: 1.0,
+      show: true,
+    });
+    viewer.value.imageryLayers.add(imageryLayer);
+
     viewer.value.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(115, 15, 5000000),
       orientation: { heading: 0, roll: 0 },
