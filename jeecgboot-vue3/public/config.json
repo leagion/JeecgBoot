@@ -1,0 +1,5 @@
+// public/config.json
+{
+  "wmsUrl": "http://localhost:8080/geoserver/aiccgmap/wms",
+  "wmsLayer": "aiccgmap:lq_poi_static"
+}

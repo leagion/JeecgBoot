@@ -34,11 +34,6 @@
             <barcode-outlined />
           </a-button>
         </a-tooltip>
-        <a-tooltip placement="right" title="定位 (H)">
-          <a-button class="frosted-btn" @click="openLocationPanel" :disabled="!viewer" type="text">
-            <aim-outlined />
-          </a-button>
-        </a-tooltip>
         <a-tooltip placement="right" title="标绘 (P)">
           <a-button class="frosted-btn" @click="openPlotPanel" type="text">
             <edit-outlined />
@@ -95,8 +90,6 @@
     @setUnit="setUnit"
     @panelToggle="togglePanel"
   />
-  <!-- 定位面板 -->
-  <LocationPanel v-if="viewer" :isPanelOpen="showLocationPanel" :viewer="viewer" @panelToggle="showLocationPanel = false" />
 </template>
 
 <script lang="ts" setup>
@@ -108,7 +101,6 @@
     FolderOpenOutlined,
     AppstoreOutlined,
     BarcodeOutlined,
-    AimOutlined,
     EditOutlined,
     SearchOutlined,
     RedoOutlined,
@@ -118,7 +110,6 @@
     SettingOutlined,
   } from '@ant-design/icons-vue';
   import MeasurementPanel from './MeasurementPanel.vue';
-  import LocationPanel from './LocationPanel.vue';
 
   const props = defineProps<{ viewer: any }>();
 
@@ -195,12 +186,6 @@
     togglePanel(true);
   }
 
-  // 定位面板
-  const showLocationPanel = ref(false);
-  function openLocationPanel() {
-    showLocationPanel.value = true;
-  }
-
   // 拖拽相关
   const toolbarPos = ref({ x: 10, y: 6 });
   let dragOffset = { x: 0, y: 0 };
@@ -249,9 +234,7 @@
       case 'm':
         openPanel();
         break;
-      case 'h':
-        openLocationPanel();
-        break;
+
       case 'p':
         openPlotPanel();
         break;
