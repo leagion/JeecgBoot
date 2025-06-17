@@ -1,5 +1,16 @@
-// public/config.json
 {
-  "wmsUrl": "http://localhost:8080/geoserver/aiccgmap/wms",
-  "wmsLayer": "aiccgmap:lq_poi_static"
+  "wms": {
+    "url": "http://localhost:8080/geoserver/aiccgmap/wms",
+    "layers": "aiccgmap:lq_poi_static",
+    "parameters": {
+      "transparent": true,
+      "format": "image/png"
+    },
+    "bbox": {
+      "west": 109.5999984741211,
+      "south": 3.966669797897339,
+      "east": 119.31700134277344,
+      "north": 20.96670150756836
+    }
+  }
 }

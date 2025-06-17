@@ -3,16 +3,17 @@
     <div id="cesiumContainer" class="cesium-canvas"></div>
   </div>
   <CesiumNavigation v-if="viewer" :viewer="viewer" />
+  <ModelNavigationPanel v-if="viewer" :viewer="viewer" />
 </template>
 
 <script lang="ts" setup>
-  import { ref, onMounted, onUnmounted, defineExpose } from 'vue';
+  import { ref, onMounted, onUnmounted, defineExpose, computed } from 'vue';
   import * as Cesium from 'cesium';
   import StatusBar from './StatusBar.vue';
   import CesiumNavigation from './CesiumNavigation.vue';
   import { customGeocoderService } from '../utils/customGeocoder';
   import { addWmsLayer } from '../utils/addWmsLayer';
-
+  import ModelNavigationPanel from './ModelNavigationPanel.vue';
   // window.CESIUM_BASE_URL = '/jeecgboot-vue3/public/Cesium/';
   // Cesium.buildModuleUrl.setBaseUrl('/jeecgboot-vue3/public/Cesium/');
 
@@ -21,7 +22,8 @@
 
   const viewer = ref<Cesium.Viewer | null>(null);
 
-  onMounted(() => {
+  onMounted(async () => {
+    // 添加async
     viewer.value = new Cesium.Viewer('cesiumContainer', {
       animation: false,
       timeline: false,
@@ -54,7 +56,7 @@
     });
     observer.observe(document.body, { childList: true, subtree: true });
     // 添加WMS服务图层
-    addWmsLayer(viewer.value);
+    await addWmsLayer(viewer.value);
 
     viewer.value.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(115, 15, 5000000),
@@ -71,6 +73,7 @@
       });
     });
   });
+
   onUnmounted(() => {
     if (viewer.value) {
       viewer.value.destroy();
@@ -83,6 +86,13 @@
 </script>
 
 <style scoped>
+  html,
+  body,
+  #app {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
   .cesium-map-container {
     width: 100%;
     height: 100%;
