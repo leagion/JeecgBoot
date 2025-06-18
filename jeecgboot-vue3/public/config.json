@@ -12,5 +12,9 @@
       "east": 119.31700134277344,
       "north": 20.96670150756836
     }
+  },
+  "wfs": {
+    "url": "http://localhost:8080/geoserver/aiccgmap/ows",
+    "layer": "aiccgmap:lq_poi_static"
   }
 }

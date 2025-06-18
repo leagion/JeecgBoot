@@ -1,44 +1,48 @@
 <template>
-  <div class="model-navigation-panel">
-    <a-form :model="form" layout="inline">
-      <a-form-item label="模型">
-        <a-select v-model:value="form.modelUrl" style="width: 100px">
+  <div
+    class="model-control-panel"
+    :style="{
+      left: '60px',
+      top: '80px',
+      zIndex: 1000,
+      width: '240px',
+    }"
+  >
+    <div class="panel-header">
+      <span>模型模拟</span>
+    </div>
+    <a-form :model="form" layout="inline" class="panel-form">
+      <a-form-item label="模型" class="form-item">
+        <a-select v-model:value="form.modelUrl" style="width: 90px" size="small">
           <a-select-option v-for="item in modelOptions" :key="item.value" :value="item.value">
             {{ item.label }}
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item v-if="isAircraft" label="高度(m)">
-        <a-input-number v-model:value="form.altitude" :min="100" :step="100" style="width: 70px" />
+      <a-form-item v-if="isAircraft" label="高(m)" class="form-item">
+        <a-input-number v-model:value="form.altitude" :min="100" :step="100" style="width: 60px" size="small" />
       </a-form-item>
-      <a-form-item label="经度">
-        <a-input-number v-model:value="form.longitude" :step="0.000001" style="width: 90px" />
+      <a-form-item label="经度" class="form-item">
+        <a-input-number v-model:value="form.longitude" :step="0.000001" style="width: 70px" size="small" />
       </a-form-item>
-      <a-form-item label="纬度">
-        <a-input-number v-model:value="form.latitude" :step="0.000001" style="width: 90px" />
+      <a-form-item label="纬度" class="form-item">
+        <a-input-number v-model:value="form.latitude" :step="0.000001" style="width: 70px" size="small" />
       </a-form-item>
-      <a-form-item label="航向">
-        <a-input-number v-model:value="form.heading" :min="0" :max="360" style="width: 60px" />
+      <a-form-item label="航向" class="form-item">
+        <a-input-number v-model:value="form.heading" :min="0" :max="360" style="width: 60px" size="small" />
       </a-form-item>
-      <a-form-item label="航速">
-        <a-input-number v-model:value="form.speed" :min="0" style="width: 60px" />
+      <a-form-item label="航速" class="form-item">
+        <a-input-number v-model:value="form.speed" :min="0" style="width: 60px" size="small" />
       </a-form-item>
-      <a-form-item>
-        <a-button type="primary" @click="loadModel">加载模型</a-button>
-      </a-form-item>
-      <a-form-item>
-        <a-button type="success" @click="startNavigation">开始航行</a-button>
-      </a-form-item>
-      <a-form-item>
-        <a-button type="danger" @click="stopNavigation">停止</a-button>
-      </a-form-item>
-      <a-form-item>
-        <a-button @click="flyToModel">定位</a-button>
-      </a-form-item>
+      <div class="button-group">
+        <a-button type="primary" size="small" @click="loadModel">加载模型</a-button>
+        <a-button type="primary" size="small" @click="startNavigation">开始航行</a-button>
+        <a-button type="primary" danger size="small" @click="stopNavigation">停止</a-button>
+        <a-button type="primary" size="small" @click="flyToModel">定位</a-button>
+      </div>
     </a-form>
   </div>
 </template>
-
 <script setup lang="ts">
   import { ref, computed, onUnmounted } from 'vue';
   import * as Cesium from 'cesium';
@@ -225,21 +229,71 @@
 </script>
 
 <style scoped>
-  .model-navigation-panel {
+  .model-control-panel {
     position: absolute;
-    right: 20px;
-    bottom: 200px;
-    background: rgba(175, 186, 213, 0.5);
-    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    border: 1px solid #e5e6eb;
+    padding: 0;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-direction: column;
+    user-select: none;
   }
-  .model-navigation-panel .ant-form-item {
-    margin-bottom: 8px;
-    margin-right: 8px;
+
+  .panel-header {
+    padding: 6px 12px;
+    background: #f5f7fa;
+    border-bottom: 1px solid #e5e6eb;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    text-align: left;
+  }
+
+  .panel-form {
+    padding: 10px 8px 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-item {
+    margin-bottom: 2px !important;
+    margin-right: 0 !important;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .form-item .ant-form-item-label {
+    min-width: 38px;
+    margin-right: 2px;
+    font-size: 13px;
+    color: #444;
+    padding-bottom: 0;
+    line-height: 1;
+    flex: none;
+  }
+
+  .form-item .ant-form-item-control {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .button-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+    margin-top: 8px;
+  }
+
+  .button-group .ant-btn {
+    font-size: 13px;
+    border-radius: 4px;
+    font-weight: 500;
+    width: 100%;
+    margin: 0;
+    padding: 0 4px;
   }
 </style>

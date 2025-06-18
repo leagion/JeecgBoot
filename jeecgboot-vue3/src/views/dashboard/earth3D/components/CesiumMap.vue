@@ -3,7 +3,7 @@
     <div id="cesiumContainer" class="cesium-canvas"></div>
   </div>
   <CesiumNavigation v-if="viewer" :viewer="viewer" />
-  <ModelNavigationPanel v-if="viewer" :viewer="viewer" />
+  <ModelControlPanel v-if="viewer" :viewer="viewer" />
 </template>
 
 <script lang="ts" setup>
@@ -13,7 +13,7 @@
   import CesiumNavigation from './CesiumNavigation.vue';
   import { customGeocoderService } from '../utils/customGeocoder';
   import { addWmsLayer } from '../utils/addWmsLayer';
-  import ModelNavigationPanel from './ModelNavigationPanel.vue';
+  import ModelControlPanel from './ModelControlPanel.vue';
   // window.CESIUM_BASE_URL = '/jeecgboot-vue3/public/Cesium/';
   // Cesium.buildModuleUrl.setBaseUrl('/jeecgboot-vue3/public/Cesium/');
 
@@ -39,31 +39,11 @@
       geocoder: true,
     });
 
-    // 设置自定义 geocoder
-    (viewer.value.geocoder.viewModel as any)._geocoderServices = [customGeocoderService];
-    viewer.value.geocoder.viewModel.autoComplete = true;
-
-    // 使用 MutationObserver 监听并修改 placeholder
-    const observer = new MutationObserver(() => {
-      const input = document.querySelector('.cesium-geocoder-input') as HTMLInputElement;
-      if (input) {
-        input.placeholder = '请输入地名或经纬度坐标（输入度或者度分秒)';
-        input.style.transition = 'width 0.3s';
-        input.onfocus = () => (input.style.width = '400px');
-        input.onblur = () => (input.style.width = '220px');
-        observer.disconnect();
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    // 添加WMS服务图层
-    await addWmsLayer(viewer.value);
-
     viewer.value.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(115, 15, 5000000),
       orientation: { heading: 0, roll: 0 },
       duration: 2,
     });
-
     viewer.value.homeButton.viewModel.command.beforeExecute.addEventListener((e: any) => {
       e.cancel = true;
       viewer.value!.camera.flyTo({
@@ -72,6 +52,88 @@
         duration: 2,
       });
     });
+
+    // 设置自定义 geocoder
+    (viewer.value.geocoder.viewModel as any)._geocoderServices = [customGeocoderService];
+    viewer.value.geocoder.viewModel.autoComplete = true;
+
+    // 使用 MutationObserver 监听并修改 placeholder
+    const observer = new MutationObserver(() => {
+      const input = document.querySelector('.cesium-geocoder-input') as HTMLInputElement;
+      if (input) {
+        input.placeholder = '请输入地名或经纬度坐标（支持度分秒、度分、度）)';
+        input.style.transition = 'width 0.3s';
+        input.onfocus = () => (input.style.width = '400px');
+        input.onblur = () => (input.style.width = '220px');
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    // 监听 geocoder 定位事件
+    viewer.value!.geocoder.viewModel.destinationFound = (viewModel: any, destination: any) => {
+      let lon: number | undefined,
+        lat: number | undefined,
+        height: number = 1000;
+
+      if (Cesium.Cartesian3 && destination instanceof Cesium.Cartesian3) {
+        const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(destination);
+        lon = Cesium.Math.toDegrees(cartographic.longitude);
+        lat = Cesium.Math.toDegrees(cartographic.latitude);
+        height = cartographic.height || 1000;
+      } else {
+        // 兼容自定义 geocoder 返回的结构
+        const results = viewModel._searchResults || viewModel.searchResults;
+        const idx = viewModel._selectedDestinationIndex ?? viewModel.selectedDestinationIndex;
+        const result = results?.[idx];
+        if (result && typeof result.lon === 'number' && typeof result.lat === 'number') {
+          lon = result.lon;
+          lat = result.lat;
+          height = result.height || 1000;
+        }
+      }
+
+      console.log('定位结果，经纬度：', lon, lat, '高度：', height);
+
+      if (lon != null && lat != null) {
+        // 相机飞行
+        viewer.value?.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+          orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 },
+          duration: 2,
+        });
+        // 添加闪烁点
+        flashPoint(viewer.value!, lon, lat, height);
+      }
+    };
+    function flashPoint(viewer: Cesium.Viewer, lon: number, lat: number, height: number = 0) {
+      const start = Date.now();
+      const duration = 6000; // 4秒
+      const baseSize = 10;
+      const maxSize = 25;
+
+      const pixelSizeCallback = new Cesium.CallbackProperty(() => {
+        const elapsed = Date.now() - start;
+        if (elapsed > duration) return baseSize;
+        return baseSize + Math.abs(Math.sin((elapsed / duration) * Math.PI * 4)) * (maxSize - baseSize);
+      }, false);
+
+      const entity = viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(lon, lat, 0),
+        point: {
+          pixelSize: pixelSizeCallback,
+          color: Cesium.Color.YELLOW.withAlpha(0.9),
+          outlineColor: Cesium.Color.RED,
+          outlineWidth: 4,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+        },
+      });
+
+      setTimeout(() => {
+        viewer.entities.remove(entity);
+      }, duration);
+    }
+    // 添加WMS服务图层
+    await addWmsLayer(viewer.value);
   });
 
   onUnmounted(() => {
