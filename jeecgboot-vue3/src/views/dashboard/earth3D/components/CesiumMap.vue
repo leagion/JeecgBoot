@@ -2,6 +2,7 @@
   <div class="cesium-map-container">
     <div id="cesiumContainer" class="cesium-canvas"></div>
   </div>
+  <EntityManager v-if="viewer" :viewer="viewer" ref="entityManagerRef" />
   <CesiumNavigation v-if="viewer" :viewer="viewer" />
   <ModelControlPanel v-if="viewer" :viewer="viewer" />
 </template>
@@ -14,14 +15,13 @@
   import { customGeocoderService } from '../utils/customGeocoder';
   import { addWmsLayer } from '../utils/addWmsLayer';
   import ModelControlPanel from './ModelControlPanel.vue';
-  // window.CESIUM_BASE_URL = '/jeecgboot-vue3/public/Cesium/';
-  // Cesium.buildModuleUrl.setBaseUrl('/jeecgboot-vue3/public/Cesium/');
+  import EntityManager from './EntityManager.vue';
 
   window.CESIUM_BASE_URL = '/Cesium/';
   Cesium.buildModuleUrl.setBaseUrl('/Cesium/');
 
   const viewer = ref<Cesium.Viewer | null>(null);
-
+  const entityManagerRef = ref();
   onMounted(async () => {
     // 添加async
     viewer.value = new Cesium.Viewer('cesiumContainer', {
@@ -32,7 +32,7 @@
       homeButton: true,
       fullscreenButton: false,
       navigationHelpButton: false,
-      infoBox: true,
+      infoBox: false,
       selectionIndicator: true,
       sceneMode: Cesium.SceneMode.SCENE3D,
       terrainProvider: new Cesium.EllipsoidTerrainProvider(),
@@ -70,6 +70,40 @@
     });
     observer.observe(document.body, { childList: true, subtree: true });
     // 监听 geocoder 定位事件
+    // viewer.value!.geocoder.viewModel.destinationFound = (viewModel: any, destination: any) => {
+    //   let lon: number | undefined,
+    //     lat: number | undefined,
+    //     height: number = 1000;
+
+    //   if (Cesium.Cartesian3 && destination instanceof Cesium.Cartesian3) {
+    //     const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(destination);
+    //     lon = Cesium.Math.toDegrees(cartographic.longitude);
+    //     lat = Cesium.Math.toDegrees(cartographic.latitude);
+    //     height = cartographic.height || 1000;
+    //   } else {
+    //     // 兼容自定义 geocoder 返回的结构
+    //     const results = viewModel._searchResults || viewModel.searchResults;
+    //     const idx = viewModel._selectedDestinationIndex ?? viewModel.selectedDestinationIndex;
+    //     const result = results?.[idx];
+    //     if (result && typeof result.lon === 'number' && typeof result.lat === 'number') {
+    //       lon = result.lon;
+    //       lat = result.lat;
+    //       height = result.height || 1000;
+    //     }
+    //   }
+
+    //   if (lon != null && lat != null) {
+    //     // 相机飞行
+    //     viewer.value?.camera.flyTo({
+    //       destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
+    //       orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 },
+    //       duration: 2,
+    //     });
+    //     // 添加闪烁点
+    //     flashPoint(viewer.value!, lon, lat, height);
+    //   }
+    // };
+
     viewer.value!.geocoder.viewModel.destinationFound = (viewModel: any, destination: any) => {
       let lon: number | undefined,
         lat: number | undefined,
@@ -81,7 +115,6 @@
         lat = Cesium.Math.toDegrees(cartographic.latitude);
         height = cartographic.height || 1000;
       } else {
-        // 兼容自定义 geocoder 返回的结构
         const results = viewModel._searchResults || viewModel.searchResults;
         const idx = viewModel._selectedDestinationIndex ?? viewModel.selectedDestinationIndex;
         const result = results?.[idx];
@@ -92,19 +125,17 @@
         }
       }
 
-      console.log('定位结果，经纬度：', lon, lat, '高度：', height);
-
       if (lon != null && lat != null) {
-        // 相机飞行
         viewer.value?.camera.flyTo({
           destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
           orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 },
           duration: 2,
         });
-        // 添加闪烁点
-        flashPoint(viewer.value!, lon, lat, height);
+        // 添加实体
+        entityManagerRef.value?.createEntity({ lon, lat });
       }
     };
+
     function flashPoint(viewer: Cesium.Viewer, lon: number, lat: number, height: number = 0) {
       const start = Date.now();
       const duration = 6000; // 4秒
@@ -127,11 +158,9 @@
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
       });
-
-      setTimeout(() => {
-        viewer.entities.remove(entity);
-      }, duration);
     }
+
+    
     // 添加WMS服务图层
     await addWmsLayer(viewer.value);
   });

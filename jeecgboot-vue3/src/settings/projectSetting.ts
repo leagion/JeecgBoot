@@ -72,13 +72,13 @@ const setting: ProjectConfig = {
     // 背景色
     bgColor: HEADER_PRESET_BG_COLOR_LIST[4],
     // 固定头部
-    fixed: false,
+    fixed: true,
     // 是否显示顶部
     show: true,
     // 主题
     theme: ThemeEnum.LIGHT,
     // 开启锁屏功能
-    useLockPage: true,
+    useLockPage: false,
     // 显示全屏按钮
     showFullScreen: true,
     // 显示官网按钮
@@ -94,7 +94,7 @@ const setting: ProjectConfig = {
     // 背景色
     bgColor: SIDE_BAR_BG_COLOR_LIST[0],
     // 是否固定住左侧菜单
-    fixed: true,
+    fixed: false,
     // 菜单折叠
     collapsed: false,
     // 折叠菜单时候是否显示菜单名
@@ -109,9 +109,9 @@ const setting: ProjectConfig = {
     // 菜单宽度
     menuWidth: 210,
     // 菜单模式
-    mode: MenuModeEnum.INLINE,
+    mode: MenuModeEnum.HORIZONTAL,
     // 菜单类型
-    type: MenuTypeEnum.SIDEBAR,
+    type: MenuTypeEnum.TOP_MENU,
     // 菜单主题
     theme: ThemeEnum.DARK,
     // update-begin--author:liaozhiyang---date:20241203---for：【issues/7522】解决menuSetting ts警告
@@ -170,10 +170,10 @@ const setting: ProjectConfig = {
   },
 
   // 是否开启KeepAlive缓存  开发时候最好关闭,不然每次都需要清除缓存
-  openKeepAlive: false,
+  openKeepAlive: true,
 
   // 自动锁屏时间，为0不锁屏。 单位分钟 默认1个小时
-  lockTime: 120,
+  lockTime: 0,
 
   // 显示面包屑
   showBreadCrumb: false,
