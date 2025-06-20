@@ -70,59 +70,21 @@
     });
     observer.observe(document.body, { childList: true, subtree: true });
     // 监听 geocoder 定位事件
-    // viewer.value!.geocoder.viewModel.destinationFound = (viewModel: any, destination: any) => {
-    //   let lon: number | undefined,
-    //     lat: number | undefined,
-    //     height: number = 1000;
-
-    //   if (Cesium.Cartesian3 && destination instanceof Cesium.Cartesian3) {
-    //     const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(destination);
-    //     lon = Cesium.Math.toDegrees(cartographic.longitude);
-    //     lat = Cesium.Math.toDegrees(cartographic.latitude);
-    //     height = cartographic.height || 1000;
-    //   } else {
-    //     // 兼容自定义 geocoder 返回的结构
-    //     const results = viewModel._searchResults || viewModel.searchResults;
-    //     const idx = viewModel._selectedDestinationIndex ?? viewModel.selectedDestinationIndex;
-    //     const result = results?.[idx];
-    //     if (result && typeof result.lon === 'number' && typeof result.lat === 'number') {
-    //       lon = result.lon;
-    //       lat = result.lat;
-    //       height = result.height || 1000;
-    //     }
-    //   }
-
-    //   if (lon != null && lat != null) {
-    //     // 相机飞行
-    //     viewer.value?.camera.flyTo({
-    //       destination: Cesium.Cartesian3.fromDegrees(lon, lat, height),
-    //       orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 },
-    //       duration: 2,
-    //     });
-    //     // 添加闪烁点
-    //     flashPoint(viewer.value!, lon, lat, height);
-    //   }
-    // };
 
     viewer.value!.geocoder.viewModel.destinationFound = (viewModel: any, destination: any) => {
-      let lon: number | undefined,
-        lat: number | undefined,
-        height: number = 1000;
+      let lon,
+        lat,
+        height,
+        format = 'degree';
+      // console.log('viewModel 结构:', viewModel);
+      const text = (viewModel._searchText || '').trim().replace(/^"+|"+$/g, '');
+      const isCoord = text.startsWith('坐标定位');
 
       if (Cesium.Cartesian3 && destination instanceof Cesium.Cartesian3) {
-        const cartographic = Cesium.Ellipsoid.WGS84.cartesianToCartographic(destination);
-        lon = Cesium.Math.toDegrees(cartographic.longitude);
-        lat = Cesium.Math.toDegrees(cartographic.latitude);
-        height = cartographic.height || 1000;
-      } else {
-        const results = viewModel._searchResults || viewModel.searchResults;
-        const idx = viewModel._selectedDestinationIndex ?? viewModel.selectedDestinationIndex;
-        const result = results?.[idx];
-        if (result && typeof result.lon === 'number' && typeof result.lat === 'number') {
-          lon = result.lon;
-          lat = result.lat;
-          height = result.height || 1000;
-        }
+        const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(destination);
+        lon = Cesium.Math.toDegrees(carto.longitude);
+        lat = Cesium.Math.toDegrees(carto.latitude);
+        height = carto.height || 30000;
       }
 
       if (lon != null && lat != null) {
@@ -131,17 +93,20 @@
           orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 },
           duration: 2,
         });
-        // 添加实体
-        entityManagerRef.value?.createEntity({ lon, lat });
+        if (isCoord) {
+          // 坐标定位：添加标牌
+          entityManagerRef.value?.createEntity({ lon, lat, format });
+        } else {
+          // 地名：只闪烁5秒
+          flashPoint(viewer.value, lon, lat, height);
+        }
       }
     };
-
     function flashPoint(viewer: Cesium.Viewer, lon: number, lat: number, height: number = 0) {
       const start = Date.now();
-      const duration = 6000; // 4秒
-      const baseSize = 10;
-      const maxSize = 25;
-
+      const duration = 5000;
+      const baseSize = 16;
+      const maxSize = 32;
       const pixelSizeCallback = new Cesium.CallbackProperty(() => {
         const elapsed = Date.now() - start;
         if (elapsed > duration) return baseSize;
@@ -158,9 +123,12 @@
           heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         },
       });
+
+      setTimeout(() => {
+        viewer.entities.remove(entity);
+      }, duration);
     }
 
-    
     // 添加WMS服务图层
     await addWmsLayer(viewer.value);
   });

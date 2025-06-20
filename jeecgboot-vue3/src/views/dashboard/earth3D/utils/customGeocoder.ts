@@ -28,6 +28,8 @@ function formatDMS(degree: number, _isLon: boolean) {
 
 // 自动识别经纬度顺序的解析函数
 function parseCoordinate(input: string) {
+  if (!input || typeof input !== 'string') return null;
+  input = input.trim();
   // 1. 纯度格式 119.123 38.456 或 119.123,38.456
   let match = input
     .trim()
@@ -114,11 +116,16 @@ export const customGeocoderService = {
     const url = `${wfs.url}?service=WFS&version=1.0.0&request=GetFeature&typeName=${wfs.layer}&outputFormat=application/json&CQL_FILTER=${encodeURIComponent(cql)}&maxFeatures=50`;
     const response = await fetch(url);
     const geojson = await response.json();
+
     return geojson.features.map((feature: any) => {
       const [lon, lat] = feature.geometry.coordinates;
       return {
-        displayName: feature.properties.poi_name,
+        displayName: feature.properties.poi_name || '地名',
         destination: Cesium.Cartesian3.fromDegrees(lon, lat, 30000),
+        lon,
+        lat,
+        height: 30000,
+        isWFS: true,
       };
     });
   },
