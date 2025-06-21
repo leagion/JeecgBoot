@@ -76,9 +76,9 @@
         lat,
         height,
         format = 'degree';
-      // console.log('viewModel 结构:', viewModel);
-      const text = (viewModel._searchText || '').trim().replace(/^"+|"+$/g, '');
-      const isCoord = text.startsWith('坐标定位');
+      //console.log('viewModel 结构:', viewModel);
+      let searchText = (viewModel._searchText || '').trim().replace(/^"+|"+$/g, '');
+      const isCoord = searchText.startsWith('坐标定位');
 
       if (Cesium.Cartesian3 && destination instanceof Cesium.Cartesian3) {
         const carto = Cesium.Ellipsoid.WGS84.cartesianToCartographic(destination);
@@ -95,14 +95,26 @@
         });
         if (isCoord) {
           // 坐标定位：添加标牌
-          entityManagerRef.value?.createEntity({ lon, lat, format });
+          // 去除前缀 "坐标定位："
+          if (searchText.startsWith('坐标定位')) {
+            searchText = searchText.replace('坐标定位：', '');
+          }
+
+          // 去除后缀引号
+          if (searchText.endsWith('"')) {
+            searchText = searchText.slice(0, -1);
+          }
+          // console.log('searchText', searchText);
+          entityManagerRef.value?.createEntity({ lon, lat, format, searchText });
         } else {
           // 地名：只闪烁5秒
-          flashPoint(viewer.value, lon, lat, height);
+          if (viewer.value) {
+            flashPoint(viewer.value, lon, lat);
+          }
         }
       }
     };
-    function flashPoint(viewer: Cesium.Viewer, lon: number, lat: number, height: number = 0) {
+    function flashPoint(viewer: Cesium.Viewer, lon: number, lat: number) {
       const start = Date.now();
       const duration = 5000;
       const baseSize = 16;

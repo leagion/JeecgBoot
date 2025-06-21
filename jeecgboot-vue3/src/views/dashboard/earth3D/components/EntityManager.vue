@@ -2,21 +2,20 @@
 <template>
   <div v-if="menuVisible" class="entity-context-menu" :style="{ left: menuPosition.x + 'px', top: menuPosition.y + 'px' }">
     <div class="menu-row">
-      <span class="menu-label">时间</span>
-      <span class="menu-value">{{ selectedEntityData.time }}</span>
-    </div>
-    <div class="menu-row">
       <span class="menu-label">名称</span>
       <input v-model="selectedEntityData.name" class="menu-input" />
     </div>
     <div class="menu-row">
-      <span class="menu-label">经度</span>
-      <input v-model.number="selectedEntityData.lon" class="menu-input" />
+      <span class="menu-label">时间</span>
+      <!-- <span class="menu-value">{{ selectedEntityData.time }}</span> -->
+      <input v-model.number="selectedEntityData.time" class="menu-input" />
     </div>
     <div class="menu-row">
-      <span class="menu-label">纬度</span>
-      <input v-model.number="selectedEntityData.lat" class="menu-input" />
+      <span class="menu-label">经纬度</span>
+      <span class="menu-value">{{ selectedEntityData.searchText }}</span>
+      <!-- <input v-model.number="selectedEntityData.searchText" class="menu-input" /> -->
     </div>
+
     <div class="menu-row">
       <span class="menu-label">航向</span>
       <input v-model.number="selectedEntityData.heading" class="menu-input" />
@@ -51,6 +50,7 @@
     heading: 0,
     speed: 0,
     format: 'degree', // 新增，记录格式
+    searchText: '', // 新增，记录搜索文本
   });
 
   const entityPrefix = 'flash-point-';
@@ -59,35 +59,18 @@
   function formatDegree(lon: number, lat: number) {
     return `${lon.toFixed(4)},${lat.toFixed(4)}`;
   }
-  function formatDM(lon: number, lat: number) {
-    function dm(val: number) {
-      const d = Math.floor(Math.abs(val));
-      const m = ((Math.abs(val) - d) * 60).toFixed(3);
-      return `${d}°${m}′`;
-    }
-    return `${dm(lon)} ${dm(lat)}`;
-  }
-  function formatDMS(lon: number, lat: number) {
-    function dms(val: number) {
-      const d = Math.floor(Math.abs(val));
-      const mFloat = (Math.abs(val) - d) * 60;
-      const m = Math.floor(mFloat);
-      const s = ((mFloat - m) * 60).toFixed(2);
-      return `${d}°${m}′${s}″`;
-    }
-    return `${dms(lon)} ${dms(lat)}`;
-  }
 
   function buildLabelText(entityData: any) {
-    let coordStr = '';
-    if (entityData.format === 'dm') {
-      coordStr = formatDM(entityData.lon, entityData.lat);
-    } else if (entityData.format === 'dms') {
-      coordStr = formatDMS(entityData.lon, entityData.lat);
-    } else {
-      coordStr = formatDegree(entityData.lon, entityData.lat);
-    }
-    return `时间:${entityData.time}\n名称:${entityData.name}\n坐标:${coordStr}\n航向:${entityData.heading}\n航速:${entityData.speed}`;
+    //     let coordStr = '';
+    //     if (entityData.format === 'dm') {
+    //       coordStr = formatDM(entityData.lon, entityData.lat);
+    //     } else if (entityData.format === 'dms') {
+    //       coordStr = formatDMS(entityData.lon, entityData.lat);
+    //     } else {
+    //       coordStr = formatDegree(entityData.lon, entityData.lat);
+    //     }
+    let coordStr = entityData.searchText || formatDegree(entityData.lon, entityData.lat);
+    return `名称:${entityData.name}\n时间:${entityData.time}\n坐标:${coordStr}\n航向:${entityData.heading}\n航速:${entityData.speed}`;
   }
 
   function getNowTimeStr() {
@@ -96,7 +79,7 @@
   }
 
   // 创建实体（供外部调用，需传入 format 字段）
-  function createEntity({ lon, lat, heading = 0, speed = 0, name = '', format = 'degree' }) {
+  function createEntity({ lon, lat, heading = 0, speed = 0, name = '', format = 'degree', searchText = '' }) {
     const id = entityPrefix + Date.now() + Math.floor(Math.random() * 10000);
     const time = getNowTimeStr();
     const entity = props.viewer.entities.add({
@@ -117,7 +100,8 @@
       },
       label: {
         show: true,
-        text: buildLabelText({ time, name, lon, lat, heading, speed, format }),
+        // text: buildLabelText({ time, name, lon, lat, heading, speed, format }),
+        text: buildLabelText({ name, time, lon, lat, heading, speed, format, searchText }),
         font: '14px sans-serif',
         fillColor: Cesium.Color.BLACK,
         style: Cesium.LabelStyle.FILL,
@@ -136,6 +120,7 @@
         heading,
         speed,
         format,
+        searchText,
       },
     });
     return entity;
@@ -155,6 +140,7 @@
       selectedEntityData.heading = p.properties?.heading?.getValue?.() ?? 0;
       selectedEntityData.speed = p.properties?.speed?.getValue?.() ?? 0;
       selectedEntityData.format = p.properties?.format?.getValue?.() ?? 'degree';
+      selectedEntityData.searchText = p.properties?.searchText?.getValue?.() ?? '';
       menuPosition.x = movement.position.x;
       menuPosition.y = movement.position.y;
       menuVisible.value = true;
@@ -168,12 +154,14 @@
   function saveEntity() {
     if (selectedEntity.value?.properties) {
       selectedEntity.value.properties.name = selectedEntityData.name;
-      selectedEntity.value.properties.lon = selectedEntityData.lon;
-      selectedEntity.value.properties.lat = selectedEntityData.lat;
+      //   selectedEntity.value.properties.lon = selectedEntityData.lon;
+      //   selectedEntity.value.properties.lat = selectedEntityData.lat;
+      selectedEntity.value.properties.time.setValue(selectedEntityData.time);
       selectedEntity.value.properties.heading = selectedEntityData.heading;
       selectedEntity.value.properties.speed = selectedEntityData.speed;
       selectedEntity.value.properties.format = selectedEntityData.format;
-      selectedEntity.value.position = Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, 0);
+      //selectedEntity.value.position = Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, 0);
+      selectedEntity.value.properties.searchText = selectedEntityData.searchText;
       selectedEntity.value.polyline = {
         positions: [
           Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, 0),
