@@ -2,14 +2,20 @@
   <div
     class="model-control-panel"
     :style="{
-      left: '60px',
-      top: '80px',
+      left: isPanelOpen ? panelPosition.x + 'px' : '-320px',
+      top: panelPosition.y + 'px',
       zIndex: 1000,
       width: '240px',
     }"
+    @mousedown="onDragStart"
+    @touchstart="onDragStart"
+    v-show="isPanelOpen"
   >
     <div class="panel-header">
       <span>模型模拟</span>
+      <a-button type="text" @click="togglePanel">
+        <close-outlined />
+      </a-button>
     </div>
     <a-form :model="form" layout="inline" class="panel-form">
       <a-form-item label="模型" class="form-item">
@@ -43,11 +49,26 @@
     </a-form>
   </div>
 </template>
+
 <script setup lang="ts">
   import { ref, computed, onUnmounted } from 'vue';
   import * as Cesium from 'cesium';
+  import { CloseOutlined } from '@ant-design/icons-vue';
 
-  const props = defineProps<{ viewer: Cesium.Viewer | null }>();
+  const props = defineProps<{
+    viewer: Cesium.Viewer | null;
+    isPanelOpen: boolean;
+    viewerContainer: HTMLElement;
+  }>();
+
+  const emit = defineEmits<{
+    (event: 'panelToggle', isOpen: boolean): void;
+  }>();
+
+  // 面板位置
+  const panelPosition = ref({ x: 60, y: 80 });
+  let dragOffset = { x: 0, y: 0 };
+  let dragging = false;
 
   const localBasePath = '/plotResources/';
   const modelOptions = [
@@ -220,11 +241,66 @@
     }
   }
 
+  // 切换面板显示状态
+  function togglePanel() {
+    emit('panelToggle', !props.isPanelOpen);
+  }
+
+  // 面板拖拽
+  function onDragStart(e: MouseEvent | TouchEvent) {
+    // 只允许通过标题栏拖拽
+    if (!(e.target as HTMLElement).closest('.panel-header')) return;
+
+    dragging = true;
+    const evt = (e as TouchEvent).touches ? (e as TouchEvent).touches[0] : (e as MouseEvent);
+    dragOffset = {
+      x: evt.clientX - panelPosition.value.x,
+      y: evt.clientY - panelPosition.value.y,
+    };
+
+    window.addEventListener('mousemove', onDragging);
+    window.addEventListener('mouseup', onDragEnd);
+    window.addEventListener('touchmove', onDragging, { passive: false });
+    window.addEventListener('touchend', onDragEnd);
+  }
+
+  function onDragging(e: MouseEvent | TouchEvent) {
+    if (!dragging) return;
+
+    const evt = (e as TouchEvent).touches ? (e as TouchEvent).touches[0] : (e as MouseEvent);
+    let newX = evt.clientX - dragOffset.x;
+    let newY = evt.clientY - dragOffset.y;
+
+    // 限制在Cesium容器范围内
+    if (props.viewerContainer) {
+      const rect = props.viewerContainer.getBoundingClientRect();
+      newX = Math.max(rect.left, Math.min(newX, rect.right - 240));
+      newY = Math.max(rect.top, Math.min(newY, rect.bottom - 300));
+    }
+
+    panelPosition.value = { x: newX, y: newY };
+
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onDragEnd() {
+    dragging = false;
+    window.removeEventListener('mousemove', onDragging);
+    window.removeEventListener('mouseup', onDragEnd);
+    window.removeEventListener('touchmove', onDragging);
+    window.removeEventListener('touchend', onDragEnd);
+  }
+
   onUnmounted(() => {
     stopNavigation();
     if (modelEntity && props.viewer) {
       props.viewer.entities.remove(modelEntity);
     }
+    // 移除拖拽事件监听器
+    window.removeEventListener('mousemove', onDragging);
+    window.removeEventListener('mouseup', onDragEnd);
+    window.removeEventListener('touchmove', onDragging);
+    window.removeEventListener('touchend', onDragEnd);
   });
 </script>
 
@@ -239,6 +315,8 @@
     display: flex;
     flex-direction: column;
     user-select: none;
+    transition: all 0.3s ease;
+    cursor: move;
   }
 
   .panel-header {
@@ -249,6 +327,9 @@
     font-weight: 500;
     color: #333;
     text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .panel-form {

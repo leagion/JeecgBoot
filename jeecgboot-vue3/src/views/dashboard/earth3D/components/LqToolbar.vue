@@ -50,7 +50,7 @@
           </a-button>
         </a-tooltip>
         <a-tooltip placement="right" title="模拟 (S)">
-          <a-button class="frosted-btn" @click="openSimulatePanel" type="text">
+          <a-button class="frosted-btn" @click="toggleModelPanel" type="text">
             <play-circle-outlined />
           </a-button>
         </a-tooltip>
@@ -90,10 +90,19 @@
     @setUnit="setUnit"
     @panelToggle="togglePanel"
   />
+
+  <!-- 模型控制面板 -->
+  <ModelControlPanel
+    v-if="viewer"
+    :viewer="viewer"
+    :isPanelOpen="isModelPanelOpen"
+    :viewerContainer="viewerContainerRef"
+    @panelToggle="toggleModelPanel"
+  />
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed, onMounted, onUnmounted } from 'vue';
+  import { ref, computed, onMounted, onUnmounted, provide } from 'vue';
   import { useMeasurement } from './LqMeasureTool';
   import {
     MenuFoldOutlined,
@@ -108,8 +117,10 @@
     MessageOutlined,
     RobotOutlined,
     SettingOutlined,
+    CloseOutlined,
   } from '@ant-design/icons-vue';
   import MeasurementPanel from './MeasurementPanel.vue';
+  import ModelControlPanel from './ModelControlPanel.vue'; // 引入模型控制面板
 
   const props = defineProps<{ viewer: any }>();
 
@@ -127,6 +138,21 @@
     togglePanel,
     isMeasuring,
   } = useMeasurement(computed(() => props.viewer));
+
+  // 模型控制面板状态
+  const isModelPanelOpen = ref(false);
+  const viewerContainerRef = ref<HTMLElement | null>(null);
+
+  // 切换模型控制面板
+  function toggleModelPanel() {
+    isModelPanelOpen.value = !isModelPanelOpen.value;
+
+    // 如果打开模型面板，关闭其他面板
+    if (isModelPanelOpen.value) {
+      if (isPanelOpen.value) togglePanel(false);
+      // 可以添加关闭其他面板的逻辑
+    }
+  }
 
   const isCollapsed = ref(false);
   function toggleCollapse() {
@@ -164,10 +190,6 @@
   function openReplayPanel() {
     alert('复盘功能开发中');
   }
-  // 模拟
-  function openSimulatePanel() {
-    alert('模拟功能开发中');
-  }
   // 通信
   function openCommPanel() {
     alert('通信功能开发中');
@@ -184,6 +206,8 @@
   // 测量按钮
   function openPanel() {
     togglePanel(true);
+    // 如果打开测量面板，关闭模型面板
+    if (isModelPanelOpen.value) isModelPanelOpen.value = false;
   }
 
   // 拖拽相关
@@ -221,6 +245,11 @@
     window.removeEventListener('touchend', onDragEnd);
   }
 
+  // 获取viewer容器元素
+  onMounted(() => {
+    viewerContainerRef.value = document.querySelector('.cesium-container') as HTMLElement;
+  });
+
   // 快捷键支持
   function handleKeydown(e: KeyboardEvent) {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -234,7 +263,6 @@
       case 'm':
         openPanel();
         break;
-
       case 'p':
         openPlotPanel();
         break;
@@ -245,7 +273,7 @@
         openReplayPanel();
         break;
       case 's':
-        openSimulatePanel();
+        toggleModelPanel(); // 修改快捷键逻辑
         break;
       case 'c':
         openCommPanel();
@@ -258,9 +286,11 @@
         break;
     }
   }
+
   onMounted(() => {
     window.addEventListener('keydown', handleKeydown);
   });
+
   onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown);
   });
