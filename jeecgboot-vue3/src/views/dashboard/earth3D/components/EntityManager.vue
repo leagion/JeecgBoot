@@ -8,7 +8,7 @@
     <div class="menu-row">
       <span class="menu-label">时间</span>
       <!-- <span class="menu-value">{{ selectedEntityData.time }}</span> -->
-      <input v-model.number="selectedEntityData.time" class="menu-input" />
+      <input v-model="selectedEntityData.time" class="menu-input" />
     </div>
     <div class="menu-row">
       <span class="menu-label">经纬度</span>
@@ -82,22 +82,54 @@
   function createEntity({ lon, lat, heading = 0, speed = 0, name = '', format = 'degree', searchText = '' }) {
     const id = entityPrefix + Date.now() + Math.floor(Math.random() * 10000);
     const time = getNowTimeStr();
+    const labelOffset = new Cesium.Cartesian2(10, -40);
     const entity = props.viewer.entities.add({
       id,
-      position: Cesium.Cartesian3.fromDegrees(lon, lat, 0),
+      position: new Cesium.ConstantPositionProperty(Cesium.Cartesian3.fromDegrees(lon, lat, 0)),
+
       point: {
-        pixelSize: 16,
+        pixelSize: 14,
         color: Cesium.Color.YELLOW.withAlpha(0.9),
         outlineColor: Cesium.Color.RED,
         outlineWidth: 4,
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
       },
+
       polyline: {
-        positions: [Cesium.Cartesian3.fromDegrees(lon, lat, 0), Cesium.Cartesian3.fromDegrees(lon, lat, 30)],
+        // 使用回调函数动态计算 polyline 的位置
+        positions: new Cesium.CallbackProperty(() => {
+          const entityPosition = entity.position?.getValue(props.viewer.clock.currentTime);
+          if (!entityPosition) return [];
+
+          // 获取画布坐标
+          const scene = props.viewer.scene;
+          const entityCanvasPosition = Cesium.SceneTransforms.worldToWindowCoordinates(scene, entityPosition);
+          if (!entityCanvasPosition) return [];
+
+          // 获取 label 的偏移量
+          const labelOffset = new Cesium.Cartesian2(10, -40);
+          const labelCanvasPosition = new Cesium.Cartesian2(entityCanvasPosition.x + labelOffset.x, entityCanvasPosition.y + labelOffset.y);
+
+          // 将画布坐标转换回笛卡尔坐标
+          const labelCartesianPosition = scene.camera.pickEllipsoid(labelCanvasPosition, scene.globe.ellipsoid);
+          if (!labelCartesianPosition) return [];
+
+          return [entityPosition, labelCartesianPosition];
+        }, false),
+
         width: 2,
-        material: Cesium.Color.ORANGE,
-        clampToGround: false, // 关键
+        material: Cesium.Color.WHITE.withAlpha(0.5),
+        clampToGround: false,
       },
+      // billboard: {
+      //   image: '../../../../assets/images/border.gif',
+      //   width: 180, // 你想要的底图宽度
+      //   height: 50, // 你想要的底图高度
+      //   verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+      //   horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+      //   pixelOffset: labelOffset,
+      //   heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      // },
       label: {
         show: true,
         // text: buildLabelText({ time, name, lon, lat, heading, speed, format }),
@@ -107,11 +139,12 @@
         style: Cesium.LabelStyle.FILL,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         horizontalOrigin: Cesium.HorizontalOrigin.LEFT, // 左对齐
-        pixelOffset: new Cesium.Cartesian2(10, -40),
+        pixelOffset: labelOffset,
         heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
         backgroundColor: Cesium.Color.WHITE.withAlpha(0.7),
         showBackground: true,
       },
+
       properties: {
         time,
         name,
@@ -153,30 +186,45 @@
   // 保存按钮
   function saveEntity() {
     if (selectedEntity.value?.properties) {
-      selectedEntity.value.properties.name = selectedEntityData.name;
-      //   selectedEntity.value.properties.lon = selectedEntityData.lon;
-      //   selectedEntity.value.properties.lat = selectedEntityData.lat;
+      selectedEntity.value.properties.name.setValue(selectedEntityData.name);
       selectedEntity.value.properties.time.setValue(selectedEntityData.time);
-      selectedEntity.value.properties.heading = selectedEntityData.heading;
-      selectedEntity.value.properties.speed = selectedEntityData.speed;
-      selectedEntity.value.properties.format = selectedEntityData.format;
-      //selectedEntity.value.position = Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, 0);
-      selectedEntity.value.properties.searchText = selectedEntityData.searchText;
+      selectedEntity.value.properties.heading.setValue(selectedEntityData.heading);
+      selectedEntity.value.properties.speed.setValue(selectedEntityData.speed);
+      selectedEntity.value.properties.format.setValue(selectedEntityData.format);
+      selectedEntity.value.properties.searchText.setValue(selectedEntityData.searchText);
+      // 更新 polyline
       selectedEntity.value.polyline = {
-        positions: [
-          Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, 0),
-          Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, 30),
-        ],
+        // 使用回调函数动态计算 polyline 的位置
+        positions: new Cesium.CallbackProperty(() => {
+          const entityPosition = selectedEntity.value?.position?.getValue(props.viewer.clock.currentTime);
+          if (!entityPosition) return [];
+
+          // 获取画布坐标
+          const scene = props.viewer.scene;
+          const entityCanvasPosition = Cesium.SceneTransforms.worldToWindowCoordinates(scene, entityPosition);
+          if (!entityCanvasPosition) return [];
+
+          // 获取 label 的偏移量
+          const labelOffset = new Cesium.Cartesian2(10, -40);
+          const labelCanvasPosition = new Cesium.Cartesian2(entityCanvasPosition.x + labelOffset.x, entityCanvasPosition.y + labelOffset.y);
+
+          // 将画布坐标转换回笛卡尔坐标
+          const labelCartesianPosition = scene.camera.pickEllipsoid(labelCanvasPosition, scene.globe.ellipsoid);
+          if (!labelCartesianPosition) return [];
+
+          return [entityPosition, labelCartesianPosition];
+        }, false),
         width: 2,
-        material: Cesium.Color.ORANGE,
+        material: Cesium.Color.WHITE.withAlpha(0.5),
         clampToGround: false,
       };
+
       selectedEntity.value.label = {
         show: true,
         text: buildLabelText(selectedEntityData),
         font: '14px sans-serif',
         fillColor: Cesium.Color.BLACK,
-        style: Cesium.LabelStyle.FILL,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
         pixelOffset: new Cesium.Cartesian2(10, -40),
