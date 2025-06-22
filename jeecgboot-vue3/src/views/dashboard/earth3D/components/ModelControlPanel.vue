@@ -17,43 +17,47 @@
         <close-outlined />
       </a-button>
     </div>
-    <a-form :model="form" layout="inline" class="panel-form">
+    <a-form :model="form" class="panel-form horizontal-form">
       <div class="form-grid">
-        <a-form-item label="模型" class="form-item">
-          <a-select v-model:value="form.modelUrl" style="width: 100%" size="small">
+        <a-form-item label="模型" class="form-item" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+          <a-select v-model:value="form.modelUrl" size="small">
             <a-select-option v-for="item in modelOptions" :key="item.value" :value="item.value">
               {{ item.label }}
             </a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item v-if="isAircraft" label="高(米)" class="form-item">
-          <a-input-number v-model:value="form.altitude" :min="100" :step="100" style="width: 100%" size="small" />
+
+        <a-form-item v-if="isAircraft" label="高(米)" class="form-item" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+          <a-input-number v-model:value="form.altitude" :min="100" :step="100" size="small" />
         </a-form-item>
-        <a-form-item label="经纬度(支持多格式)" class="form-item" style="grid-column: span 2">
+
+        <a-form-item label="经纬度" class="form-item" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
           <a-input
             v-model:value="coordInput"
-            placeholder="如 112 23 22,23 22 22 或 112.23,23.22"
+            placeholder="如：112 23 23,22 21 22 或 112.2345,22.3456"
             size="small"
-            style="width: 70%"
+            @input="parseCoordInput"
             @blur="parseCoordInput"
             @pressEnter="parseCoordInput"
           />
         </a-form-item>
-        <a-form-item label="经度" class="form-item">
-          <a-input-number v-model:value="form.longitude" :step="0.000001" style="width: 100%" size="small" />
+
+        <!-- 解析结果显示（一行，无label） -->
+        <a-form-item class="form-item result-item">
+          <span v-if="isCoordValid" class="coord-result">{{ formattedCoord }}</span>
+          <span v-else class="parse-error">经纬度解析失败，请检查输入格式</span>
         </a-form-item>
-        <a-form-item label="纬度" class="form-item">
-          <a-input-number v-model:value="form.latitude" :step="0.000001" style="width: 100%" size="small" />
+
+        <a-form-item label="航向" class="form-item" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+          <a-input-number v-model:value="form.heading" size="small" />
         </a-form-item>
-        <a-form-item label="航向" class="form-item">
-          <a-input-number v-model:value="form.heading" :min="0" :max="360" style="width: 100%" size="small" />
-        </a-form-item>
-        <a-form-item label="航速（节）" class="form-item">
-          <a-input-number v-model:value="form.speed" :min="0" style="width: 100%" size="small" />
+
+        <a-form-item label="航速（节）" class="form-item" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+          <a-input-number v-model:value="form.speed" size="small" />
         </a-form-item>
       </div>
       <div class="button-group">
-        <a-button type="primary" size="small" @click="loadModel">加载模型</a-button>
+        <a-button type="primary" size="small" @click="loadModel" :disabled="!isCoordValid"> 加载模型 </a-button>
         <a-button type="primary" size="small" @click="startNavigation">开始航行</a-button>
         <a-button type="primary" danger size="small" @click="stopNavigation">停止</a-button>
         <a-button type="primary" size="small" @click="flyToModel">定位</a-button>
@@ -69,17 +73,132 @@
   import { customGeocoderService } from '../utils/customGeocoder';
 
   const coordInput = ref('');
+  const isCoordValid = ref(false);
+  const inputFormat = ref<'decimal' | 'dms'>('decimal');
 
+  const form = ref({
+    modelUrl: '',
+    longitude: 116,
+    latitude: 19,
+    altitude: 1000,
+    heading: 0,
+    speed: 10,
+  });
+
+  const localBasePath = '/plotResources/';
+  const modelOptions = [
+    { label: '渔船', value: `${localBasePath}models/渔船.glb` },
+    { label: '散货船', value: `${localBasePath}models/散货船.glb` },
+    { label: '拖轮', value: `${localBasePath}models/拖轮.glb` },
+    { label: '铁矿石船', value: `${localBasePath}models/铁矿石船.glb` },
+    { label: '煤炭船', value: `${localBasePath}models/煤炭船.glb` },
+    { label: '集装箱船', value: `${localBasePath}models/集装箱船.glb` },
+    { label: '化工品船', value: `${localBasePath}models/化工品船.glb` },
+    { label: '滚装船', value: `${localBasePath}models/滚装船.glb` },
+    { label: '飞机', value: `${localBasePath}models/飞机.glb` },
+    { label: '战机', value: `${localBasePath}models/战机.glb` },
+    { label: '无人机', value: `${localBasePath}models/无人机.glb` },
+    { label: 'MQ-9无人机', value: `${localBasePath}models/MQ-9无人机.glb` },
+  ];
+  form.value.modelUrl = modelOptions[0].value;
+
+  const isAircraft = computed(() => ['客机', '飞机', '战机', '无人机', 'MQ-9无人机'].some((name) => form.value.modelUrl.includes(name)));
+
+  // 度分秒转十进制
+  function dmsToDecimal(degrees: number, minutes: number, seconds: number, isLat: boolean): number {
+    let decimal = degrees + minutes / 60 + seconds / 3600;
+    return decimal;
+  }
+
+  // 十进制转度分秒
+  function decimalToDMS(decimal: number, isLat: boolean): string {
+    const abs = Math.abs(decimal);
+    const degrees = Math.floor(abs);
+    const minutesFloat = (abs - degrees) * 60;
+    const minutes = Math.floor(minutesFloat);
+    const seconds = Math.round((minutesFloat - minutes) * 60 * 100) / 100;
+
+    const direction = isLat ? (decimal >= 0 ? 'N' : 'S') : decimal >= 0 ? 'E' : 'W';
+
+    return `${degrees}°${minutes}′${seconds.toFixed(2)}″${direction}`;
+  }
+
+  // 解析经纬度输入
   async function parseCoordInput() {
-    if (!coordInput.value) return;
-    const results = await customGeocoderService.geocode(coordInput.value);
-    if (results && results.length > 0) {
-      form.value.longitude = results[0].lon;
-      form.value.latitude = results[0].lat;
-    } else {
-      window.$message?.error?.('经纬度格式解析失败');
+    if (!coordInput.value) {
+      form.value.longitude = 116;
+      form.value.latitude = 19;
+      isCoordValid.value = false;
+      return;
+    }
+
+    try {
+      // 检测输入格式
+      if (
+        coordInput.value.includes('°') ||
+        coordInput.value.includes('′') ||
+        coordInput.value.includes('″') ||
+        (coordInput.value.includes(' ') && (coordInput.value.match(/ /g) || []).length >= 2)
+      ) {
+        inputFormat.value = 'dms';
+      } else {
+        inputFormat.value = 'decimal';
+      }
+
+      let results: any[] = [];
+      const coordStr = coordInput.value.trim();
+
+      // 处理度分秒格式（如：112 23 23,22 21 22）
+      if (inputFormat.value === 'dms' && coordStr.includes(',')) {
+        const [lonStr, latStr] = coordStr.split(',');
+        const lonParts = lonStr
+          .trim()
+          .split(/\s+/)
+          .map((part) => parseFloat(part));
+        const latParts = latStr
+          .trim()
+          .split(/\s+/)
+          .map((part) => parseFloat(part));
+
+        if (lonParts.length === 3 && latParts.length === 3) {
+          const lon = dmsToDecimal(lonParts[0], lonParts[1], lonParts[2], false);
+          const lat = dmsToDecimal(latParts[0], latParts[1], latParts[2], true);
+          results = [{ lon, lat }];
+        } else {
+          results = await customGeocoderService.geocode(coordStr);
+        }
+      } else {
+        // 处理十进制格式或其他格式
+        results = await customGeocoderService.geocode(coordStr);
+      }
+
+      if (results && results.length > 0) {
+        form.value.longitude = results[0].lon;
+        form.value.latitude = results[0].lat;
+        isCoordValid.value = true;
+      } else {
+        form.value.longitude = 116;
+        form.value.latitude = 19;
+        isCoordValid.value = false;
+        window.$message?.error?.('经纬度格式解析失败');
+      }
+    } catch (error) {
+      form.value.longitude = 116;
+      form.value.latitude = 19;
+      isCoordValid.value = false;
+      window.$message?.error?.('经纬度解析过程中发生错误');
     }
   }
+
+  // 格式化显示的经纬度（一行显示，纬度在前，经度在后）
+  const formattedCoord = computed(() => {
+    if (!isCoordValid.value) return '';
+    const latDMS = decimalToDMS(form.value.latitude, true);
+    const lonDMS = decimalToDMS(form.value.longitude, false);
+    return `${latDMS}, ${lonDMS}`;
+  });
+
+  // 其他功能代码保持不变
   const props = defineProps<{
     viewer: Cesium.Viewer | null;
     isPanelOpen: boolean;
@@ -90,44 +209,9 @@
     (event: 'panelToggle', isOpen: boolean): void;
   }>();
 
-  // 面板位置
   const panelPosition = ref({ x: 60, y: 80 });
   let dragOffset = { x: 0, y: 0 };
   let dragging = false;
-
-  const localBasePath = '/plotResources/';
-  const modelOptions = [
-    // { label: '军舰', value: `${localBasePath}models/军舰.gltf` },
-    { label: '渔船', value: `${localBasePath}models/渔船.glb` },
-    { label: '散货船', value: `${localBasePath}models/散货船.glb` },
-    { label: '拖轮', value: `${localBasePath}models/拖轮.glb` },
-
-    { label: '铁矿石船', value: `${localBasePath}models/铁矿石船.glb` },
-    { label: '煤炭船', value: `${localBasePath}models/煤炭船.glb` },
-
-    { label: '集装箱船', value: `${localBasePath}models/集装箱船.glb` },
-    { label: '化工品船', value: `${localBasePath}models/化工品船.glb` },
-    { label: '滚装船', value: `${localBasePath}models/滚装船.glb` },
-    // { label: '航空母舰', value: `${localBasePath}models/航空母舰.gltf` },
-
-    // { label: '警车', value: `${localBasePath}models/警车.gltf` },
-
-    { label: '飞机', value: `${localBasePath}models/飞机.glb` },
-    { label: '战机', value: `${localBasePath}models/战机.glb` },
-    { label: '无人机', value: `${localBasePath}models/无人机.glb` },
-    { label: 'MQ-9无人机', value: `${localBasePath}models/MQ-9无人机.glb` },
-  ];
-
-  const form = ref({
-    modelUrl: modelOptions[0].value,
-    longitude: 116,
-    latitude: 19,
-    altitude: 1000,
-    heading: 0,
-    speed: 10,
-  });
-
-  const isAircraft = computed(() => ['客机', '飞机', '战机', '无人机', 'MQ-9无人机'].some((name) => form.value.modelUrl.includes(name)));
 
   let modelEntity: Cesium.Entity | null = null;
   let intervalId: number | null = null;
@@ -146,26 +230,8 @@
     }
   }
 
-  // function getFallbackModelUrl(localUrl: string): string | null {
-  //   const modelMap: Record<string, string> = {
-  //     '飞机.glb': 'http://data.mars3d.cn/gltf/mars/feiji/feiji.glb',
-  //     '军舰.glb': 'http://data.mars3d.cn/gltf/mars/junjian/junjian.glb',
-  //   };
-  //   const modelName = localUrl.split('/').pop()!;
-  //   return modelMap[modelName] || null;
-  // }
-
   async function loadModel() {
-    if (!props.viewer) return;
-    // const modelExists = await verifyModelFile(form.value.modelUrl);
-    // if (!modelExists) {
-    //   const fallbackUrl = getFallbackModelUrl(form.value.modelUrl);
-    //   if (fallbackUrl) {
-    //     form.value.modelUrl = fallbackUrl;
-    //   } else {
-    //     return;
-    //   }
-    // }
+    if (!props.viewer || !isCoordValid.value) return;
     if (modelEntity) {
       props.viewer.entities.remove(modelEntity);
     }
@@ -187,7 +253,8 @@
     if (!props.viewer || !modelEntity) return;
     props.viewer.flyTo(modelEntity, { duration: 2 });
   }
-  let lastHeading = form.value.heading; // 新增：记录上一次航向
+
+  let lastHeading = form.value.heading;
   function startNavigation() {
     if (intervalId || !props.viewer) return;
 
@@ -203,10 +270,10 @@
     }
     trackPoints = [];
     trackPoints.push([form.value.longitude, form.value.latitude]);
-    lastHeading = form.value.heading; // 初始化航向
+    lastHeading = form.value.heading;
 
     intervalId = window.setInterval(() => {
-      const speedInKnots = form.value.speed; // 节
+      const speedInKnots = form.value.speed;
       const speedInMetersPerSecond = speedInKnots * 0.514444;
       const degreePerMeter = 0.00000898;
 
@@ -222,7 +289,6 @@
         if (isAircraft.value) {
           headingOffset = -90;
         }
-        // 关键：用 Transforms.headingPitchRollQuaternion，pitch/roll=0，heading为输入值
         const position = Cesium.Cartesian3.fromDegrees(form.value.longitude, form.value.latitude, isAircraft.value ? form.value.altitude : 0);
         const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(form.value.heading + headingOffset), 0, 0);
         modelEntity.position = position;
@@ -244,7 +310,7 @@
             width: 1,
             material: Cesium.Color.RED,
           },
-          show: false, // 默认隐藏
+          show: false,
         });
       } else {
         const start = Cesium.Cartesian3.fromDegrees(form.value.longitude, form.value.latitude);
@@ -270,7 +336,6 @@
           },
         });
       }
-      // 只有航向变动时，才刷新航线线
       if (form.value.heading !== lastHeading && headingLineEntity) {
         lastHeading = form.value.heading;
         headingLineEntity.polyline.positions = new Cesium.CallbackProperty(() => {
@@ -304,14 +369,11 @@
     }
   }
 
-  // 切换面板显示状态
   function togglePanel() {
     emit('panelToggle', !props.isPanelOpen);
   }
 
-  // 面板拖拽
   function onDragStart(e: MouseEvent | TouchEvent) {
-    // 只允许通过标题栏拖拽
     if (!(e.target as HTMLElement).closest('.panel-header')) return;
 
     dragging = true;
@@ -334,7 +396,6 @@
     let newX = evt.clientX - dragOffset.x;
     let newY = evt.clientY - dragOffset.y;
 
-    // 限制在Cesium容器范围内
     if (props.viewerContainer) {
       const rect = props.viewerContainer.getBoundingClientRect();
       newX = Math.max(rect.left, Math.min(newX, rect.right - 240));
@@ -359,7 +420,6 @@
     if (modelEntity && props.viewer) {
       props.viewer.entities.remove(modelEntity);
     }
-    // 移除拖拽事件监听器
     window.removeEventListener('mousemove', onDragging);
     window.removeEventListener('mouseup', onDragEnd);
     window.removeEventListener('touchmove', onDragging);
@@ -403,7 +463,7 @@
 
   .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 
@@ -415,15 +475,8 @@
     min-width: 0;
   }
 
-  .form-item .ant-form-item-label {
-    min-width: auto;
-    margin-right: 0;
-    margin-bottom: 4px;
-    font-size: 13px;
-    color: #444;
-    padding-bottom: 0;
-    line-height: 1;
-    text-align: left;
+  .result-item .ant-form-item-label {
+    display: none; /* 隐藏label */
   }
 
   .form-item .ant-form-item-control {
@@ -444,5 +497,24 @@
     width: 100%;
     margin: 0;
     padding: 0 4px;
+  }
+
+  .result-item .ant-form-item-label {
+    display: none;
+  }
+
+  .coord-result {
+    font-weight: 500;
+    color: #1890ff;
+    display: block;
+    padding: 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .parse-error {
+    color: #f5222d;
+    font-size: 12px;
   }
 </style>

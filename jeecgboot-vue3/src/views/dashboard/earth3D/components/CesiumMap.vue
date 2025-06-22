@@ -114,7 +114,7 @@
           if (searchText.endsWith('"')) {
             searchText = searchText.slice(0, -1);
           }
-          console.log('searchText', searchText);
+          //   console.log('searchText', searchText);
           entityManagerRef.value?.createEntity({ lon, lat, format, searchText });
         } else {
           // 地名：只闪烁5秒
