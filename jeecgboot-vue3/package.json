@@ -55,6 +55,7 @@
     "event-source-polyfill": "^1.0.31",
     "highlight.js": "^11.11.1",
     "intro.js": "^7.2.0",
+    "libgif": "^0.0.3",
     "lodash-es": "^4.17.21",
     "lodash.get": "^4.4.2",
     "markdown-it": "^14.1.0",

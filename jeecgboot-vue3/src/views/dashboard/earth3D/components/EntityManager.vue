@@ -87,14 +87,16 @@
       id,
       position: new Cesium.ConstantPositionProperty(Cesium.Cartesian3.fromDegrees(lon, lat, 0)),
 
-      point: {
-        pixelSize: 14,
-        color: Cesium.Color.YELLOW.withAlpha(0.9),
-        outlineColor: Cesium.Color.RED,
-        outlineWidth: 4,
-        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-      },
-
+      // // 新增：billboard 作为 label 的动态边框底图
+      // billboard: {
+      //   image: '/resource/svg/board.png', // 你的动态边框图片路径
+      //   width: 220, // 根据 label 文字长度调整
+      //   height: 200, // 根据 label 文字高度调整
+      //   verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+      //   horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+      //   pixelOffset: labelOffset, // 与 label 保持一致
+      //   heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      // },
       polyline: {
         // 使用回调函数动态计算 polyline 的位置
         positions: new Cesium.CallbackProperty(() => {
@@ -121,6 +123,14 @@
         material: Cesium.Color.WHITE.withAlpha(0.5),
         clampToGround: false,
       },
+      point: {
+        pixelSize: 14,
+        color: Cesium.Color.YELLOW.withAlpha(0.9),
+        outlineColor: Cesium.Color.RED,
+        outlineWidth: 4,
+        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+      },
+
       // billboard: {
       //   image: '../../../../assets/images/border.gif',
       //   width: 180, // 你想要的底图宽度

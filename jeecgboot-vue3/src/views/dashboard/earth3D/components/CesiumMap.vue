@@ -39,6 +39,16 @@
       geocoder: true,
     });
 
+    // const imageryProvider = Cesium.createTileMapServiceImageryProvider({
+    //   url: '../lib/Cesium/Assets/Textures/NaturalEarthII',
+    //   fileExtension: 'jpg',
+    // });
+    // viewer.value.imageryLayers.addImageryProvider(imageryProvider);
+    // 去除版权信息
+    // viewer.value._cesiumWidget._creditContainer.style.display = 'none';
+
+    // 显示帧率插件
+    viewer.value.scene.debugShowFramesPerSecond = true;
     viewer.value.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(115, 15, 5000000),
       orientation: { heading: 0, roll: 0 },
@@ -104,7 +114,7 @@
           if (searchText.endsWith('"')) {
             searchText = searchText.slice(0, -1);
           }
-          // console.log('searchText', searchText);
+          console.log('searchText', searchText);
           entityManagerRef.value?.createEntity({ lon, lat, format, searchText });
         } else {
           // 地名：只闪烁5秒

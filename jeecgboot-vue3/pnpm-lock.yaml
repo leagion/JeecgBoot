@@ -110,6 +110,9 @@ importers:
       intro.js:
         specifier: ^7.2.0
         version: 7.2.0
+      libgif:
+        specifier: ^0.0.3
+        version: 0.0.3
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -4754,6 +4757,9 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  libgif@0.0.3:
+    resolution: {integrity: sha512-4lJhyr5AQvHIs+Btdqvx0UgUAuZNJhcG6vZS0yYNrYm4B1k9Lo4NxezWR5AQ7EJrXkxmktrx1ZplWJVwRBz/ew==}
 
   lilconfig@3.0.0:
     resolution: {integrity: sha512-K2U4W2Ff5ibV7j7ydLr+zLAkIg5JJ4lPn1Ltsdt+Tz/IjQ8buJ55pZAxoP34lqIiwtF9iAvtLv3JGv7CAyAg+g==}
@@ -12477,6 +12483,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libgif@0.0.3: {}
 
   lilconfig@3.0.0: {}
 
