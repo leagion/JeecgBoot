@@ -202,9 +202,9 @@ jeecg:
   # AI集成
   ai-chat:
     enabled: true
-    model: deepseek-chat
-    apiKey: ??
-    apiHost: https://api.deepseek.com
+    model: ds-lq:latest
+    apiKey: ollama
+    apiHost: http://localhost:11434
     timeout: 60
   # AIRag向量库
   ai-rag:

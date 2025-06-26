@@ -48,7 +48,7 @@
     // viewer.value._cesiumWidget._creditContainer.style.display = 'none';
 
     // 显示帧率插件
-    viewer.value.scene.debugShowFramesPerSecond = true;
+   // viewer.value.scene.debugShowFramesPerSecond = true;
     viewer.value.camera.flyTo({
       destination: Cesium.Cartesian3.fromDegrees(115, 15, 5000000),
       orientation: { heading: 0, roll: 0 },
