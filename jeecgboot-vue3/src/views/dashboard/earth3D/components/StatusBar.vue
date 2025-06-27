@@ -18,6 +18,7 @@
 
   const props = defineProps<{ viewer?: Cesium.Viewer }>();
   let flashPoint: { horizontal: Cesium.Entity; vertical: Cesium.Entity } | null = null;
+  const isUnmounted = ref(false); // 新增标志位
 
   // 视角（相机）参数
   const cameraLon = ref('--');
@@ -47,13 +48,26 @@
 
   let handler: Cesium.ScreenSpaceEventHandler | null = null;
   let dblClickHandler: Cesium.ScreenSpaceEventHandler | null = null;
-  // 声明类型
 
   // 监听 viewer 初始化
   watch(
     () => props.viewer,
-    (val) => {
-      if (!val) return;
+    (val, oldVal) => {
+      // 清理旧 viewer 的事件监听
+      if (oldVal?.camera) {
+        oldVal.camera.changed.removeEventListener(updateCameraInfo);
+      }
+      if (oldVal?.scene && handler) {
+        handler.destroy();
+        handler = null;
+      }
+      if (oldVal?.scene && dblClickHandler) {
+        dblClickHandler.destroy();
+        dblClickHandler = null;
+      }
+
+      // 检查新 viewer 是否有效
+      if (!val || !val.scene) return;
 
       // 避免重复注册
       if (handler) {
@@ -65,6 +79,7 @@
 
       handler = new Cesium.ScreenSpaceEventHandler(val.scene.canvas);
       handler.setInputAction((movement: any) => {
+        if (isUnmounted.value || !val || !val.scene) return; // 新增 isUnmounted 检查
         const cartesian = val.scene.pickPosition(movement.endPosition);
         if (cartesian) {
           const carto = Cesium.Cartographic.fromCartesian(cartesian);
@@ -87,6 +102,7 @@
       }
       dblClickHandler = new Cesium.ScreenSpaceEventHandler(val.scene.canvas);
       dblClickHandler.setInputAction((movement: any) => {
+        if (isUnmounted.value || !val || !val.scene) return; // 新增 isUnmounted 检查
         const cartesian = val.scene.pickPosition(movement.position);
         if (cartesian) {
           const carto = Cesium.Cartographic.fromCartesian(cartesian);
@@ -128,11 +144,10 @@
           });
           flashPoint = { horizontal, vertical };
           setTimeout(() => {
-            if (flashPoint) {
-              val.entities.remove(flashPoint.horizontal);
-              val.entities.remove(flashPoint.vertical);
-              flashPoint = null;
-            }
+            if (isUnmounted.value || !flashPoint || !val?.entities) return; // 新增 isUnmounted 检查
+            val.entities.remove(flashPoint.horizontal);
+            val.entities.remove(flashPoint.vertical);
+            flashPoint = null;
           }, 1000);
           // --- 十字标记 end ---
         }
@@ -140,6 +155,7 @@
     },
     { immediate: true }
   );
+
   function copyTargetCoords() {
     const text = `经度: ${targetLonDMS.value} / ${targetLon.value}\n纬度: ${targetLatDMS.value} / ${targetLat.value}`;
     navigator.clipboard.writeText(text).then(() => {
@@ -147,6 +163,7 @@
       // 如果用 Element Plus，可用 ElMessage.success(`已复制坐标：${text}`)
     });
   }
+
   // 度转度分秒
   function toDMS(val: string | number) {
     if (val === '--' || val === undefined) return '--';
@@ -158,13 +175,13 @@
   }
 
   function updateCameraInfo() {
-    if (!props.viewer) return;
+    if (isUnmounted.value || !props.viewer?.scene?.canvas) return; // 新增 isUnmounted 检查
     const camera = props.viewer.camera;
     const carto = Cesium.Cartographic.fromCartesian(camera.position);
     const lon = Cesium.Math.toDegrees(carto.longitude);
     const lat = Cesium.Math.toDegrees(carto.latitude);
-    cameraLon.value = lon.toFixed(6);
-    cameraLat.value = lat.toFixed(6);
+    cameraLon.value = lon.toFixed(4);
+    cameraLat.value = lat.toFixed(4);
     cameraHeight.value = carto.height.toFixed(0);
     cameraHeightKm.value = (carto.height / 1000).toFixed(0);
     cameraLonDMS.value = toDMS(lon);
@@ -176,6 +193,7 @@
     cameraPitch.value = typeof camera.pitch === 'number' && Number.isFinite(camera.pitch) ? Cesium.Math.toDegrees(camera.pitch).toFixed(0) : '--';
 
     // 计算目标点（相机视线中心点）
+    if (isUnmounted.value || !props.viewer?.scene?.canvas) return; // 新增 isUnmounted 检查
     const ray = camera.getPickRay(new Cesium.Cartesian2(props.viewer.scene.canvas.width / 2, props.viewer.scene.canvas.height / 2));
     if (ray) {
       const target = props.viewer.scene.globe.pick(ray, props.viewer.scene);
@@ -194,13 +212,15 @@
   }
 
   function updateTime() {
+    if (isUnmounted.value) return; // 新增 isUnmounted 检查
     const d = new Date();
     now.value = d.toLocaleString();
   }
 
   onMounted(() => {
+    if (!props.viewer || !props.viewer.scene) return;
     updateTime();
-    setInterval(updateTime, 1000);
+    const intervalId = setInterval(updateTime, 1000);
 
     if (!props.viewer) return;
 
@@ -209,7 +229,8 @@
 
     handler = new Cesium.ScreenSpaceEventHandler(props.viewer.scene.canvas);
     handler.setInputAction((movement: any) => {
-      const cartesian = props.viewer!.scene.pickPosition(movement.endPosition);
+      if (isUnmounted.value || !props.viewer) return; // 新增 isUnmounted 检查
+      const cartesian = props.viewer.scene.pickPosition(movement.endPosition);
       if (cartesian) {
         const carto = Cesium.Cartographic.fromCartesian(cartesian);
         const lon = Cesium.Math.toDegrees(carto.longitude);
@@ -223,16 +244,30 @@
         mouseLon.value = mouseLat.value = mouseLonDMS.value = mouseLatDMS.value = mouseHeight.value = '--';
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-  });
 
-  onUnmounted(() => {
-    if (handler) {
-      handler.destroy();
-      handler = null;
-    }
-    if (props.viewer) {
-      props.viewer.camera.changed.removeEventListener(updateCameraInfo);
-    }
+    onUnmounted(() => {
+      isUnmounted.value = true;
+      if (handler) {
+        handler.destroy();
+        handler = null;
+      }
+      if (dblClickHandler) {
+        dblClickHandler.destroy();
+        dblClickHandler = null;
+      }
+      // 清理相机事件监听
+      if (props.viewer?.camera) {
+        props.viewer.camera.changed.removeEventListener(updateCameraInfo);
+      }
+
+      // 清理十字标记
+      if (flashPoint && props.viewer?.entities) {
+        props.viewer.entities.remove(flashPoint.horizontal);
+        props.viewer.entities.remove(flashPoint.vertical);
+        flashPoint = null;
+      }
+      clearInterval(intervalId); // 清除定时器
+    });
   });
 </script>
 
