@@ -205,15 +205,22 @@ jeecg:
     model: ds-lq:latest
     apiKey: ollama
     apiHost: http://localhost:11434
-    timeout: 60
+    timeout: 1200000
+    # 新增连接池配置
+    pool:
+      max-idle: 20
+      min-idle: 5
+      max-active: 50
+      max-wait: 120000  # 等待超时调整为2分钟
+
   # AIRag向量库
   ai-rag:
     embed-store:
       host: 127.0.0.1
       port: 5432
-      database: postgres
-      user: postgres
-      password: postgres
+      database: aiccg_pgdb
+      user: aiccgdb
+      password: hkzdlq@CCG2025
       table: embeddings
   # 平台上线安全配置
   firewall:

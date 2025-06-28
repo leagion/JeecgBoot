@@ -55,7 +55,7 @@
   const dataSource = ref<any>({});
   const uuid = ref<string>('');
   const chatData = ref<any>([]);
-  const expand = ref<any>(true);
+  const expand = ref<any>(false);
   const chatVisible = ref(true);
   const chatContainerRef = ref<any>(null);
   const chatContainerStyle = ref({});
@@ -106,7 +106,7 @@
           if (value == '1002') {
             uuid.value = '1002';
             chatData.value = [];
-            chatTitle.value = "新建聊天";
+            chatTitle.value = '新建聊天';
             chatVisible.value = false;
             nextTick(() => {
               chatVisible.value = true;
@@ -115,8 +115,8 @@
           }
           //update-begin---author:wangshuai---date:2025-03-14---for:【QQYUN-11421】聊天，删除会话后，聊天切换到新的会话，但是聊天标题没有变---
           let values = dataSource.value.history.filter((item) => item.id === value);
-          if(values && values.length>0){
-            chatTitle.value = values[0]?.title
+          if (values && values.length > 0) {
+            chatTitle.value = values[0]?.title;
           }
           //update-end---author:wangshuai---date:2025-03-14---for:【QQYUN-11421】聊天，删除会话后，聊天切换到新的会话，但是聊天标题没有变---
           //根据选中的id查询聊天内容
@@ -133,9 +133,9 @@
               chatVisible.value = true;
             });
           });
-        }else{
+        } else {
           chatData.value = [];
-          chatTitle.value = "";
+          chatTitle.value = '';
         }
       },
       { immediate: true }
@@ -180,20 +180,21 @@
     } else {
       initChartData();
       quickCommandData.value = [
-          { name: '请介绍一下JeecgBoot', descr: "请介绍一下JeecgBoot" },
-          { name: 'JEECG有哪些优势？', descr: "JEECG有哪些优势？" },
-          { name: 'JEECG可以做哪些事情？', descr: "JEECG可以做哪些事情？" },];
+        { name: '请介绍一下JeecgBoot', descr: '请介绍一下JeecgBoot' },
+        { name: 'JEECG有哪些优势？', descr: 'JEECG有哪些优势？' },
+        { name: 'JEECG可以做哪些事情？', descr: 'JEECG可以做哪些事情？' },
+      ];
     }
   });
 
   onUnmounted(() => {
     chatData.value = [];
-    chatTitle.value = "";
-    prologue.value = ""
-    presetQuestion.value = "";
+    chatTitle.value = '';
+    prologue.value = '';
+    presetQuestion.value = '';
     quickCommandData.value = [];
-  })
-  
+  });
+
   /**
    * 获取应用id
    *
@@ -213,10 +214,10 @@
           appData.value = res.result;
           if (res.result && res.result.prologue) {
             prologue.value = res.result.prologue;
-          }  
+          }
           if (res.result && res.result.quickCommand) {
             quickCommandData.value = JSON.parse(res.result.quickCommand);
-          } 
+          }
           if (res.result && res.result.presetQuestion) {
             presetQuestion.value = res.result.presetQuestion;
           }
@@ -242,13 +243,12 @@
    */
   function reloadMessageTitle(text) {
     let title = dataSource.value.history[chatActiveKey.value].title;
-    if(title === '新建聊天'){
+    if (title === '新建聊天') {
       dataSource.value.history[chatActiveKey.value].title = text;
       dataSource.value.history[chatActiveKey.value]['disabled'] = false;
     }
-
   }
-  
+
   /**
    * 初始化聊天：用于icon点击
    */
@@ -257,10 +257,10 @@
     getApplicationData(value);
     initChartData(value);
   }
-  
+
   defineExpose({
-    initChat
-  })
+    initChat,
+  });
 
   onUnmounted(() => {
     unwatch01 && unwatch01();
@@ -269,7 +269,7 @@
   watch(
     () => chatContainerRef.value,
     () => {
-      if(chatContainerRef.value.offsetHeight){
+      if (chatContainerRef.value.offsetHeight) {
         chatContainerStyle.value = { height: `${chatContainerRef.value.offsetHeight} px` };
       }
     }

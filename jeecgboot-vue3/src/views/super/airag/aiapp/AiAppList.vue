@@ -83,11 +83,11 @@
                 </div>
                 <template #overlay>
                   <a-menu>
-                    <a-menu-item key="web" @click.prevent.stop="handleSendClick(item,'web')">
+                    <a-menu-item key="web" @click.prevent.stop="handleSendClick(item, 'web')">
                       <Icon icon="ant-design:dribbble-outlined" size="16"></Icon>
                       嵌入网站
                     </a-menu-item>
-                    <a-menu-item key="menu" @click.prevent.stop="handleSendClick(item,'menu')">
+                    <a-menu-item key="menu" @click.prevent.stop="handleSendClick(item, 'menu')">
                       <Icon icon="ant-design:menu-outlined" size="16"></Icon> 配置菜单
                     </a-menu-item>
                   </a-menu>
@@ -115,11 +115,17 @@
     <!-- Ai设置弹窗 -->
     <AiAppSettingModal @register="registerSettingModal" @success="reload"></AiAppSettingModal>
     <!-- 发布弹窗 -->
-    <AiAppSendModal @register="registerAiAppSendModal"/>
+    <AiAppSendModal @register="registerAiAppSendModal" />
   </div>
 </template>
 
 <script lang="ts">
+  createAiChat({
+    appId: '1938600447964676098',
+    // 支持top-left左上, top-right右上, bottom-left左下, bottom-right右下
+    iconPosition: 'bottom-right',
+  });
+
   import { ref, reactive } from 'vue';
   import BasicModal from '@/components/Modal/src/BasicModal.vue';
   import { useModal, useModalInner } from '@/components/Modal';
@@ -185,7 +191,7 @@
       });
       //表单的ref
       const formRef = ref();
-      
+
       reload();
 
       /**
@@ -264,7 +270,7 @@
        * 演示
        */
       function handleViewClick(id) {
-        window.open('/ai/app/chat/' + id , '_blank');
+        window.open('/ai/app/chat/' + id, '_blank');
       }
 
       /**
@@ -279,11 +285,11 @@
        * @param item 数据
        * @param type 类别
        */
-      function handleSendClick(item,type) {
-        openAiAppSendModal(true,{
+      function handleSendClick(item, type) {
+        openAiAppSendModal(true, {
           type: type,
-          data: item
-        })
+          data: item,
+        });
       }
 
       /**
@@ -470,7 +476,7 @@
   :deep(.ant-card .ant-card-body) {
     padding: 16px;
   }
-  .ellipsis{
+  .ellipsis {
     overflow: hidden;
     text-wrap: nowrap;
     text-overflow: ellipsis;

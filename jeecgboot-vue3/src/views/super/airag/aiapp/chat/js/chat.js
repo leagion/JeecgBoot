@@ -2,38 +2,38 @@
 (function () {
   let widgetInstance = null;
   const defaultConfig = {
-    // Ö§³Ö'top-left'×óÉÏ, 'top-right'ÓÒÉÏ, 'bottom-left'×óÏÂ, 'bottom-right'ÓÒÏÂ
+    // Ö§ï¿½ï¿½'top-left'ï¿½ï¿½ï¿½ï¿½, 'top-right'ï¿½ï¿½ï¿½ï¿½, 'bottom-left'ï¿½ï¿½ï¿½ï¿½, 'bottom-right'ï¿½ï¿½ï¿½ï¿½
     iconPosition: 'bottom-right',
-    //Í¼±êµÄ´óÐ¡
-    iconSize: '30px',
-    //Í¼±êµÄÑÕÉ«
+    //Í¼ï¿½ï¿½Ä´ï¿½Ð¡
+    iconSize: '60px',
+    //Í¼ï¿½ï¿½ï¿½ï¿½ï¿½É«
     iconColor: '#155eef',
-    //±ØÌî²»ÔÊÐíÐÞ¸Ä
+    //ï¿½ï¿½ï¿½î²»ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½
     appId: '',
-    //ÁÄÌìµ¯´°µÄ¿í¶È
+    //ï¿½ï¿½ï¿½ìµ¯ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½
     chatWidth: '800px',
-    //ÁÄÌìµ¯´°µÄ¸ß¶È
+    //ï¿½ï¿½ï¿½ìµ¯ï¿½ï¿½ï¿½Ä¸ß¶ï¿½
     chatHeight: '700px',
   };
 
   /**
-   * ´´½¨aiÍ¼±ê
+   * ï¿½ï¿½ï¿½ï¿½aiÍ¼ï¿½ï¿½
    * @param config
    */
   function createAiChat(config) {
-    // µ¥ÀýÄ£Ê½£¬È·±£Ö»´æÔÚÒ»¸öÊµÀý
+    // ï¿½ï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½È·ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Êµï¿½ï¿½
     if (widgetInstance) {
       return;
     }
 
-    // ºÏ²¢ÅäÖÃ
+    // ï¿½Ï²ï¿½ï¿½ï¿½ï¿½ï¿½
     const finalConfig = { ...defaultConfig, ...config };
 
     if (!finalConfig.appId) {
-      console.error('appIdÎª¿Õ£¡');
+      console.error('appIdÎªï¿½Õ£ï¿½');
       return;
     }
-    // ´´½¨ÈÝÆ÷
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     const container = document.createElement('div');
     container.style.cssText = `
             position: fixed;
@@ -41,12 +41,13 @@
             ${getPositionStyles(finalConfig.iconPosition)}
             cursor: pointer;
         `;
-    // ´´½¨Í¼±ê
+    // ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
     const icon = document.createElement('div');
     icon.style.cssText = `
             width: ${finalConfig.iconSize};
             height: ${finalConfig.iconSize};
-            background-color: ${finalConfig.iconColor};
+           
+            background-color:color.white;
             border-radius: 50%;
             box-shadow: rgba(0, 0, 0, 0.2) 0 4px 8px 0;
             padding: 12px;
@@ -56,9 +57,9 @@
             color: white;
         `;
     icon.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 1024 1024" class="iconify iconify--ant-design"><path fill="currentColor" d="M573 421c-23.1 0-41 17.9-41 40s17.9 40 41 40c21.1 0 39-17.9 39-40s-17.9-40-39-40m-280 0c-23.1 0-41 17.9-41 40s17.9 40 41 40c21.1 0 39-17.9 39-40s-17.9-40-39-40"></path><path fill="currentColor" d="M894 345c-48.1-66-115.3-110.1-189-130v.1c-17.1-19-36.4-36.5-58-52.1c-163.7-119-393.5-82.7-513 81c-96.3 133-92.2 311.9 6 439l.8 132.6c0 3.2.5 6.4 1.5 9.4c5.3 16.9 23.3 26.2 40.1 20.9L309 806c33.5 11.9 68.1 18.7 102.5 20.6l-.5.4c89.1 64.9 205.9 84.4 313 49l127.1 41.4c3.2 1 6.5 1.6 9.9 1.6c17.7 0 32-14.3 32-32V753c88.1-119.6 90.4-284.9 1-408M323 735l-12-5l-99 31l-1-104l-8-9c-84.6-103.2-90.2-251.9-11-361c96.4-132.2 281.2-161.4 413-66c132.2 96.1 161.5 280.6 66 412c-80.1 109.9-223.5 150.5-348 102m505-17l-8 10l1 104l-98-33l-12 5c-56 20.8-115.7 22.5-171 7l-.2-.1C613.7 788.2 680.7 742.2 729 676c76.4-105.3 88.8-237.6 44.4-350.4l.6.4c23 16.5 44.1 37.1 62 62c72.6 99.6 68.5 235.2-8 330"></path><path fill="currentColor" d="M433 421c-23.1 0-41 17.9-41 40s17.9 40 41 40c21.1 0 39-17.9 39-40s-17.9-40-39-40"></path></svg>';
+      '<svg t="1750517509438" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="19577" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M951.96875 792.03125c-22.125 0-40.03125-17.90625-40.03125-40.03125V552.03125c0-22.125 17.90625-40.03125 40.03125-40.03125s40.03125 17.90625 40.03125 40.03125V752c0 22.125-17.90625 40.03125-40.03125 40.03125zM752 912.03125H272c-66.28125 0-120-53.71875-120-120v-360c0-66.28125 53.71875-120 120-120h199.96875v-51.09375c-23.8125-13.875-40.03125-39.375-40.03125-68.90625 0-44.15625 35.8125-79.96875 79.96875-79.96875s79.96875 35.8125 79.96875 79.96875c0 29.53125-16.21875 55.03125-40.03125 68.90625v51.09375H752c66.28125 0 120 53.71875 120 120v360c0 66.28125-53.71875 120-120 120z m40.03125-440.0625c0-44.15625-35.8125-79.96875-79.96875-79.96875H312.03125c-44.15625 0-79.96875 35.8125-79.96875 79.96875V752c0 44.15625 35.8125 79.96875 79.96875 79.96875h400.03125c44.15625 0 79.96875-35.8125 79.96875-79.96875V471.96875zM651.96875 672.03125c-33.09375 0-60-26.90625-60-60s26.90625-60 60-60 60 26.90625 60 60-26.8125 60-60 60z m-279.9375 0c-33.09375 0-60-26.90625-60-60s26.90625-60 60-60 60 26.90625 60 60-26.90625 60-60 60z m-300 120C49.90625 792.03125 32 774.125 32 752V552.03125C32 529.90625 49.90625 512 72.03125 512s40.03125 17.90625 40.03125 40.03125V752c-0.09375 22.125-18 40.03125-40.03125 40.03125z" fill="#2C4CE2" p-id="19578"></path></svg>';
 
-    // ´´½¨iframeÈÝÆ÷
+    // ï¿½ï¿½ï¿½ï¿½iframeï¿½ï¿½ï¿½ï¿½
     const iframeContainer = document.createElement('div');
     iframeContainer.style.cssText = `
             position: absolute;
@@ -73,7 +74,7 @@
             z-index: 10000;
         `;
 
-    // ´´½¨iframe
+    // ï¿½ï¿½ï¿½ï¿½iframe
     const iframe = document.createElement('iframe');
     iframe.style.cssText = `
             width: 100%;
@@ -84,7 +85,7 @@
 
     iframe.id = 'ai-app-chat-document';
     iframe.src = getIframeSrc(finalConfig) + '/ai/app/chat/' + finalConfig.appId;
-    // ´´½¨¹Ø±Õ°´Å¥
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ø±Õ°ï¿½Å¥
     const closeBtn = document.createElement('div');
     closeBtn.innerHTML =
       '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" width="1em" height="1em" viewBox="0 0 1024 1024" class="iconify iconify--ant-design"><path fill="currentColor" fill-rule="evenodd" d="M799.855 166.312c.023.007.043.018.084.059l57.69 57.69c.041.041.052.06.059.084a.1.1 0 0 1 0 .069c-.007.023-.018.042-.059.083L569.926 512l287.703 287.703c.041.04.052.06.059.083a.12.12 0 0 1 0 .07c-.007.022-.018.042-.059.083l-57.69 57.69c-.041.041-.06.052-.084.059a.1.1 0 0 1-.069 0c-.023-.007-.042-.018-.083-.059L512 569.926L224.297 857.629c-.04.041-.06.052-.083.059a.12.12 0 0 1-.07 0c-.022-.007-.042-.018-.083-.059l-57.69-57.69c-.041-.041-.052-.06-.059-.084a.1.1 0 0 1 0-.069c.007-.023.018-.042.059-.083L454.073 512L166.371 224.297c-.041-.04-.052-.06-.059-.083a.12.12 0 0 1 0-.07c.007-.022.018-.042.059-.083l57.69-57.69c.041-.041.06-.052.084-.059a.1.1 0 0 1 .069 0c.023.007.042.018.083.059L512 454.073l287.703-287.702c.04-.041.06-.052.083-.059a.12.12 0 0 1 .07 0Z"></path></svg>';
@@ -103,14 +104,14 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         `;
 
-    // ×é×°ÔªËØ
+    // ï¿½ï¿½×°Ôªï¿½ï¿½
     iframeContainer.appendChild(closeBtn);
     iframeContainer.appendChild(iframe);
     document.body.appendChild(iframeContainer);
     container.appendChild(icon);
     document.body.appendChild(container);
 
-    // ÊÂ¼þ¼àÌý
+    // ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½
     icon.addEventListener('click', () => {
       iframeContainer.style.display = 'block';
     });
@@ -119,7 +120,7 @@
       iframeContainer.style.display = 'none';
     });
 
-    // ±£´æÊµÀýÒýÓÃ
+    // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     widgetInstance = {
       remove: () => {
         container.remove();
@@ -129,7 +130,7 @@
   }
 
   /**
-   * »ñÈ¡Î»ÖÃÐÅÏ¢
+   * ï¿½ï¿½È¡Î»ï¿½ï¿½ï¿½ï¿½Ï¢
    *
    * @param position
    * @returns {*|string}
@@ -145,15 +146,15 @@
   }
 
   /**
-   * »ñÈ¡srcµØÖ·
+   * ï¿½ï¿½È¡srcï¿½ï¿½Ö·
    */
   function getIframeSrc(finalConfig) {
-    const specificScript = document.getElementById("e7e007dd52f67fe36365eff636bbffbd");
+    const specificScript = document.getElementById('e7e007dd52f67fe36365eff636bbffbd');
     if (specificScript) {
       return specificScript.src.substring(0, specificScript.src.indexOf('/', specificScript.src.indexOf('://') + 3));
     }
   }
 
-  // ±©Â¶È«¾Ö·½·¨
+  // ï¿½ï¿½Â¶È«ï¿½Ö·ï¿½ï¿½ï¿½
   window.createAiChat = createAiChat;
 })();

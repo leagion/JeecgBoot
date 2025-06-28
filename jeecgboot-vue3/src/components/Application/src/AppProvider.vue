@@ -49,7 +49,7 @@
             } = appStore.getProjectConfig;
             appStore.setProjectConfig({
               menuSetting: {
-                type: MenuTypeEnum.SIDEBAR,
+                type: MenuTypeEnum.TOP_MENU,
                 mode: MenuModeEnum.INLINE,
                 split: false,
               },

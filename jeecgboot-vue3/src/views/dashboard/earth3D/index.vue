@@ -11,7 +11,9 @@
   import CesiumMap from './components/CesiumMap.vue';
   import MeasureToolbar from './components/LqToolbar.vue';
   import StatusBar from './components/StatusBar.vue';
+
   const cesiumMapRef = ref();
+
 </script>
 
 <style>

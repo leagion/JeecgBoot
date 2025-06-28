@@ -409,6 +409,7 @@
     //加载验证码
     handleChangeCheckCode();
   });
+  
 </script>
 
 <style lang="less" scoped>
