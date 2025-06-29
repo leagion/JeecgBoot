@@ -120,13 +120,7 @@
 </template>
 
 <script lang="ts">
-  createAiChat({
-    appId: '1938600447964676098',
-    // 支持top-left左上, top-right右上, bottom-left左下, bottom-right右下
-    iconPosition: 'bottom-right',
-  });
-
-  import { ref, reactive } from 'vue';
+  import { ref, reactive, onMounted } from 'vue';
   import BasicModal from '@/components/Modal/src/BasicModal.vue';
   import { useModal, useModalInner } from '@/components/Modal';
   import { LoadingOutlined } from '@ant-design/icons-vue';
@@ -301,7 +295,13 @@
         //刷新数据
         reload();
       }
-
+      // 在组件挂载后执行 createAiChat（关键修复）
+      // onMounted(() => {
+      //   createAiChat({
+      //     appId: '1938600447964676098',
+      //     iconPosition: 'bottom-right',
+      //   });
+      // });
       return {
         handleCreateApp,
         knowledgeAppDataList,
@@ -492,8 +492,6 @@
       white-space: nowrap;
     }
   }
-</style>
-<style lang="less">
   .airag-knowledge-doc .scroll-container {
     padding: 0 !important;
   }

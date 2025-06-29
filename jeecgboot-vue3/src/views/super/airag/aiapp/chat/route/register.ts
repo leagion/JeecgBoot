@@ -55,7 +55,7 @@ const ChatRoutes: RouteRecordRaw[] = [
 /** 注册路由 */
 export async function register(app: App) {
   await registerMyAppRouter(app);
-  console.log('[聊天路由] 注册完成！');
+  // console.log('[聊天路由] 注册完成！');
 }
 
 async function registerMyAppRouter(_: App) {

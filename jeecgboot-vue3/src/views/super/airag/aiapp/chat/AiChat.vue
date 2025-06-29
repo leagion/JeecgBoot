@@ -55,7 +55,7 @@
   const dataSource = ref<any>({});
   const uuid = ref<string>('');
   const chatData = ref<any>([]);
-  const expand = ref<any>(false);
+  const expand = ref<any>(true);
   const chatVisible = ref(true);
   const chatContainerRef = ref<any>(null);
   const chatContainerStyle = ref({});

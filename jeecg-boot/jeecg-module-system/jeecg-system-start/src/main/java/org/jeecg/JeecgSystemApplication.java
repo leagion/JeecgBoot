@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.oConvertUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,7 +19,7 @@ import java.util.Map;
 * 单体启动类
 */
 @Slf4j
-@SpringBootApplication
+@SpringBootApplication(exclude = FlywayAutoConfiguration.class)
 public class JeecgSystemApplication extends SpringBootServletInitializer {
 
     @Override

@@ -205,13 +205,13 @@ jeecg:
     model: ds-lq:latest
     apiKey: ollama
     apiHost: http://localhost:11434
-    timeout: 1200000
+    timeout: 120000
     # 新增连接池配置
     pool:
       max-idle: 20
       min-idle: 5
       max-active: 50
-      max-wait: 120000  # 等待超时调整为2分钟
+      max-wait: 120000  # 等待超时调整为20分钟
 
   # AIRag向量库
   ai-rag:
