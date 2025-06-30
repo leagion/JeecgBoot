@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jeecgframework.boot</groupId>
   <artifactId>jeecg-boot-parent</artifactId>
-  <version>3.8.0</version>
+  <version>3.8.1</version>
   <packaging>pom</packaging>
   <name>JEECG BOOT ${project.version}</name>
 
@@ -28,7 +28,7 @@
 	</parent>
 
 	<properties>
-		<jeecgboot.version>3.8.0</jeecgboot.version>
+		<jeecgboot.version>3.8.1</jeecgboot.version>
 		<!-- JDK版本支持17和1.8 -->
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -56,9 +56,9 @@
 		<!-- 国产数据库驱动 -->
 		<kingbase8.version>9.0.0</kingbase8.version>
 		<dm8.version>8.1.1.49</dm8.version>
-
+		
 		<!-- 积木报表-->
-		<jimureport-spring-boot-starter.version>1.9.5.1</jimureport-spring-boot-starter.version>
+		<jimureport-spring-boot-starter.version>2.0.0.1</jimureport-spring-boot-starter.version>
 		<minidao.version>1.10.10</minidao.version>
 		<!-- 持久层 -->
 		<mybatis-plus.version>3.5.3.2</mybatis-plus.version>
@@ -70,7 +70,7 @@
 		<aliyun-java-sdk-dysmsapi.version>2.1.0</aliyun-java-sdk-dysmsapi.version>
 		<aliyun.oss.version>3.11.2</aliyun.oss.version>
 		<!-- shiro -->
-		<shiro.version>2.0.4</shiro.version>
+		<shiro.version>1.13.0</shiro.version>
 		<shiro-redis.version>3.2.3</shiro-redis.version>
 		<java-jwt.version>4.5.0</java-jwt.version>
 		<codegenerate.version>1.4.9</codegenerate.version>
@@ -455,7 +455,7 @@
 			<dependency>
 				<groupId>org.jeecgframework.boot</groupId>
 				<artifactId>jeecg-boot-starter-chatgpt</artifactId>
-				<version>3.8.0.2</version>
+				<version>3.8.1</version>
 			</dependency>
 
 			<!--flyway 支持 mysql5.7+、MariaDB10.3.16-->
