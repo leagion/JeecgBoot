@@ -457,6 +457,7 @@
 				<artifactId>jeecg-boot-starter-chatgpt</artifactId>
 				<version>3.8.0.2</version>
 			</dependency>
+
 			<!--flyway 支持 mysql5.7+、MariaDB10.3.16-->
 			<!--mysql5.6，需要把版本号改成5.2.1
 			<dependency>
@@ -466,7 +467,30 @@
 			</dependency>
 			-->
 			<!--postgresql-->
+			<dependency>
+				<groupId>dev.langchain4j</groupId>
+				<artifactId>langchain4j-spring-boot-starter</artifactId>
+				<version>0.30.0</version>
+			</dependency>
 
+
+			<dependency>
+				<groupId>dev.langchain4j</groupId>
+				<artifactId>langchain4j-pgvector</artifactId>
+				<version>0.31.0</version>
+			</dependency>
+			<!--
+                        <dependency>
+                            <groupId>dev.langchain4j</groupId>
+                            <artifactId>langchain4j</artifactId>
+                            <version>1.0.0-beta3</version>
+                        </dependency>
+
+                      <dependency>
+                        <groupId>com.pgvector</groupId>
+                        <artifactId>pgvector</artifactId>
+                        <version>0.1.6</version>
+                    </dependency>-->
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>

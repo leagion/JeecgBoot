@@ -29,15 +29,15 @@ public class EmbedStoreConfigBean {
     /**
      * 数据库
      */
-    private String database = "postgres";
+    private String database = "aiccg_pgdb";
     /**
      * 用户名
      */
-    private String user = "postgres";
+    private String user = "aiccgdb";
     /**
      * 密码
      */
-    private String password = "postgres";
+    private String password = "hkzdlq@CCG2025";
 
     /**
      * 存储向量的表

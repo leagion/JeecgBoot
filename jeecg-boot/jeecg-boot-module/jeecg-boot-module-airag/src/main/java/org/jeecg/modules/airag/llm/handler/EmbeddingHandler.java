@@ -8,6 +8,7 @@ import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.internal.ValidationUtils;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -368,7 +369,6 @@ public class EmbeddingHandler implements IEmbeddingHandler {
             return EMBED_STORE_CACHE.get(key);
         }
 
-
         AiModelOptions modelOp = buildModelOptions(model);
         EmbeddingModel embeddingModel = AiModelFactory.createEmbeddingModel(modelOp);
         EmbeddingStore<TextSegment> embeddingStore = PgVectorEmbeddingStore.builder()
@@ -381,23 +381,95 @@ public class EmbeddingHandler implements IEmbeddingHandler {
                 .table(embedStoreConfigBean.getTable())
                 // Embedding dimension
                 // Required: Must match the embedding model’s output dimension
-                .dimension(embeddingModel.dimension())
+               .dimension(embeddingModel.dimension())
                 // Indexing and performance options
                 // Enable IVFFlat index
-                .useIndex(true)
+               // .useIndex(true)
                 // Number of lists
                 // for IVFFlat index
-                .indexListSize(100)
+                 //.indexListSize(2000)
                 // Table creation options
                 // Automatically create the table if it doesn’t exist
+                //   .indexOptions("USING hnsw (vector vector_cosine_ops) WITH (m = 16, ef_construction = 200)")// IVFFlat配置
+                //.indexOptions("USING hnsw (vector vector_cosine_ops) WITH (m = 8, ef_construction = 64)") // HNSW配置
                 .createTable(true)
                 //Don’t drop the table first (set to true if you want a fresh start)
                 .dropTableFirst(false)
+
                 .build();
         EMBED_STORE_CACHE.put(key, embeddingStore);
         return embeddingStore;
     }
 
+    /**private EmbeddingStore<TextSegment> getEmbedStore(AiragModel model) {
+       AssertUtils.assertNotEmpty("未配置模型", model);
+       String modelId = model.getId();
+       String connectionInfo = embedStoreConfigBean.getHost() + embedStoreConfigBean.getPort() + embedStoreConfigBean.getDatabase();
+       String key = modelId + connectionInfo;
+       if (EMBED_STORE_CACHE.containsKey(key)) {
+           return EMBED_STORE_CACHE.get(key);
+       }
+
+       AiModelOptions modelOp = buildModelOptions(model);
+       EmbeddingModel embeddingModel = AiModelFactory.createEmbeddingModel(modelOp);
+
+       // 检查向量维度是否超过HNSW限制
+       int dimension = embeddingModel.dimension();
+       if (dimension > 2000) {
+           log.warn("向量维度({})超过HNSW限制(2000)，将使用IVFFlat索引", dimension);
+       }
+
+       PgVectorEmbeddingStore.PgVectorEmbeddingStoreBuilder  builder = PgVectorEmbeddingStore.builder()
+               .host(embedStoreConfigBean.getHost())
+               .port(embedStoreConfigBean.getPort())
+               .database(embedStoreConfigBean.getDatabase())
+               .user(embedStoreConfigBean.getUser())
+               .password(embedStoreConfigBean.getPassword())
+               .table(embedStoreConfigBean.getTable())
+               .dimension(dimension)
+               .useIndex(true)
+               .createTable(true)
+               .dropTableFirst(false);
+
+       // 根据向量维度选择索引类型 - 使用更旧版API兼容方式
+       if (dimension <= 2000) {
+           // 使用HNSW索引（适用于维度≤2000）
+           try {
+               // 尝试使用config方法（如果存在）
+               java.lang.reflect.Method configMethod = builder.getClass().getMethod("config", String.class, String.class);
+               configMethod.invoke(builder, "indexType", "hnsw");
+               configMethod.invoke(builder, "indexParameters", "vector_cosine_ops, m=16, ef_construction=200");
+           } catch (Exception e) {
+               // 回退到更旧的方式（如果config方法不存在）
+              // builder.custom("vector_index_type", "hnsw");
+              // builder.custom("vector_index_params", "m=16,ef_construction=200");
+           }
+       } else {
+           // 使用IVFFlat索引（适用于高维向量）
+           try {
+               // 尝试使用config方法（如果存在）
+               java.lang.reflect.Method configMethod = builder.getClass().getMethod("config", String.class, String.class);
+               String indexOptions = String.format(
+                       "USING ivfflat (vector vector_cosine_ops) WITH (lists = %d)",
+                       100 // 根据实际情况调整
+               );
+               configMethod.invoke(builder, "indexType", "custom");
+               configMethod.invoke(builder, "indexParameters", indexOptions);
+           } catch (Exception e) {
+               // 回退到更旧的方式（如果config方法不存在）
+               String indexOptions = String.format(
+                       "ivfflat,lists=100,metric_ops=vector_cosine_ops",
+                       100 // 根据实际情况调整
+               );
+             //  builder.custom("vector_index_type", "custom");
+              // builder.custom("vector_index_params", indexOptions);
+           }
+       }
+
+       EmbeddingStore<TextSegment> embeddingStore = builder.build();
+       EMBED_STORE_CACHE.put(key, embeddingStore);
+       return embeddingStore;
+   }**/
     /**
      * 构造ModelOptions
      *
