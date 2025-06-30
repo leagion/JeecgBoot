@@ -7,13 +7,13 @@
     //图标的大小
     iconSize: '45px',
     //图标的颜色
-    iconColor: '#155eef',
+    // iconColor: '#155eef',
     //必填不允许修改
     appId: '',
     //聊天弹窗的宽度
-    chatWidth: '800px',
+    chatWidth: '600px',
     //聊天弹窗的高度
-    chatHeight: '700px',
+    chatHeight: '500px',
   };
 
   /**
@@ -34,7 +34,7 @@
       return;
     }
     let body = document.body;
-    body.style.margin = "0";
+    body.style.margin = '0';
     // 创建容器
     const container = document.createElement('div');
     container.style.cssText = `
@@ -59,7 +59,7 @@
             box-sizing: border-box;
         `;
     icon.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 1024 1024" class="iconify iconify--ant-design"><path fill="currentColor" d="M573 421c-23.1 0-41 17.9-41 40s17.9 40 41 40c21.1 0 39-17.9 39-40s-17.9-40-39-40m-280 0c-23.1 0-41 17.9-41 40s17.9 40 41 40c21.1 0 39-17.9 39-40s-17.9-40-39-40"></path><path fill="currentColor" d="M894 345c-48.1-66-115.3-110.1-189-130v.1c-17.1-19-36.4-36.5-58-52.1c-163.7-119-393.5-82.7-513 81c-96.3 133-92.2 311.9 6 439l.8 132.6c0 3.2.5 6.4 1.5 9.4c5.3 16.9 23.3 26.2 40.1 20.9L309 806c33.5 11.9 68.1 18.7 102.5 20.6l-.5.4c89.1 64.9 205.9 84.4 313 49l127.1 41.4c3.2 1 6.5 1.6 9.9 1.6c17.7 0 32-14.3 32-32V753c88.1-119.6 90.4-284.9 1-408M323 735l-12-5l-99 31l-1-104l-8-9c-84.6-103.2-90.2-251.9-11-361c96.4-132.2 281.2-161.4 413-66c132.2 96.1 161.5 280.6 66 412c-80.1 109.9-223.5 150.5-348 102m505-17l-8 10l1 104l-98-33l-12 5c-56 20.8-115.7 22.5-171 7l-.2-.1C613.7 788.2 680.7 742.2 729 676c76.4-105.3 88.8-237.6 44.4-350.4l.6.4c23 16.5 44.1 37.1 62 62c72.6 99.6 68.5 235.2-8 330"></path><path fill="currentColor" d="M433 421c-23.1 0-41 17.9-41 40s17.9 40 41 40c21.1 0 39-17.9 39-40s-17.9-40-39-40"></path></svg>';
+      '<svg t="1751276924193" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5722" width="200" height="200"><path d="M951.96875 792.03125c-22.125 0-40.03125-17.90625-40.03125-40.03125V552.03125c0-22.125 17.90625-40.03125 40.03125-40.03125s40.03125 17.90625 40.03125 40.03125V752c0 22.125-17.90625 40.03125-40.03125 40.03125zM752 912.03125H272c-66.28125 0-120-53.71875-120-120v-360c0-66.28125 53.71875-120 120-120h199.96875v-51.09375c-23.8125-13.875-40.03125-39.375-40.03125-68.90625 0-44.15625 35.8125-79.96875 79.96875-79.96875s79.96875 35.8125 79.96875 79.96875c0 29.53125-16.21875 55.03125-40.03125 68.90625v51.09375H752c66.28125 0 120 53.71875 120 120v360c0 66.28125-53.71875 120-120 120z m40.03125-440.0625c0-44.15625-35.8125-79.96875-79.96875-79.96875H312.03125c-44.15625 0-79.96875 35.8125-79.96875 79.96875V752c0 44.15625 35.8125 79.96875 79.96875 79.96875h400.03125c44.15625 0 79.96875-35.8125 79.96875-79.96875V471.96875zM651.96875 672.03125c-33.09375 0-60-26.90625-60-60s26.90625-60 60-60 60 26.90625 60 60-26.8125 60-60 60z m-279.9375 0c-33.09375 0-60-26.90625-60-60s26.90625-60 60-60 60 26.90625 60 60-26.90625 60-60 60z m-300 120C49.90625 792.03125 32 774.125 32 752V552.03125C32 529.90625 49.90625 512 72.03125 512s40.03125 17.90625 40.03125 40.03125V752c-0.09375 22.125-18 40.03125-40.03125 40.03125z" fill="#2C4CE2" p-id="5723"></path></svg>';
 
     // 创建iframe容器
     const iframeContainer = document.createElement('div');
@@ -67,9 +67,9 @@
     let bottom = finalConfig.chatHeight === '100%' ? '0' : '10px';
     let chatWidth = finalConfig.chatWidth;
     let chatHeight = finalConfig.chatHeight;
-    if(isMobileDevice()){
-      chatWidth = "100%";
-      chatHeight = "100%";
+    if (isMobileDevice()) {
+      chatWidth = '100%';
+      chatHeight = '100%';
       right = '0';
       bottom = '0';
     }
@@ -97,11 +97,11 @@
 
     iframe.id = 'ai-app-chat-document';
     //update-begin---author:wangshuai---date:2025-04-25---for:【QQYUN-12159】【AI 广告位】让需要自建AI知识库的用户知道如何通过敲敲云搭建自己的AI知识库---
-    iframe.src = getIframeSrc(finalConfig) + '/ai/app/chat/' + finalConfig.appId + "?source=chatJs";
+    iframe.src = getIframeSrc(finalConfig) + '/ai/app/chat/' + finalConfig.appId + '?source=chatJs';
     //update-end---author:wangshuai---date:2025-04-25---for:【QQYUN-12159】【AI 广告位】让需要自建AI知识库的用户知道如何通过敲敲云搭建自己的AI知识库---
-    let iconRight = finalConfig.chatWidth === '100%'?'0':'-6px';
-    let iconTop = finalConfig.chatWidth === '100%'?'0':'-9px';
-    if(isMobileDevice()){
+    let iconRight = finalConfig.chatWidth === '100%' ? '0' : '-6px';
+    let iconTop = finalConfig.chatWidth === '100%' ? '0' : '-9px';
+    if (isMobileDevice()) {
       iconRight = '2px';
       iconTop = '2px';
     }
@@ -169,7 +169,7 @@
    * 获取src地址
    */
   function getIframeSrc(finalConfig) {
-    const specificScript = document.getElementById("e7e007dd52f67fe36365eff636bbffbd");
+    const specificScript = document.getElementById('e7e007dd52f67fe36365eff636bbffbd');
     if (specificScript) {
       return specificScript.src.substring(0, specificScript.src.indexOf('/', specificScript.src.indexOf('://') + 3));
     }

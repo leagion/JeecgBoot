@@ -196,11 +196,11 @@
   }
   // AI
   function openAIPanel() {
-    // createAiChat({
-    //   appId: '1938600447964676098',
-    //   // 支持top-left左上, top-right右上, bottom-left左下, bottom-right右下
-    //   iconPosition: 'bottom-right',
-    // });
+    createAiChat({
+      appId: '1939351529514930178',
+      // 支持top-left左上, top-right右上, bottom-left左下, bottom-right右下
+      iconPosition: 'bottom-right',
+    });
   }
   // 设置
   function openSettingPanel() {

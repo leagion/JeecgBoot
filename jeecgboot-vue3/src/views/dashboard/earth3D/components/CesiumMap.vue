@@ -159,6 +159,12 @@
     } catch (error) {
       console.error('初始化 Cesium 地图时出错:', error);
     }
+
+    createAiChat({
+      appId: '1939351529514930178',
+      // 支持top-left左上, top-right右上, bottom-left左下, bottom-right右下
+      iconPosition: 'bottom-right',
+    });
   });
 
   onUnmounted(() => {

@@ -50,7 +50,7 @@
             appStore.setProjectConfig({
               menuSetting: {
                 type: MenuTypeEnum.TOP_MENU,
-                mode: MenuModeEnum.INLINE,
+                mode: MenuModeEnum.HORIZONTAL,
                 split: false,
               },
             });

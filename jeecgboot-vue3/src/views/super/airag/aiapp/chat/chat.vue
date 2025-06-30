@@ -2,18 +2,18 @@
   <div class="chatWrap">
     <div class="content">
       <div class="header-title" v-if="type === 'view' && headerTitle">
-        {{headerTitle}}
-        <div v-if="showAdvertising" class="header-advertisint">
+        {{ headerTitle }}
+        <!-- <div v-if="showAdvertising" class="header-advertisint">
           AI客服由
           <a style="color: #4183c4;margin-left: 2px;margin-right: 2px" href="https://www.qiaoqiaoyun.com/aiCustomerService" target="_blank">
             敲敲云
           </a>
           提供
-        </div>
+        </div> -->
       </div>
       <div class="main">
         <div id="scrollRef" ref="scrollRef" class="scrollArea">
-          <template v-if="chatData.length>0">
+          <template v-if="chatData.length > 0">
             <div class="chatContentArea">
               <chatMessage
                 v-for="(item, index) of chatData"
@@ -25,7 +25,7 @@
                 :loading="item.loading"
                 :appData="appData"
                 :presetQuestion="item.presetQuestion"
-                :images = "item.images"
+                :images="item.images"
                 :retrievalText="item.retrievalText"
                 :referenceKnowledge="item.referenceKnowledge"
                 @send="handleOutQuestion"
@@ -74,10 +74,10 @@
               ></path>
             </svg>
           </a-button>
-          <div class="chat-textarea" :class="textareaActive?'textarea-active':''">
-            <div class="textarea-top" v-if="uploadUrlList && uploadUrlList.length>0">
-              <div v-for="(item,index) in uploadUrlList" class="top-image" :key="index">
-                <img :src="getImage(item)" @click="handlePreview(item)"/>
+          <div class="chat-textarea" :class="textareaActive ? 'textarea-active' : ''">
+            <div class="textarea-top" v-if="uploadUrlList && uploadUrlList.length > 0">
+              <div v-for="(item, index) in uploadUrlList" class="top-image" :key="index">
+                <img :src="getImage(item)" @click="handlePreview(item)" />
                 <div class="upload-icon" @click="deleteImage(index)">
                   <Icon icon="ant-design:close-outlined" size="12px"></Icon>
                 </div>
@@ -85,50 +85,50 @@
             </div>
             <div class="textarea-bottom">
               <a-textarea
-                  ref="inputRef"
-                  v-model:value="prompt"
-                  :autoSize="{ minRows: 1, maxRows: 6 }"
-                  :placeholder="placeholder"
-                  @pressEnter="handleEnter"
-                  @focus="textareaActive = true"
-                  @blur="textareaActive = false"
-                  autofocus
-                  :readonly="loading"
-                  style="border-color: #ffffff !important;box-shadow:none"
-                  @paste="paste"
+                ref="inputRef"
+                v-model:value="prompt"
+                :autoSize="{ minRows: 1, maxRows: 6 }"
+                :placeholder="placeholder"
+                @pressEnter="handleEnter"
+                @focus="textareaActive = true"
+                @blur="textareaActive = false"
+                autofocus
+                :readonly="loading"
+                style="border-color: #ffffff !important; box-shadow: none"
+                @paste="paste"
               >
               </a-textarea>
               <a-button v-if="loading" type="primary" danger @click="handleStopChat" class="stopBtn">
                 <svg
-                    t="1706148514627"
-                    class="icon"
-                    viewBox="0 0 1024 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="5214"
-                    width="18"
-                    height="18"
+                  t="1706148514627"
+                  class="icon"
+                  viewBox="0 0 1024 1024"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  p-id="5214"
+                  width="18"
+                  height="18"
                 >
                   <path
-                      d="M512 967.111111c-250.311111 0-455.111111-204.8-455.111111-455.111111s204.8-455.111111 455.111111-455.111111 455.111111 204.8 455.111111 455.111111-204.8 455.111111-455.111111 455.111111z m0-56.888889c221.866667 0 398.222222-176.355556 398.222222-398.222222s-176.355556-398.222222-398.222222-398.222222-398.222222 176.355556-398.222222 398.222222 176.355556 398.222222 398.222222 398.222222z"
-                      fill="currentColor"
-                      p-id="5215"
+                    d="M512 967.111111c-250.311111 0-455.111111-204.8-455.111111-455.111111s204.8-455.111111 455.111111-455.111111 455.111111 204.8 455.111111 455.111111-204.8 455.111111-455.111111 455.111111z m0-56.888889c221.866667 0 398.222222-176.355556 398.222222-398.222222s-176.355556-398.222222-398.222222-398.222222-398.222222 176.355556-398.222222 398.222222 176.355556 398.222222 398.222222 398.222222z"
+                    fill="currentColor"
+                    p-id="5215"
                   ></path>
                   <path d="M341.333333 341.333333h341.333334v341.333334H341.333333z" fill="currentColor" p-id="5216"></path>
                 </svg>
               </a-button>
               <a-upload
-                  accept=".jpg,.jpeg,.png"
-                  v-if="!loading"
-                  name="file"
-                  v-model:file-list="fileInfoList"
-                  :showUploadList="false"
-                  :headers="headers"
-                  :beforeUpload="beforeUpload"
-                  @change="handleChange"
-                  :multiple="true"
-                  :action="uploadUrl"
-                  :max-count="3"
+                accept=".jpg,.jpeg,.png"
+                v-if="!loading"
+                name="file"
+                v-model:file-list="fileInfoList"
+                :showUploadList="false"
+                :headers="headers"
+                :beforeUpload="beforeUpload"
+                @change="handleChange"
+                :multiple="true"
+                :action="uploadUrl"
+                :max-count="3"
               >
                 <a-tooltip title="图片上传，支持jpg/jpeg/png">
                   <a-button class="sendBtn" type="text">
@@ -136,32 +136,32 @@
                   </a-button>
                 </a-tooltip>
               </a-upload>
-              <a-divider v-if="!loading" type="vertical" style="border-color:#38374314"></a-divider>
+              <a-divider v-if="!loading" type="vertical" style="border-color: #38374314"></a-divider>
               <a-button
-                  @click="
-              () => {
-                handleSubmit();
-              }
-            "
-                  :disabled="!prompt"
-                  class="sendBtn"
-                  type="text"
-                  v-if="!loading"
+                @click="
+                  () => {
+                    handleSubmit();
+                  }
+                "
+                :disabled="!prompt"
+                class="sendBtn"
+                type="text"
+                v-if="!loading"
               >
                 <svg
-                    t="1706147858151"
-                    class="icon"
-                    viewBox="0 0 1024 1024"
-                    version="1.1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    p-id="4237"
-                    width="1em"
-                    height="1em"
+                  t="1706147858151"
+                  class="icon"
+                  viewBox="0 0 1024 1024"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  p-id="4237"
+                  width="1em"
+                  height="1em"
                 >
                   <path
-                      d="M865.28 202.5472c-17.1008-15.2576-41.0624-19.6608-62.5664-11.5712L177.7664 427.1104c-23.2448 8.8064-38.5024 29.696-39.6288 54.5792-1.1264 24.8832 11.9808 47.104 34.4064 58.0608l97.5872 47.7184c4.5056 2.2528 8.0896 6.0416 9.9328 10.6496l65.4336 161.1776c7.7824 19.1488 24.4736 32.9728 44.7488 37.0688 20.2752 4.096 41.0624-2.1504 55.6032-16.7936l36.352-36.352c6.4512-6.4512 16.5888-7.8848 24.576-3.3792l156.5696 88.8832c9.4208 5.3248 19.8656 8.0896 30.3104 8.0896 8.192 0 16.4864-1.6384 24.2688-5.0176 17.8176-7.68 30.72-22.8352 35.4304-41.6768l130.7648-527.1552c5.5296-22.016-1.7408-45.2608-18.8416-60.416z m-20.8896 50.7904L713.5232 780.4928c-1.536 6.2464-5.8368 11.3664-11.776 13.9264s-12.5952 2.1504-18.2272-1.024L526.9504 704.512c-9.4208-5.3248-19.8656-7.9872-30.208-7.9872-15.9744 0-31.744 6.144-43.52 17.92l-36.352 36.352c-3.8912 3.8912-8.9088 5.9392-14.2336 6.0416l55.6032-152.1664c0.512-1.3312 1.2288-2.56 2.2528-3.6864l240.3328-246.1696c8.2944-8.4992-2.048-21.9136-12.3904-16.0768L301.6704 559.8208c-4.096-3.584-8.704-6.656-13.6192-9.1136L190.464 502.9888c-11.264-5.5296-11.5712-16.1792-11.4688-19.3536 0.1024-3.1744 1.536-13.824 13.2096-18.2272L817.152 229.2736c10.4448-3.9936 18.0224 1.3312 20.8896 3.8912 2.8672 2.4576 9.0112 9.3184 6.3488 20.1728z"
-                      p-id="4238"
-                      fill="currentColor"
+                    d="M865.28 202.5472c-17.1008-15.2576-41.0624-19.6608-62.5664-11.5712L177.7664 427.1104c-23.2448 8.8064-38.5024 29.696-39.6288 54.5792-1.1264 24.8832 11.9808 47.104 34.4064 58.0608l97.5872 47.7184c4.5056 2.2528 8.0896 6.0416 9.9328 10.6496l65.4336 161.1776c7.7824 19.1488 24.4736 32.9728 44.7488 37.0688 20.2752 4.096 41.0624-2.1504 55.6032-16.7936l36.352-36.352c6.4512-6.4512 16.5888-7.8848 24.576-3.3792l156.5696 88.8832c9.4208 5.3248 19.8656 8.0896 30.3104 8.0896 8.192 0 16.4864-1.6384 24.2688-5.0176 17.8176-7.68 30.72-22.8352 35.4304-41.6768l130.7648-527.1552c5.5296-22.016-1.7408-45.2608-18.8416-60.416z m-20.8896 50.7904L713.5232 780.4928c-1.536 6.2464-5.8368 11.3664-11.776 13.9264s-12.5952 2.1504-18.2272-1.024L526.9504 704.512c-9.4208-5.3248-19.8656-7.9872-30.208-7.9872-15.9744 0-31.744 6.144-43.52 17.92l-36.352 36.352c-3.8912 3.8912-8.9088 5.9392-14.2336 6.0416l55.6032-152.1664c0.512-1.3312 1.2288-2.56 2.2528-3.6864l240.3328-246.1696c8.2944-8.4992-2.048-21.9136-12.3904-16.0768L301.6704 559.8208c-4.096-3.584-8.704-6.656-13.6192-9.1136L190.464 502.9888c-11.264-5.5296-11.5712-16.1792-11.4688-19.3536 0.1024-3.1744 1.536-13.824 13.2096-18.2272L817.152 229.2736c10.4448-3.9936 18.0224 1.3312 20.8896 3.8912 2.8672 2.4576 9.0112 9.3184 6.3488 20.1728z"
+                    p-id="4238"
+                    fill="currentColor"
                   ></path>
                 </svg>
               </a-button>
@@ -186,18 +186,29 @@
   import './style/github-markdown.less';
   import dayjs from 'dayjs';
   import { defHttp } from '@/utils/http/axios';
-  import { cloneDeep } from "lodash-es";
-  import {getFileAccessHttpUrl, getHeaders} from "@/utils/common/compUtils";
-  import { createImgPreview } from "@/components/Preview";
-  import { useAppInject } from "@/hooks/web/useAppInject";
-  import { useGlobSetting } from "@/hooks/setting";
+  import { cloneDeep } from 'lodash-es';
+  import { getFileAccessHttpUrl, getHeaders } from '@/utils/common/compUtils';
+  import { createImgPreview } from '@/components/Preview';
+  import { useAppInject } from '@/hooks/web/useAppInject';
+  import { useGlobSetting } from '@/hooks/setting';
 
   message.config({
     prefixCls: 'ai-chat-message',
   });
 
-  const props = defineProps(['uuid', 'prologue', 'formState', 'url', 'type','historyData','chatTitle','presetQuestion','quickCommandData','showAdvertising']);
-  const emit = defineEmits(['save','reload-message-title']);
+  const props = defineProps([
+    'uuid',
+    'prologue',
+    'formState',
+    'url',
+    'type',
+    'historyData',
+    'chatTitle',
+    'presetQuestion',
+    'quickCommandData',
+    'showAdvertising',
+  ]);
+  const emit = defineEmits(['save', 'reload-message-title']);
   const { scrollRef, scrollToBottom } = useScroll();
   const prompt = ref<string>('');
   const loading = ref<boolean>(false);
@@ -216,8 +227,8 @@
   const { getIsMobile } = useAppInject();
   const conversationList = computed(() => chatData.value.filter((item) => item.inversion != 'user' && !!item.conversationOptions));
   const placeholder = computed(() => {
-    if(getIsMobile.value){
-      return '来说点什么吧...'
+    if (getIsMobile.value) {
+      return '来说点什么吧...';
     } else {
       return '来说点什么吧...（Shift + Enter = 换行）';
     }
@@ -230,7 +241,7 @@
   const globSetting = useGlobSetting();
   const baseUploadUrl = globSetting.uploadUrl;
   const uploadUrl = ref<string>(`${baseUploadUrl}/airag/chat/upload`);
-  
+
   function handleEnter(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -247,17 +258,17 @@
     onConversation(message);
   };
   async function onConversation(message) {
-    if(!props.type && props.type != 'view'){
-      if(appData.value.type && appData.value.type == 'chatSimple' && !appData.value.modelId) {
-        messageTip("请选择AI模型");
+    if (!props.type && props.type != 'view') {
+      if (appData.value.type && appData.value.type == 'chatSimple' && !appData.value.modelId) {
+        messageTip('请选择AI模型');
         return;
       }
-      if(appData.value.type && appData.value.type == 'chatFLow' && !appData.value.flowId) {
-        messageTip("请选择关联流程");
+      if (appData.value.type && appData.value.type == 'chatFLow' && !appData.value.flowId) {
+        messageTip('请选择关联流程');
         return;
       }
-      if(!appData.value.name) {
-        messageTip("请填写应用名称");
+      if (!appData.value.name) {
+        messageTip('请填写应用名称');
         return;
       }
     }
@@ -267,7 +278,7 @@
     addChat(uuid.value, {
       dateTime: new Date().toLocaleString(),
       content: message,
-      images:uploadUrlList.value?uploadUrlList.value:[],
+      images: uploadUrlList.value ? uploadUrlList.value : [],
       inversion: 'user',
       error: false,
       conversationOptions: null,
@@ -295,7 +306,7 @@
     scrollToBottom();
 
     //发送消息
-    sendMessage(message,options);
+    sendMessage(message, options);
   }
 
   onUnmounted(() => {
@@ -320,7 +331,7 @@
       loading: false,
       dateTime: dayjs().format('YYYY/MM/DD HH:mm:ss'),
       inversion: 'ai',
-      presetQuestion: props.presetQuestion ? JSON.parse(props.presetQuestion) : "",
+      presetQuestion: props.presetQuestion ? JSON.parse(props.presetQuestion) : '',
     };
     if (chatData.value && chatData.value.length > 0) {
       let key = chatData.value[0].key;
@@ -351,7 +362,7 @@
    * 清空会话
    * @param id
    */
-  function handleDelSession (){
+  function handleDelSession() {
     Modal.confirm({
       title: '清空会话',
       icon: createVNode(ExclamationCircleOutlined),
@@ -359,26 +370,31 @@
       closable: true,
       okText: '确定',
       cancelText: '取消',
-      wrapClassName:'ai-chat-modal',
+      wrapClassName: 'ai-chat-modal',
       async onOk() {
         try {
-          defHttp.get({
-            url: '/airag/chat/messages/clear/' + uuid.value,
-          },{ isTransformResponse: false }).then((res) => {
-            if(res.success){
-              chatData.value = [];
-              topicId.value = "";
-              if(props.prologue){
-                topChat(props.prologue);
+          defHttp
+            .get(
+              {
+                url: '/airag/chat/messages/clear/' + uuid.value,
+              },
+              { isTransformResponse: false }
+            )
+            .then((res) => {
+              if (res.success) {
+                chatData.value = [];
+                topicId.value = '';
+                if (props.prologue) {
+                  topChat(props.prologue);
+                }
               }
-            }
-          })
+            });
         } catch {
           return console.log('Oops errors!');
         }
       },
     });
-  };
+  }
 
   // 停止响应
   const handleStop = () => {
@@ -391,20 +407,23 @@
 
   handleStop();
 
-  const knowList = ref<Recordable[]>([])
+  const knowList = ref<Recordable[]>([]);
 
   /**
    * 停止消息
    */
   function handleStopChat() {
     //update-begin---author:wangshuai---date:2025-06-03---for:【issues/8338】AI应用聊天回复stop无效，仍会继续输出回复---
-    const currentRequestId = requestId.value
-    if(currentRequestId){
-      try{
+    const currentRequestId = requestId.value;
+    if (currentRequestId) {
+      try {
         //调用后端接口停止响应
-        defHttp.get({
-          url: '/airag/chat/stop/' + currentRequestId,
-        },{ isTransformResponse: false });
+        defHttp.get(
+          {
+            url: '/airag/chat/stop/' + currentRequestId,
+          },
+          { isTransformResponse: false }
+        );
       } finally {
         handleStop();
       }
@@ -422,57 +441,59 @@
     if (!props.type && props.type != 'view') {
       param = {
         content: message,
-        images: uploadUrlList.value?uploadUrlList.value:[],
+        images: uploadUrlList.value ? uploadUrlList.value : [],
         topicId: topicId.value,
         app: appData.value,
         responseMode: 'streaming',
       };
-    }else{
+    } else {
       param = {
         content: message,
-        topicId: usingContext.value?topicId.value:'',
-        images: uploadUrlList.value?uploadUrlList.value:[],
+        topicId: usingContext.value ? topicId.value : '',
+        images: uploadUrlList.value ? uploadUrlList.value : [],
         appId: appData.value.id,
         responseMode: 'streaming',
-        conversationId: uuid.value === "1002"?'':uuid.value
+        conversationId: uuid.value === '1002' ? '' : uuid.value,
       };
 
-      if(headerTitle.value == '新建聊天'){
-        headerTitle.value = message.length>10?truncateString(message,10):message
+      if (headerTitle.value == '新建聊天') {
+        headerTitle.value = message.length > 10 ? truncateString(message, 10) : message;
       }
 
-      emit("reload-message-title",message.length>10?truncateString(message,10):message)
+      emit('reload-message-title', message.length > 10 ? truncateString(message, 10) : message);
     }
 
     uploadUrlList.value = [];
     fileInfoList.value = [];
     knowList.value = [];
 
-    const readableStream = await defHttp.post(
-      {
-        url: props.url,
-        params: param,
-        adapter: 'fetch',
-        responseType: 'stream',
-        timeout: 5 * 60 * 1000,
-      },
-      {
-        isTransformResponse: false,
-      }
-    ).catch((e)=>{
-      //update-begin---author:wangshuai---date:2025-04-28---for:【QQYUN-12297】【AI】聊天，超时以后提示---
-      if(e.code === 'ETIMEDOUT'){
-        updateChatFail(uuid, chatData.value.length - 1, "当前用户较多，排队中，请稍候再次重试！");
-        handleStop();
-        return;
-      }else{
-        updateChatFail(uuid, chatData.value.length - 1, "服务器错误，请稍后重试！");
-        handleStop();
-        return;
-      }
-      console.error(e)
-      //update-end---author:wangshuai---date:2025-04-28---for:【QQYUN-12297】【AI】聊天，超时以后提示---
-    });
+    const readableStream = await defHttp
+      .post(
+        {
+          url: props.url,
+          params: param,
+          adapter: 'fetch',
+          responseType: 'stream',
+          timeout: 5 * 60 * 1000,
+        },
+        {
+          isTransformResponse: false,
+        }
+      )
+      .catch((e) => {
+        //update-begin---author:wangshuai---date:2025-04-28---for:【QQYUN-12297】【AI】聊天，超时以后提示---
+        if (e.code === 'ETIMEDOUT') {
+          updateChatFail(uuid, chatData.value.length - 1, '当前用户较多，排队中，请稍候再次重试！');
+          handleStop();
+          return;
+        } else {
+          updateChatFail(uuid, chatData.value.length - 1, '服务器错误，请稍后重试！');
+          handleStop();
+          return;
+        }
+        console.error(e);
+        //update-end---author:wangshuai---date:2025-04-28---for:【QQYUN-12297】【AI】聊天，超时以后提示---
+      });
     const reader = readableStream.getReader();
     const decoder = new TextDecoder('UTF-8');
     let conversationId = '';
@@ -490,21 +511,21 @@
       for (let line of lines) {
         if (line.startsWith('data:')) {
           let content = line.replace('data:', '').trim();
-          if(!content){
+          if (!content) {
             continue;
           }
-          if(!content.endsWith('}')){
+          if (!content.endsWith('}')) {
             buffer = buffer + line;
             continue;
           }
-          buffer = "";
+          buffer = '';
           try {
             //update-begin---author:wangshuai---date:2025-03-13---for:【QQYUN-11572】发布到线上不能实时动态，内容不能加载出来，得刷新才能看到全部回答---
-            if(content.indexOf(":::card:::") !== -1){
+            if (content.indexOf(':::card:::') !== -1) {
               content = content.replace(/\s+/g, '');
             }
             let parse = JSON.parse(content);
-            await renderText(parse,conversationId,text,options).then((res)=>{
+            await renderText(parse, conversationId, text, options).then((res) => {
               text = res.returnText;
               conversationId = res.conversationId;
             });
@@ -513,18 +534,18 @@
             console.log('Error parsing update:', error);
           }
           //update-end---author:wangshuai---date:2025-03-12---for:【QQYUN-11555】聊天时要流式显示消息---
-        }else{
-          if(!line){
+        } else {
+          if (!line) {
             continue;
           }
-          if(!line.endsWith('}')){
+          if (!line.endsWith('}')) {
             buffer = buffer + line;
             continue;
           }
-          buffer = "";
+          buffer = '';
           //update-begin---author:wangshuai---date:2025-03-13---for:【QQYUN-11572】发布到线上不能实时动态，内容不能加载出来，得刷新才能看到全部回答---
           try {
-            if(line.indexOf(":::card:::") !== -1){
+            if (line.indexOf(':::card:::') !== -1) {
               line = line.replace(/\s+/g, '');
             }
             let parse = JSON.parse(line);
@@ -532,7 +553,7 @@
               text = res.returnText;
               conversationId = res.conversationId;
             });
-          }catch (error) {
+          } catch (error) {
             console.log('Error parsing update:', error);
           }
           //update-end---author:wangshuai---date:2025-03-13---for:【QQYUN-11572】发布到线上不能实时动态，内容不能加载出来，得刷新才能看到全部回答---
@@ -544,9 +565,9 @@
   const handleUsingContext = () => {
     usingContext.value = !usingContext.value;
     if (usingContext.value) {
-      message.success("当前模式下, 发送消息会携带之前的聊天记录");
+      message.success('当前模式下, 发送消息会携带之前的聊天记录');
     } else {
-      message.warning("当前模式下, 发送消息不会携带之前的聊天记录");
+      message.warning('当前模式下, 发送消息不会携带之前的聊天记录');
     }
   };
 
@@ -565,13 +586,13 @@
    * @param text
    * @param options
    */
-  async function renderText(item,conversationId,text,options) {
-    let returnText = "";
+  async function renderText(item, conversationId, text, options) {
+    let returnText = '';
     if (item.event == 'MESSAGE') {
       let message = item.data.message;
-      let messageText = "";
+      let messageText = '';
       //update-begin---author:wangshuai---date:2025-04-24---for:应该先判断是否包含card---
-      if(message && message.indexOf("::card::") !== -1){
+      if (message && message.indexOf('::card::') !== -1) {
         messageText = message;
       } else {
         text = text + item.data.message;
@@ -595,7 +616,7 @@
         referenceKnowledge: knowList.value,
       });
     }
-    if(item.event == 'INIT_REQUEST_ID'){
+    if (item.event == 'INIT_REQUEST_ID') {
       if (item.requestId) {
         requestId.value = item.requestId;
       }
@@ -608,10 +629,10 @@
     }
     if (item.event == 'FLOW_FINISHED') {
       //update-begin---author:wangshuai---date:2025-03-07---for:【QQYUN-11457】聊天调用流程，执行失败了但是没提示---
-      if(item.data && !item.data.success){
-        updateChatFail(uuid, chatData.value.length - 1, item.data.message?item.data.message:'请求出错，请稍后重试！');
+      if (item.data && !item.data.success) {
+        updateChatFail(uuid, chatData.value.length - 1, item.data.message ? item.data.message : '请求出错，请稍后重试！');
         handleStop();
-        return "";
+        return '';
       }
       //update-end---author:wangshuai---date:2025-03-07---for:【QQYUN-11457】聊天调用流程，执行失败了但是没提示---
       topicId.value = item.topicId;
@@ -621,42 +642,42 @@
       handleStop();
     }
     if (item.event == 'ERROR') {
-      updateChatFail(uuid, chatData.value.length - 1, item.data.message?item.data.message:'请求出错，请稍后重试！');
+      updateChatFail(uuid, chatData.value.length - 1, item.data.message ? item.data.message : '请求出错，请稍后重试！');
       handleStop();
-      return "";
+      return '';
     }
 
     //update-begin---author:wangshuai---date:2025-03-21---for:【QQYUN-11495】【AI】实时展示当前思考进度---
-    if(item.event === "NODE_STARTED"){
-      if(!item.data || item.data.type !== 'end'){
-        let aiText = "";
-        if(item.data.type === 'llm'){
-          aiText = "正在构建响应内容";
+    if (item.event === 'NODE_STARTED') {
+      if (!item.data || item.data.type !== 'end') {
+        let aiText = '';
+        if (item.data.type === 'llm') {
+          aiText = '正在构建响应内容';
         }
-        if(item.data.type === 'knowledge'){
-          aiText = "正在对知识库进行深度检索";
+        if (item.data.type === 'knowledge') {
+          aiText = '正在对知识库进行深度检索';
         }
-        if(item.data.type === 'classifier'){
-          aiText = "正在分类";
+        if (item.data.type === 'classifier') {
+          aiText = '正在分类';
         }
-        if(item.data.type === 'code'){
-          aiText = "正在实施代码运行操作";
+        if (item.data.type === 'code') {
+          aiText = '正在实施代码运行操作';
         }
-        if(item.data.type === 'subflow'){
-          aiText = "正在运行子流程";
+        if (item.data.type === 'subflow') {
+          aiText = '正在运行子流程';
         }
-        if(item.data.type === 'enhanceJava'){
-          aiText = "正在执行java增强";
+        if (item.data.type === 'enhanceJava') {
+          aiText = '正在执行java增强';
         }
-        if(item.data.type === 'http'){
-          aiText = "正在发送http请求";
+        if (item.data.type === 'http') {
+          aiText = '正在发送http请求';
         }
-        if(!text){
+        if (!text) {
           //更新聊天信息
           updateChat(uuid.value, chatData.value.length - 1, {
             dateTime: new Date().toLocaleString(),
             retrievalText: aiText,
-            text:"",
+            text: '',
             inversion: 'ai',
             error: false,
             loading: true,
@@ -669,17 +690,17 @@
     }
     //update-end---author:wangshuai---date:2025-03-21---for:【QQYUN-11495】【AI】实时展示当前思考进度---
     else if (item.event === 'NODE_FINISHED') {
-      if(!item.data || item.data.type !== 'end'){
-        if(item.data.type === 'knowledge'){
+      if (!item.data || item.data.type !== 'end') {
+        if (item.data.type === 'knowledge') {
           const id = item.data.id;
-          const data = item.data.outputs[id + ".data"]
-          knowList.value.push(data)
+          const data = item.data.outputs[id + '.data'];
+          knowList.value.push(data);
           //更新聊天信息
-          updateChatSome(uuid.value, chatData.value.length - 1, {referenceKnowledge: knowList.value})
+          updateChatSome(uuid.value, chatData.value.length - 1, { referenceKnowledge: knowList.value });
         }
       }
     }
-    if(!returnText){
+    if (!returnText) {
       returnText = text;
     }
     return { returnText, conversationId };
@@ -726,8 +747,8 @@
         return false;
       }
     }
-    if(uploadUrlList.value && uploadUrlList.value.length > 2){
-      message.warning("最多只能上传三张！");
+    if (uploadUrlList.value && uploadUrlList.value.length > 2) {
+      message.warning('最多只能上传三张！');
       return false;
     }
     return true;
@@ -737,15 +758,15 @@
    * 删除图片
    */
   function deleteImage(index) {
-    uploadUrlList.value.splice(index,1);
-    fileInfoList.value.splice(index,1);
+    uploadUrlList.value.splice(index, 1);
+    fileInfoList.value.splice(index, 1);
   }
 
   /**
    * 图片预览
    * @param url
    */
-  function handlePreview(url){
+  function handlePreview(url) {
     const onImgLoad = ({ index, url, dom }) => {
       console.log(`第${index + 1}张图片已加载，URL为：${url}`, dom);
     };
@@ -759,7 +780,7 @@
    * @param maxLength
    */
   function truncateString(str, maxLength) {
-    if (str.length <= maxLength){
+    if (str.length <= maxLength) {
       return str;
     }
     let chineseCount = 0;
@@ -768,11 +789,14 @@
     let result = '';
     for (let i = 0; i < str.length; i++) {
       const char = str[i];
-      if (/[\u4e00-\u9fa5]/.test(char)) { // 判断是否为汉字
+      if (/[\u4e00-\u9fa5]/.test(char)) {
+        // 判断是否为汉字
         chineseCount++;
-      } else if (/[a-zA-Z]/.test(char)) { // 判断是否为英文字母
+      } else if (/[a-zA-Z]/.test(char)) {
+        // 判断是否为英文字母
         englishCount++;
-      } else if (/\d/.test(char)) { // 判断是否为数字
+      } else if (/\d/.test(char)) {
+        // 判断是否为数字
         digitCount++;
       }
       if (chineseCount + englishCount / 2 + digitCount / 2 > maxLength) {
@@ -789,12 +813,12 @@
    * @param event
    */
   function paste(event) {
-    if(uploadUrlList.value && uploadUrlList.value.length > 2){
-      message.warning("最多只能上传三张！");
+    if (uploadUrlList.value && uploadUrlList.value.length > 2) {
+      message.warning('最多只能上传三张！');
       return;
     }
     const items = (event.clipboardData || window.clipboardData).items;
-    if (!items || items.length === 0){
+    if (!items || items.length === 0) {
       //说明浏览器不支持复制图片
       message.error('当前浏览器不支持本地打开图片！');
       return;
@@ -828,7 +852,7 @@
         message.error(`${image.name} 导入失败`);
       }
     };
-    await defHttp.uploadFile({ url: "/airag/chat/upload" }, { file: image }, { success: isReturn });
+    await defHttp.uploadFile({ url: '/airag/chat/upload' }, { file: image }, { success: isReturn });
   }
 
   //监听开场白
@@ -872,18 +896,18 @@
         //update-begin---author:wangshuai---date:2025-03-06---for:【QQYUN-11384】浏览器打开应用开场白丢了---
         if (val && val.length > 0) {
           chatData.value = cloneDeep(val);
-          if(chatData.value[0]){
-            topicId.value = chatData.value[0].topicId
+          if (chatData.value[0]) {
+            topicId.value = chatData.value[0].topicId;
           }
-        }else{
+        } else {
           chatData.value = [];
           headerTitle.value = props.chatTitle;
         }
-        if(props.prologue && props.chatTitle){
-          topChat(props.prologue)
+        if (props.prologue && props.chatTitle) {
+          topChat(props.prologue);
         }
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
       //update-end---author:wangshuai---date:2025-03-06---for:【QQYUN-11384】浏览器打开应用开场白丢了---
     },
@@ -996,7 +1020,7 @@
   :deep(.ant-message) {
     top: 50% !important;
   }
-  .header-title{
+  .header-title {
     color: #101828;
     font-size: 16px;
     font-weight: 400;
@@ -1008,13 +1032,13 @@
     display: flex;
     justify-content: space-between;
     height: 30px;
-    .header-advertisint{
-      display:flex;
+    .header-advertisint {
+      display: flex;
       margin-right: 20px;
       font-size: 12px;
     }
   }
-  .chat-textarea{
+  .chat-textarea {
     display: flex;
     align-items: center;
     width: 100%;
@@ -1024,16 +1048,16 @@
     flex-direction: column;
     transition: width 0.3s;
     border-color: #d2d7e5;
-    .textarea-top{
+    .textarea-top {
       border-bottom: 1px solid #f0f0f5;
       padding: 12px 28px;
       width: 100%;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      .top-image{
+      .top-image {
         display: flex;
-        img{
+        img {
           border-radius: 8px;
           cursor: pointer;
           height: 60px;
@@ -1042,7 +1066,7 @@
         }
       }
     }
-    .textarea-bottom{
+    .textarea-bottom {
       display: flex;
       flex-direction: row;
       align-items: center;
@@ -1053,19 +1077,19 @@
       width: 100%;
     }
   }
-  .chat-textarea:hover{
+  .chat-textarea:hover {
     border-color: #9dc1fb;
   }
-  .textarea-active{
+  .textarea-active {
     border-color: #98bdfa !important;
   }
-  :deep(.ant-divider-vertical){
+  :deep(.ant-divider-vertical) {
     margin: 0 2px;
   }
-  .upload-icon{
+  .upload-icon {
     cursor: pointer;
     position: absolute;
-    background-color: #1D1C23;
+    background-color: #1d1c23;
     color: white;
     border-radius: 50%;
     padding: 4px;
@@ -1076,35 +1100,35 @@
     margin-left: 44px;
     margin-top: -4px;
   }
-  .top-image:hover{
-    .upload-icon{
+  .top-image:hover {
+    .upload-icon {
       display: flex;
     }
   }
-  
+
   @media (max-width: 600px) {
     //手机下的样式 平板不需要调整
-    .footer{
+    .footer {
       padding: 0;
-      .bottomArea{
-        .delBtn{
+      .bottomArea {
+        .delBtn {
           margin-right: 0;
         }
       }
     }
-    .chatWrap{
+    .chatWrap {
       padding: 10px 10px 10px 0;
     }
-    .main .chatContentArea{
+    .main .chatContentArea {
       padding: 10px 0 0 10px;
     }
   }
 </style>
 <style lang="less">
- .ai-chat-modal{
-   z-index: 9999 !important;
- }
- .ai-chat-message{
-   z-index: 9999 !important;
- }
+  .ai-chat-modal {
+    z-index: 9999 !important;
+  }
+  .ai-chat-message {
+    z-index: 9999 !important;
+  }
 </style>
