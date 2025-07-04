@@ -1,4 +1,22 @@
 {
+  "title": "NHWQZF数智一体化平台",
+  "env": {
+    "VITE_PORT": 3000,
+    "VITE_GLOB_APP_TITLE": "数智一体化平台",
+    "VITE_GLOB_APP_SHORT_NAME": "NHWQZF数智一体化平台",
+    "VITE_GLOB_APP_CAS_BASE_URL": "http://cas.test.com:8443/cas",
+    "VITE_GLOB_APP_OPEN_SSO": false,
+    "VITE_GLOB_APP_OPEN_QIANKUN": true,
+    "VITE_GLOB_ONLINE_VIEW_URL": "http://fileview.jeecg.com/onlinePreview",
+    "VITE_GLOB_DOMAIN_URL": "http://localhost:8386/aiccg",
+    "VITE_GLOB_API_URL": "/aiccg",
+    "VITE_GLOB_API_URL_PREFIX": "",
+    "VITE_PUBLIC_PATH": "/"
+  },
+  "server": {
+    "port": 3000,
+    "host": "0.0.0.0"
+  },
   "wms": {
     "url": "http://localhost:8080/geoserver/aiccgmap/wms",
     "layers": "aiccgmap:lq_poi_static",

@@ -1,30 +1,21 @@
-FROM registry.cn-hangzhou.aliyuncs.com/dockerhub_mirror/nginx
-MAINTAINER jeecgos@163.com
-VOLUME /tmp
-ENV LANG en_US.UTF-8
-RUN echo "server {  \
-                      listen       80; \
-                      location   /jeecgboot/ { \
-                      proxy_pass              http://jeecg-boot-system:8080/jeecg-boot/; \
-                      proxy_redirect          off; \
-                      proxy_set_header        Host jeecg-boot-system; \
-                      proxy_set_header        X-Real-IP \$remote_addr; \
-                      proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for; \
-                  } \
-                  #解决Router(mode: 'history')模式下，刷新路由地址不能找到页面的问题 \
-                  location / { \
-                     root   /var/www/html/; \
-                      index  index.html index.htm; \
-                      if (!-e \$request_filename) { \
-                          rewrite ^(.*)\$ /index.html?s=\$1 last; \
-                          break; \
-                      } \
-                  } \
-                  access_log  /var/log/nginx/access.log ; \
-              } " > /etc/nginx/conf.d/default.conf \
-    &&  mkdir  -p  /var/www \
-    &&  mkdir -p /var/www/html
+FROM node:18-alpine
 
-ADD dist/ /var/www/html/
-EXPOSE 80
-EXPOSE 443
+WORKDIR /app
+
+# 复制 package.json 和 package-lock.json
+COPY package*.json ./
+
+# 安装依赖
+RUN npm install
+
+# 复制源代码
+COPY . .
+
+# 构建应用
+RUN npm run build
+
+# 暴露端口（可以通过环境变量覆盖）
+EXPOSE 3000
+
+# 启动命令
+CMD ["node", "server.js"]

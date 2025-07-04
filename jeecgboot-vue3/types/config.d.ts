@@ -172,6 +172,8 @@ export interface GlobConfig {
   qiankunMicroAppEntry?: string;
 }
 export interface GlobEnvConfig {
+  // Port number
+  VITE_PORT?: number;
   // Site title
   VITE_GLOB_APP_TITLE: string;
   // Service interface url

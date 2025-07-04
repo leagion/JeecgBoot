@@ -27,7 +27,7 @@ export const useGlobSetting = (): Readonly<GlobConfig> => {
   // }
 
   // 短标题：替换shortName的下划线为空格
-  const shortTitle = VITE_GLOB_APP_SHORT_NAME.replace(/_/g, " ");
+  const shortTitle = VITE_GLOB_APP_SHORT_NAME?.replace(/_/g, ' ') || VITE_GLOB_APP_SHORT_NAME || '';
   // Take global configuration
   const glob: Readonly<GlobConfig> = {
     title: VITE_GLOB_APP_TITLE,
@@ -48,6 +48,8 @@ export const useGlobSetting = (): Readonly<GlobConfig> => {
     isQiankunMicro: VITE_GLOB_QIANKUN_MICRO_APP_NAME != null && VITE_GLOB_QIANKUN_MICRO_APP_NAME !== '',
     // 【JEECG作为乾坤子应用】乾坤子应用入口
     qiankunMicroAppEntry: VITE_GLOB_QIANKUN_MICRO_APP_ENTRY,
+
+  
   };
 
   // 【JEECG作为乾坤子应用】乾坤子应用下，需要定义一下

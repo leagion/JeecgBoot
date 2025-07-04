@@ -14,7 +14,7 @@ import { setupRouterGuard } from '/@/router/guard';
 import { setupStore } from '/@/store';
 import { setupGlobDirectives } from '/@/directives';
 import { setupI18n } from '/@/locales/setupI18n';
-import { setupElectron } from "@/electron";
+import { setupElectron } from '@/electron';
 import { registerGlobComp } from '/@/components/registerGlobComp';
 import { registerThirdComp } from '/@/settings/registerThirdComp';
 import { registerSuper } from '/@/views/super/registerSuper';
@@ -150,4 +150,18 @@ function setupProps(props?: MainAppProps) {
   }
   const appStore = useAppStoreWithOut();
   appStore.setMainAppProps(props);
+}
+
+// main.ts 或单独新建 src/utils/loadConfig.ts
+fetch('/config.json')
+  .then((res) => res.json())
+  .then((config) => {
+    window._CONFIG = window._CONFIG || {};
+    window._CONFIG.title = config.title || '数智一体化平台';
+    window._CONFIG.env = config.env || {};
+    document.title = window._CONFIG.title;
+  });
+
+export function getAppTitle() {
+  return window._CONFIG?.title || '默认平台名';
 }

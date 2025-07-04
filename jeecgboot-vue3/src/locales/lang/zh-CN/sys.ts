@@ -61,7 +61,7 @@ export default {
   },
   login: {
     backSignIn: '返回',
-    signInFormTitle: '数智一体化平台',
+    signInFormTitle: '{APP_TITLE}',
     mobileSignInFormTitle: '手机登录',
     qrSignInFormTitle: '二维码登录',
     signUpFormTitle: '注册',
@@ -108,6 +108,6 @@ export default {
     resetLoginPassword:'重置登录密码',
     resetSuccess:'重置成功',
     nextStep:'下一步',
-    goToLogin:'去登录'
+    goToLogin: '去登录',
   },
 };
