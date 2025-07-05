@@ -85,7 +85,7 @@
             },
             responseMode: 'blocking',
           },
-          timeout: 5 * 60 * 1000,
+          timeout: 50 * 60 * 1000,
         },
         {
           isTransformResponse: false,

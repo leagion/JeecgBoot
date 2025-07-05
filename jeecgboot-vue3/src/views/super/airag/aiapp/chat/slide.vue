@@ -71,13 +71,13 @@
         </li>
       </ul>
     </div>
-    <div class="left-footer" v-if="source!='chatJs'">
+    <!-- <div class="left-footer" v-if="source!='chatJs'">
       AI客服由
       <a style="color: #4183c4;margin-left: 2px;margin-right: 2px" href="https://www.qiaoqiaoyun.com/aiCustomerService" target="_blank">
         敲敲云
       </a>
       提供
-    </div>
+    </div> -->
   </div>
 </template>
 

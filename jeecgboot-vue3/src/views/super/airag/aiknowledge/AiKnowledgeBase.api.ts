@@ -82,7 +82,7 @@ export const knowledgeDocList = (params) => {
  * @param params
  */
 export const rebuild = (params) => {
-  return defHttp.put({ url: Api.rebuild, params,timeout: 2 * 60 * 1000 }, { joinParamsToUrl: true, isTransformResponse: false });
+  return defHttp.put({ url: Api.rebuild, params,timeout: 50 * 60 * 1000 }, { joinParamsToUrl: true, isTransformResponse: false });
 };
 
 /**
