@@ -17,8 +17,23 @@
   import ModelControlPanel from './ModelControlPanel.vue';
   import EntityManager from './EntityManager.vue';
 
+  // 动态引入 chat.js，确保 window.createAiChat 可用
+  if (typeof window !== 'undefined' && !window.createAiChat) {
+    const script = document.createElement('script');
+    script.src = '/src/views/super/airag/aiapp/chat/js/chat.js';
+    script.async = true;
+    document.head.appendChild(script);
+  }
+
   window.CESIUM_BASE_URL = '/Cesium/';
   Cesium.buildModuleUrl.setBaseUrl('/Cesium/');
+
+  // 为 window 声明 createAiChat 类型（放在模块顶部）
+  declare global {
+    interface Window {
+      createAiChat?: (config: any) => void;
+    }
+  }
 
   const viewer = ref<Cesium.Viewer | null>(null);
   const entityManagerRef = ref();
@@ -160,11 +175,23 @@
       console.error('初始化 Cesium 地图时出错:', error);
     }
 
-    createAiChat({
-      appId: '1939351529514930178',
-      // 支持top-left左上, top-right右上, bottom-left左下, bottom-right右下
-      iconPosition: 'bottom-right',
-    });
+    // 从 config.json 读取 appId 并初始化 createAiChat
+    let appId = '1947650682653323265'; // 默认值
+    try {
+      const resp = await fetch('/config.json');
+      const config = await resp.json();
+      if (config && config.appId) {
+        appId = config.appId;
+      }
+    } catch (e) {
+      console.warn('读取 config.json 获取 appId 失败，使用默认 appId');
+    }
+    if (typeof window.createAiChat === 'function') {
+      window.createAiChat({
+        appId,
+        iconPosition: 'bottom-right',
+      });
+    }
   });
 
   onUnmounted(() => {

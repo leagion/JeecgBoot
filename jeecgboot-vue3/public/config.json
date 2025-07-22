@@ -3,7 +3,7 @@
   "env": {
     "VITE_PORT": 3000,
     "VITE_GLOB_APP_TITLE": "数智一体化平台",
-    "VITE_GLOB_APP_SHORT_NAME": "NAAAAA数智一体化平台",
+    "VITE_GLOB_APP_SHORT_NAME": "数智一体化平台",
     "VITE_GLOB_APP_CAS_BASE_URL": "http://cas.test.com:8443/cas",
     "VITE_GLOB_APP_OPEN_SSO": false,
     "VITE_GLOB_APP_OPEN_QIANKUN": true,
@@ -34,5 +34,6 @@
   "wfs": {
     "url": "http://localhost:8080/geoserver/aiccgmap/ows",
     "layer": "aiccgmap:lq_poi_static"
-  }
+  },
+  "appId": "1947650682653323265"
 }

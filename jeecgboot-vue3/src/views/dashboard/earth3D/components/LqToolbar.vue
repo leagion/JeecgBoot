@@ -19,6 +19,16 @@
         <component :is="isCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined" style="font-size: 20px" />
       </div>
       <template v-if="!isCollapsed">
+        <a-tooltip placement="right" title="测量 (M)">
+          <a-button class="frosted-btn" type="primary" @click="openPanel" :disabled="!viewer">
+            <barcode-outlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip placement="right" title="模拟 (S)">
+          <a-button class="frosted-btn" @click="toggleModelPanel" type="text">
+            <play-circle-outlined />
+          </a-button>
+        </a-tooltip>
         <a-tooltip placement="right" title="打开 (O)">
           <a-button class="frosted-btn" @click="openFile" type="text">
             <folder-open-outlined />
@@ -29,11 +39,7 @@
             <appstore-outlined />
           </a-button>
         </a-tooltip>
-        <a-tooltip placement="right" title="测量 (M)">
-          <a-button class="frosted-btn" type="primary" @click="openPanel" :disabled="!viewer">
-            <barcode-outlined />
-          </a-button>
-        </a-tooltip>
+
         <a-tooltip placement="right" title="标绘 (P)">
           <a-button class="frosted-btn" @click="openPlotPanel" type="text">
             <edit-outlined />
@@ -49,11 +55,7 @@
             <redo-outlined />
           </a-button>
         </a-tooltip>
-        <a-tooltip placement="right" title="模拟 (S)">
-          <a-button class="frosted-btn" @click="toggleModelPanel" type="text">
-            <play-circle-outlined />
-          </a-button>
-        </a-tooltip>
+
         <a-tooltip placement="right" title="通信 (C)">
           <a-button class="frosted-btn" @click="openCommPanel" type="text">
             <message-outlined />
@@ -154,7 +156,7 @@
     }
   }
 
-  const isCollapsed = ref(false);
+  const isCollapsed = ref(true);
   function toggleCollapse() {
     isCollapsed.value = !isCollapsed.value;
   }
@@ -197,7 +199,7 @@
   // AI
   function openAIPanel() {
     createAiChat({
-      appId: '1939351529514930178',
+      appId: '1947650682653323265',
       // 支持top-left左上, top-right右上, bottom-left左下, bottom-right右下
       iconPosition: 'bottom-right',
     });
