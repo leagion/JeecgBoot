@@ -160,29 +160,6 @@ public class ThirdAppController {
     }
 
     /**
-     * 同步【企业微信】[部门]到本地
-     *
-     * @param ids
-     * @return
-     */
-    @GetMapping("/sync/wechatEnterprise/depart/toLocal")
-    public Result syncWechatEnterpriseDepartToLocal(@RequestParam(value = "ids", required = false) String ids) {
-        return Result.error("由于企业微信接口调整，企业微信同步本地部门失效");
-//        //获取企业微信配置
-//        Integer tenantId = oConvertUtils.getInt(TenantContext.getTenant(),0);
-//        SysThirdAppConfig config = appConfigService.getThirdConfigByThirdType(tenantId, MessageTypeEnum.QYWX.getType());
-//        if (null != config) {
-//            SyncInfoVo syncInfo = wechatEnterpriseService.syncThirdAppDepartmentToLocal(ids);
-//            if (syncInfo.getFailInfo().size() == 0) {
-//                return Result.OK("同步成功", syncInfo);
-//            } else {
-//                return Result.error("同步失败", syncInfo);
-//            }
-//        }
-//        return Result.error("企业微信尚未配置,请配置企业微信");
-    }
-
-    /**
      * 同步本地[部门]到【钉钉】
      *
      * @param ids

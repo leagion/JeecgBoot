@@ -1,14 +1,22 @@
 <template>
-  <j-modal :title="title" :width="width" :visible="visible" @ok="handleOk" :okButtonProps="{ class: { 'jee-hidden': disableSubmit } }" @cancel="handleCancel" cancelText="关闭">
+  <j-modal
+    :title="title"
+    :width="width"
+    :visible="visible"
+    @ok="handleOk"
+    :okButtonProps="{ class: { 'jee-hidden': disableSubmit } }"
+    @cancel="handleCancel"
+    cancelText="关闭"
+  >
     <LqQuhaoForm ref="registerForm" @ok="submitCallback" :formDisabled="disableSubmit" :formBpm="false"></LqQuhaoForm>
   </j-modal>
 </template>
 
 <script lang="ts" setup>
   import { ref, nextTick, defineExpose } from 'vue';
-  import LqQuhaoForm from './LqQuhaoForm.vue'
+  import LqQuhaoForm from './LqQuhaoForm.vue';
   import JModal from '/@/components/Modal/src/JModal/JModal.vue';
-  
+
   const title = ref<string>('');
   const width = ref<number>(800);
   const visible = ref<boolean>(false);
@@ -26,7 +34,7 @@
       registerForm.value.add();
     });
   }
-  
+
   /**
    * 编辑
    * @param record
@@ -38,7 +46,7 @@
       registerForm.value.edit(record);
     });
   }
-  
+
   /**
    * 确定按钮点击事件
    */
@@ -72,6 +80,12 @@
   /**隐藏样式-modal确定按钮 */
   .jee-hidden {
     display: none !important;
+  }
+
+  .ant-modal-body {
+    height: 510px !important;
+    overflow-y: auto !important;
+    padding: 0 !important;
   }
 </style>
 <style lang="less" scoped></style>

@@ -1,5 +1,5 @@
 {
-  "title": "NAAAAA数智一体化平台",
+  "title": "数智一体化平台",
   "env": {
     "VITE_PORT": 3000,
     "VITE_GLOB_APP_TITLE": "数智一体化平台",

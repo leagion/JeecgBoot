@@ -7,8 +7,6 @@
         <a-button type="primary" preIcon="ant-design:import-outlined">导入</a-button>
       </a-upload>
       <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExportXls">导出</a-button>
-      <a-button type="primary" preIcon="ant-design:sync-outlined">同步企微?</a-button>
-      <a-button type="primary" preIcon="ant-design:sync-outlined">同步钉钉?</a-button>
       <template v-if="checkedKeys.length > 0">
         <a-dropdown>
           <template #overlay>
