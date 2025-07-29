@@ -97,14 +97,14 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive, defineExpose, nextTick, defineProps, computed } from 'vue';
+  import { ref, reactive, defineExpose, nextTick, defineProps, computed, h } from 'vue';
   import { useMessage } from '/@/hooks/web/useMessage';
   import JDictSelectTag from '/@/components/Form/src/jeecg/components/JDictSelectTag.vue';
   import JSwitch from '/@/components/Form/src/jeecg/components/JSwitch.vue';
   import JUpload from '/@/components/Form/src/jeecg/components/JUpload/JUpload.vue';
   import { getValueType } from '/@/utils';
   import { saveOrUpdate, getMaxChunum } from '../LqQuhao.api';
-  import { Form } from 'ant-design-vue';
+  import { Form, Modal } from 'ant-design-vue';
   import JFormContainer from '/@/components/Form/src/container/JFormContainer.vue';
   const props = defineProps({
     formDisabled: { type: Boolean, default: false },
@@ -135,10 +135,11 @@
   const labelCol = ref<any>({ xs: { span: 24 }, sm: { span: 6 } });
   const wrapperCol = ref<any>({ xs: { span: 24 }, sm: { span: 16 } });
   const confirmLoading = ref<boolean>(false);
-  //表单验证
+  //表单验证必填
   const validatorRules = reactive({
     chunum: [{ required: true, message: '请输入取号(数字）!' }],
     name: [{ required: true, message: '请输入文件名称!' }],
+    dochandler: [{ required: true, message: '请输入承办人!' }],
   });
   const { resetFields, validate, validateInfos } = useForm(formData, validatorRules, { immediate: false });
 
@@ -167,7 +168,10 @@
       formData.chunum = Number(newNum);
 
       if (!isNaN(newNum)) {
-        createMessage.success(`已自动填充取号: ${newNum} (当前最大号: ${maxNum})`);
+        createMessage.success({
+          content: `已自动填充取号: ${newNum} (当前最大号: ${maxNum})`,
+          duration: 5, // 设置显示时长为2秒
+        });
       } else {
         throw new Error('计算新取号失败');
       }
@@ -205,10 +209,135 @@
       }
     });
   }
+  // async function submitForm() {
+  //   try {
+  //     await validate();
+  //   } catch (e: any) {
+  //     if (e && e.errorFields) {
+  //       const firstField = e.errorFields[0];
+  //       if (firstField) {
+  //         formRef.value.scrollToField(firstField.name, { behavior: 'smooth', block: 'center' });
+  //       }
+  //     }
+  //     return Promise.reject(e.errorFields);
+  //   }
+  //   confirmLoading.value = true;
+  //   const isUpdate = ref<boolean>(false);
+  //   let model = formData;
+  //   if (model.id) {
+  //     isUpdate.value = true;
+  //   }
+  //   for (let data in model) {
+  //     if (model[data] instanceof Array) {
+  //       let valueType = getValueType(formRef.value.getProps, data);
+  //       if (valueType === 'string') {
+  //         model[data] = model[data].join(',');
+  //       }
+  //     }
+  //   }
+  //   await saveOrUpdate(model, isUpdate.value)
+  //     .then((res) => {
+  //       if (res.success) {
+  //         createMessage.success(res.message);
+  //         emit('ok');
+  //       } else {
+  //         createMessage.warning(res.message);
+  //       }
+  //     })
+  //     .finally(() => {
+  //       confirmLoading.value = false;
+  //     });
+  // }
   async function submitForm() {
     try {
+      // 表单验证
       await validate();
+
+      // 设置更新标志
+      const isUpdate = formData.id ? true : false;
+      let model = formData;
+
+      // 只在新增时检查取号
+      if (!isUpdate) {
+        // 获取数据库最大取号
+        const dbMaxNum = await getMaxChunum();
+        const currentNum = Number(formData.chunum);
+
+        // 如果数据库最大号大于等于当前取号，则自动加1
+        if (dbMaxNum >= currentNum) {
+          const newNum = dbMaxNum + 1;
+          formData.chunum = newNum;
+          createMessage.warning({
+            content: `检测到取号冲突，已自动修改为: ${newNum}`,
+            duration: 3,
+          });
+        }
+      }
+
+      // 继续保存流程
+      confirmLoading.value = true;
+
+      // 处理数组类型
+      for (let data in model) {
+        if (model[data] instanceof Array) {
+          let valueType = getValueType(formRef.value.getProps, data);
+          if (valueType === 'string') {
+            model[data] = model[data].join(',');
+          }
+        }
+      }
+
+      // 保存数据
+      await saveOrUpdate(model, isUpdate)
+        .then((res) => {
+          if (res.success) {
+            if (isUpdate) {
+              // 编辑成功时只显示简单提示
+              createMessage.success('编辑成功！');
+            } else {
+              Modal.success({
+                title: '保存成功!',
+                width: 380, // 设置较小的宽度
+                class: 'custom-success-modal', // 添加自定义类名
+                content: h(
+                  'div',
+                  {
+                    style: {
+                      textAlign: 'center',
+                      padding: '16px 0',
+                    },
+                  },
+                  [
+                    h('div', `您的"${formData.name}"取号为`),
+                    h(
+                      'div',
+                      {
+                        style: {
+                          fontSize: '32px',
+                          color: '#f5222d',
+                          fontWeight: 'bold',
+                          margin: '12px 0',
+                        },
+                      },
+                      formData.chunum
+                    ),
+                    h('div', '文件办结后，请及时更新信息！'),
+                  ]
+                ),
+                okText: '知道了',
+                centered: true, // 居中显示
+              });
+            }
+            emit('ok');
+          } else {
+            createMessage.warning(res.message);
+          }
+        })
+        .finally(() => {
+          confirmLoading.value = false;
+        });
     } catch (e: any) {
+      // 处理验证错误
       if (e && e.errorFields) {
         const firstField = e.errorFields[0];
         if (firstField) {
@@ -217,33 +346,8 @@
       }
       return Promise.reject(e.errorFields);
     }
-    confirmLoading.value = true;
-    const isUpdate = ref<boolean>(false);
-    let model = formData;
-    if (model.id) {
-      isUpdate.value = true;
-    }
-    for (let data in model) {
-      if (model[data] instanceof Array) {
-        let valueType = getValueType(formRef.value.getProps, data);
-        if (valueType === 'string') {
-          model[data] = model[data].join(',');
-        }
-      }
-    }
-    await saveOrUpdate(model, isUpdate.value)
-      .then((res) => {
-        if (res.success) {
-          createMessage.success(res.message);
-          emit('ok');
-        } else {
-          createMessage.warning(res.message);
-        }
-      })
-      .finally(() => {
-        confirmLoading.value = false;
-      });
   }
+
   defineExpose({
     add,
     edit,
