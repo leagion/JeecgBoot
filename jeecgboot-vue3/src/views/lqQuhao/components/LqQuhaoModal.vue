@@ -83,7 +83,7 @@
   }
 
   .ant-modal-body {
-    height: 510px !important;
+    height: 520px !important;
     overflow-y: auto !important;
     padding: 0 !important;
   }

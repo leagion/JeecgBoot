@@ -33,9 +33,9 @@ import lombok.experimental.Accessors;
 public class LqQuhao implements Serializable {
     private static final long serialVersionUID = 1L;
 
-	/**是否清退*/
-    @Excel(name = "是否清退", width = 15,replace = {"是_Y","否_N"} )
-    @Schema(description = "是否清退")
+	/**是否办结*/
+    @Excel(name = "是否办结", width = 15,replace = {"是_Y","否_N"} )
+    @Schema(description = "是否办结")
     private java.lang.String returnfile;
 	/**取号(数字）*/
 	@Excel(name = "取号(数字）", width = 15)

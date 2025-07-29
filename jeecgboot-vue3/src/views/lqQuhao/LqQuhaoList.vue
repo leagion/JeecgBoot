@@ -7,26 +7,26 @@
           <a-col :lg="6">
             <a-form-item name="chunum">
               <template #label><span title="取号(数字）">取号(数</span></template>
-              <a-input-number placeholder="请输入取号(数字）" v-model:value="queryParam.chunum"></a-input-number>           
+              <a-input-number placeholder="请输入取号(数字）" v-model:value="queryParam.chunum"></a-input-number>
             </a-form-item>
           </a-col>
           <a-col :lg="6">
             <a-form-item name="datatimeQuhao">
               <template #label><span title="日期时间">日期时间</span></template>
-              <a-date-picker valueFormat="YYYY-MM-DD" placeholder="请选择日期时间"  v-model:value="queryParam.datatimeQuhao" allow-clear />
+              <a-date-picker valueFormat="YYYY-MM-DD" placeholder="请选择日期时间" v-model:value="queryParam.datatimeQuhao" allow-clear />
             </a-form-item>
           </a-col>
           <template v-if="toggleSearchStatus">
             <a-col :lg="9">
               <a-form-item name="name">
                 <template #label><span title="文件名称">文件名称</span></template>
-                <a-input placeholder="请输入文件名称" v-model:value="queryParam.name" allow-clear ></a-input>
+                <a-input placeholder="请输入文件名称" v-model:value="queryParam.name" allow-clear></a-input>
               </a-form-item>
             </a-col>
             <a-col :lg="6">
               <a-form-item name="dochandler">
                 <template #label><span title="承办人">承办人</span></template>
-                <a-input placeholder="请输入承办人" v-model:value="queryParam.dochandler" allow-clear ></a-input>
+                <a-input placeholder="请输入承办人" v-model:value="queryParam.dochandler" allow-clear></a-input>
               </a-form-item>
             </a-col>
             <a-col :lg="6">
@@ -38,37 +38,37 @@
             <a-col :lg="6">
               <a-form-item name="primaryrecipient">
                 <template #label><span title="主送单位">主送单位</span></template>
-                <a-input placeholder="请输入主送单位" v-model:value="queryParam.primaryrecipient" allow-clear ></a-input>
+                <a-input placeholder="请输入主送单位" v-model:value="queryParam.primaryrecipient" allow-clear></a-input>
               </a-form-item>
             </a-col>
             <a-col :lg="6">
               <a-form-item name="ccorganization">
                 <template #label><span title="抄送单位">抄送单位</span></template>
-                <a-input placeholder="请输入抄送单位" v-model:value="queryParam.ccorganization" allow-clear ></a-input>
+                <a-input placeholder="请输入抄送单位" v-model:value="queryParam.ccorganization" allow-clear></a-input>
               </a-form-item>
             </a-col>
             <a-col :lg="6">
               <a-form-item name="storagelocation">
                 <template #label><span title="存储位置">存储位置</span></template>
-                <a-input placeholder="请输入存储位置" v-model:value="queryParam.storagelocation" allow-clear ></a-input>
+                <a-input placeholder="请输入存储位置" v-model:value="queryParam.storagelocation" allow-clear></a-input>
               </a-form-item>
             </a-col>
             <a-col :lg="6">
               <a-form-item name="leaderinstructions">
                 <template #label><span title="领导批示">领导批示</span></template>
-                <a-input placeholder="请输入领导批示" v-model:value="queryParam.leaderinstructions" allow-clear ></a-input>
+                <a-input placeholder="请输入领导批示" v-model:value="queryParam.leaderinstructions" allow-clear></a-input>
               </a-form-item>
             </a-col>
             <a-col :lg="6">
               <a-form-item name="pendingactions">
                 <template #label><span title="后续待办">后续待办</span></template>
-                <a-input placeholder="请输入后续待办" v-model:value="queryParam.pendingactions" allow-clear ></a-input>
+                <a-input placeholder="请输入后续待办" v-model:value="queryParam.pendingactions" allow-clear></a-input>
               </a-form-item>
             </a-col>
             <a-col :lg="6">
               <a-form-item name="filenum">
                 <template #label><span title="正式文件号">正式文件</span></template>
-                <a-input placeholder="请输入正式文件号" v-model:value="queryParam.filenum" allow-clear ></a-input>
+                <a-input placeholder="请输入正式文件号" v-model:value="queryParam.filenum" allow-clear></a-input>
               </a-form-item>
             </a-col>
           </template>
@@ -91,9 +91,11 @@
     <BasicTable @register="registerTable" :rowSelection="rowSelection">
       <!--插槽:table标题-->
       <template #tableTitle>
-        <a-button type="primary" v-auth="'lqQuhao:lq_quhao:add'"  @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-        <a-button  type="primary" v-auth="'lqQuhao:lq_quhao:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
-        <j-upload-button  type="primary" v-auth="'lqQuhao:lq_quhao:importExcel'"  preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
+        <a-button type="primary" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
+        <a-button type="primary" v-auth="'lqQuhao:lq_quhao:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
+        <j-upload-button type="primary" v-auth="'lqQuhao:lq_quhao:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls"
+          >导入</j-upload-button
+        >
         <a-dropdown v-if="selectedRowKeys.length > 0">
           <template #overlay>
             <a-menu>
@@ -103,7 +105,8 @@
               </a-menu-item>
             </a-menu>
           </template>
-          <a-button v-auth="'lqQuhao:lq_quhao:deleteBatch'">批量操作
+          <a-button v-auth="'lqQuhao:lq_quhao:deleteBatch'"
+            >批量操作
             <Icon icon="mdi:chevron-down"></Icon>
           </a-button>
         </a-dropdown>
@@ -112,13 +115,15 @@
       </template>
       <!--操作栏-->
       <template #action="{ record }">
-        <TableAction :actions="getTableAction(record)" :dropDownActions="getDropDownAction(record)"/>
+        <TableAction :actions="getTableAction(record)" :dropDownActions="getDropDownAction(record)" />
       </template>
       <template v-slot:bodyCell="{ column, record, index, text }">
-        <template v-if="column.dataIndex==='filescan'">
+        <template v-if="column.dataIndex === 'filescan'">
           <!--文件字段回显插槽-->
-          <span v-if="!text" style="font-size: 12px;font-style: italic;">无文件</span>
-          <a-button v-else :ghost="true" type="primary" preIcon="ant-design:download-outlined" size="small" @click="downloadFile(text)">下载</a-button>
+          <span v-if="!text" style="font-size: 12px; font-style: italic">无文件</span>
+          <a-button v-else :ghost="true" type="primary" preIcon="ant-design:download-outlined" size="small" @click="downloadFile(text)"
+            >下载</a-button
+          >
         </template>
       </template>
     </BasicTable>
@@ -134,7 +139,7 @@
   import { columns, superQuerySchema } from './LqQuhao.data';
   import { list, deleteOne, batchDelete, getImportUrl, getExportUrl } from './LqQuhao.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
-  import LqQuhaoModal from './components/LqQuhaoModal.vue'
+  import LqQuhaoModal from './components/LqQuhaoModal.vue';
   import { useUserStore } from '/@/store/modules/user';
   import JDictSelectTag from '/@/components/Form/src/jeecg/components/JDictSelectTag.vue';
   import JSwitch from '/@/components/Form/src/jeecg/components/JSwitch.vue';
@@ -151,7 +156,7 @@
       title: '文件取号',
       api: list,
       columns,
-      canResize:false,
+      canResize: false,
       useSearchForm: false,
       actionColumn: {
         width: 120,
@@ -162,21 +167,22 @@
       },
     },
     exportConfig: {
-      name: "文件取号",
+      name: '文件取号',
       url: getExportUrl,
       params: queryParam,
     },
-	  importConfig: {
-	    url: getImportUrl,
-	    success: handleSuccess
-	  },
+    importConfig: {
+      url: getImportUrl,
+      success: handleSuccess,
+    },
   });
-  const [registerTable, { reload, collapseAll, updateTableDataRecord, findTableDataRecord, getDataSource }, { rowSelection, selectedRowKeys }] = tableContext;
+  const [registerTable, { reload, collapseAll, updateTableDataRecord, findTableDataRecord, getDataSource }, { rowSelection, selectedRowKeys }] =
+    tableContext;
   const labelCol = reactive({
-    xs:24,
-    sm:4,
-    xl:6,
-    xxl:4
+    xs: 24,
+    sm: 4,
+    xl: 6,
+    xxl: 4,
   });
   const wrapperCol = reactive({
     xs: 24,
@@ -203,7 +209,7 @@
     registerModal.value.disableSubmit = false;
     registerModal.value.add();
   }
-  
+
   /**
    * 编辑事件
    */
@@ -211,7 +217,7 @@
     registerModal.value.disableSubmit = false;
     registerModal.value.edit(record);
   }
-   
+
   /**
    * 详情
    */
@@ -219,28 +225,28 @@
     registerModal.value.disableSubmit = true;
     registerModal.value.edit(record);
   }
-   
+
   /**
    * 删除事件
    */
   async function handleDelete(record) {
     await deleteOne({ id: record.id }, handleSuccess);
   }
-   
+
   /**
    * 批量删除事件
    */
   async function batchHandleDelete() {
     await batchDelete({ ids: selectedRowKeys.value }, handleSuccess);
   }
-   
+
   /**
    * 成功回调
    */
   function handleSuccess() {
     (selectedRowKeys.value = []) && reload();
   }
-   
+
   /**
    * 操作栏
    */
@@ -249,11 +255,11 @@
       {
         label: '编辑',
         onClick: handleEdit.bind(null, record),
-        auth: 'lqQuhao:lq_quhao:edit'
+        auth: 'lqQuhao:lq_quhao:edit',
       },
     ];
   }
-   
+
   /**
    * 下拉操作栏
    */
@@ -262,16 +268,17 @@
       {
         label: '详情',
         onClick: handleDetail.bind(null, record),
-      }, {
+      },
+      {
         label: '删除',
         popConfirm: {
           title: '是否确认删除',
           confirm: handleDelete.bind(null, record),
           placement: 'topLeft',
         },
-        auth: 'lqQuhao:lq_quhao:delete'
-      }
-    ]
+        auth: 'lqQuhao:lq_quhao:delete',
+      },
+    ];
   }
 
   /**
@@ -280,7 +287,7 @@
   function searchQuery() {
     reload();
   }
-  
+
   /**
    * 重置
    */
@@ -290,11 +297,6 @@
     //刷新数据
     reload();
   }
-  
-
-
-
-
 </script>
 
 <style lang="less" scoped>
@@ -305,19 +307,20 @@
       margin-bottom: 24px;
       white-space: nowrap;
     }
-    .query-group-cust{
+    .query-group-cust {
       min-width: 100px !important;
     }
-    .query-group-split-cust{
+    .query-group-split-cust {
       width: 30px;
       display: inline-block;
-      text-align: center
+      text-align: center;
     }
-    .ant-form-item:not(.ant-form-item-with-help){
+    .ant-form-item:not(.ant-form-item-with-help) {
       margin-bottom: 16px;
       height: 32px;
     }
-    :deep(.ant-picker),:deep(.ant-input-number){
+    :deep(.ant-picker),
+    :deep(.ant-input-number) {
       width: 100%;
     }
   }

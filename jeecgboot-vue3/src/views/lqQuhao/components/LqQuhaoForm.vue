@@ -9,11 +9,6 @@
           <a-form ref="formRef" class="antd-modal-form form-flex-fill" :labelCol="labelCol" :wrapperCol="wrapperCol" name="LqQuhaoForm">
             <a-row :gutter="8" style="flex: 1">
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="取号(数字）" v-bind="validateInfos.chunum" id="LqQuhaoForm-chunum" name="chunum">
-                  <a-input-number v-model:value="formData.chunum" placeholder="请输入取号(数字）" style="width: 100%" size="small" />
-                </a-form-item>
-              </a-col>
-              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="日期时间" v-bind="validateInfos.datatimeQuhao" id="LqQuhaoForm-datatimeQuhao" name="datatimeQuhao">
                   <a-date-picker
                     placeholder="请选择日期时间"
@@ -25,9 +20,30 @@
                   />
                 </a-form-item>
               </a-col>
-              <a-col :xs="24" :sm="24" style="margin-bottom: 4px">
+              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
+                <a-form-item label="取号(数字）" v-bind="validateInfos.chunum" id="LqQuhaoForm-chunum" name="chunum">
+                  <a-input-number v-model:value="formData.chunum" placeholder="请输入取号(数字）" style="width: 100%" size="small" />
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="24" style="margin-bottom: 4px; padding-left: 0; padding-right: 0">
                 <a-form-item label="文件名称" v-bind="validateInfos.name" id="LqQuhaoForm-name" name="name">
                   <a-input v-model:value="formData.name" placeholder="请输入文件名称" allow-clear size="small" />
+                </a-form-item>
+              </a-col>
+
+              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
+                <a-form-item label="文件类型" v-bind="validateInfos.filetype" id="LqQuhaoForm-filetype" name="filetype">
+                  <j-dict-select-tag v-model:value="formData.filetype" dictCode="fileType" placeholder="请选择文件类型" allow-clear size="small" />
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
+                <a-form-item label="来文/主送单位" v-bind="validateInfos.primaryrecipient" id="LqQuhaoForm-primaryrecipient" name="primaryrecipient">
+                  <a-input v-model:value="formData.primaryrecipient" placeholder="请输入主送单位" allow-clear size="small" />
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
+                <a-form-item label="抄送单位" v-bind="validateInfos.ccorganization" id="LqQuhaoForm-ccorganization" name="ccorganization">
+                  <a-input v-model:value="formData.ccorganization" placeholder="请输入抄送单位" allow-clear size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
@@ -35,19 +51,10 @@
                   <a-input v-model:value="formData.dochandler" placeholder="请输入承办人" allow-clear size="small" />
                 </a-form-item>
               </a-col>
+              <a-divider dashed style="border-color: #222">以下为文件办理完毕后填写</a-divider>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="文件类型" v-bind="validateInfos.filetype" id="LqQuhaoForm-filetype" name="filetype">
-                  <j-dict-select-tag v-model:value="formData.filetype" dictCode="fileType" placeholder="请选择文件类型" allow-clear size="small" />
-                </a-form-item>
-              </a-col>
-              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="主送单位" v-bind="validateInfos.primaryrecipient" id="LqQuhaoForm-primaryrecipient" name="primaryrecipient">
-                  <a-input v-model:value="formData.primaryrecipient" placeholder="请输入主送单位" allow-clear size="small" />
-                </a-form-item>
-              </a-col>
-              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="抄送单位" v-bind="validateInfos.ccorganization" id="LqQuhaoForm-ccorganization" name="ccorganization">
-                  <a-input v-model:value="formData.ccorganization" placeholder="请输入抄送单位" allow-clear size="small" />
+                <a-form-item label="正式文件号" v-bind="validateInfos.filenum" id="LqQuhaoForm-filenum" name="filenum">
+                  <a-input v-model:value="formData.filenum" placeholder="请输入正式文件号" allow-clear size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
@@ -67,22 +74,17 @@
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="备注" v-bind="validateInfos.remark" id="LqQuhaoForm-remark" name="remark">
-                  <a-input v-model:value="formData.remark" placeholder="请输入备注" allow-clear size="small" />
+                  <a-textarea v-model:value="formData.remark" :rows="2" placeholder="请输入备注" size="small" />
                 </a-form-item>
               </a-col>
-              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
+              <!-- <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="文件上传" v-bind="validateInfos.filescanString" id="LqQuhaoForm-filescanString" name="filescanString">
                   <j-upload v-model:value="formData.filescan" />
                 </a-form-item>
-              </a-col>
+              </a-col> -->
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="是否清退" v-bind="validateInfos.returnfile" id="LqQuhaoForm-returnfile" name="returnfile">
+                <a-form-item label="是否办结" v-bind="validateInfos.returnfile" id="LqQuhaoForm-returnfile" name="returnfile">
                   <j-switch v-model:value="formData.returnfile" />
-                </a-form-item>
-              </a-col>
-              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="正式文件号" v-bind="validateInfos.filenum" id="LqQuhaoForm-filenum" name="filenum">
-                  <a-input v-model:value="formData.filenum" placeholder="请输入正式文件号" allow-clear size="small" />
                 </a-form-item>
               </a-col>
             </a-row>
@@ -100,7 +102,7 @@
   import JSwitch from '/@/components/Form/src/jeecg/components/JSwitch.vue';
   import JUpload from '/@/components/Form/src/jeecg/components/JUpload/JUpload.vue';
   import { getValueType } from '/@/utils';
-  import { saveOrUpdate } from '../LqQuhao.api';
+  import { saveOrUpdate, getMaxChunum } from '../LqQuhao.api';
   import { Form } from 'ant-design-vue';
   import JFormContainer from '/@/components/Form/src/container/JFormContainer.vue';
   const props = defineProps({
@@ -150,9 +152,27 @@
     }
     return props.formDisabled;
   });
+  async function autoFillChunum() {
+    const res = await getMaxChunum();
+    if (res && res.success) {
+      const maxNum = res.result || 0;
+      formData.chunum = (res.result || 0) + 1;
+      createMessage.info(`当前最大取号值为：${maxNum}`); // 弹窗提示
+      console.log('当前最大取号值:', maxNum); // 控制台输出
+    }
+  }
+
+  function getToday() {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
 
   function add() {
     edit({});
+    autoFillChunum();
   }
   function edit(record) {
     nextTick(() => {
@@ -164,6 +184,10 @@
         }
       });
       Object.assign(formData, tmpData);
+      // 日期自动填充今日
+      if (!formData.datatimeQuhao) {
+        formData.datatimeQuhao = getToday();
+      }
     });
   }
   async function submitForm() {

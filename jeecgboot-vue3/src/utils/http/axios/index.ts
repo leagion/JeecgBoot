@@ -18,7 +18,7 @@ import { useErrorLogStoreWithOut } from '/@/store/modules/errorLog';
 import { useI18n } from '/@/hooks/web/useI18n';
 import { joinTimestamp, formatRequestDate } from './helper';
 import { useUserStoreWithOut } from '/@/store/modules/user';
-import { cloneDeep } from "lodash-es";
+import { cloneDeep } from 'lodash-es';
 const globSetting = useGlobSetting();
 const urlPrefix = globSetting.urlPrefix;
 const { createMessage, createErrorModal } = useMessage();
@@ -96,7 +96,7 @@ const transform: AxiosTransform = {
     // http开头的请求url，不加前缀
     let isStartWithHttp = false;
     const requestUrl = config.url;
-    if(requestUrl!=null && (requestUrl.startsWith("http:") || requestUrl.startsWith("https:"))){
+    if (requestUrl != null && (requestUrl.startsWith('http:') || requestUrl.startsWith('https:'))) {
       isStartWithHttp = true;
     }
     // update-begin--author:sunjianlei---date:20250411---for：【QQYUN-9685】构建 electron 桌面应用
@@ -113,7 +113,7 @@ const transform: AxiosTransform = {
       config.url = `${apiUrl}${config.url}`;
     }
     //update-end---author:scott ---date::2024-02-20  for：以http开头的请求url，不拼加前缀--
-    
+
     const params = config.params || {};
     const data = config.data || false;
     formatDate && data && !isString(data) && formatRequestDate(data);
@@ -150,7 +150,7 @@ const transform: AxiosTransform = {
     // update-begin--author:sunjianlei---date:220241019---for：【JEECG作为乾坤子应用】作为乾坤子应用启动时，拼接请求路径
     if (globSetting.isQiankunMicro) {
       if (config.url && config.url.startsWith('/')) {
-        config.url = globSetting.qiankunMicroAppEntry + config.url
+        config.url = globSetting.qiankunMicroAppEntry + config.url;
       }
     }
     // update-end--author:sunjianlei---date:220241019---for：【JEECG作为乾坤子应用】作为乾坤子应用启动时，拼接请求路径
@@ -165,7 +165,7 @@ const transform: AxiosTransform = {
     // 请求之前处理config
     const token = getToken();
     let tenantId: string | number = getTenantId();
-    
+
     //update-begin---author:wangshuai---date:2024-04-16---for:【QQYUN-9005】发送短信加签。解决没有token无法加签---
     // 将签名和时间戳，添加在请求接口 Header
     config.headers[ConfigEnum.TIMESTAMP] = signMd5Utils.getTimestamp();
@@ -182,7 +182,7 @@ const transform: AxiosTransform = {
       // jwt token
       config.headers.Authorization = options.authenticationScheme ? `${options.authenticationScheme} ${token}` : token;
       config.headers[ConfigEnum.TOKEN] = token;
-      
+
       // 将签名和时间戳，添加在请求接口 Header
       //config.headers[ConfigEnum.TIMESTAMP] = signMd5Utils.getTimestamp();
       //config.headers[ConfigEnum.Sign] = signMd5Utils.getSign(config.url, config.params);
@@ -215,7 +215,6 @@ const transform: AxiosTransform = {
       }
       // update-end--author:sunjianlei---date:20220624--for: 添加低代码应用ID
       // ========================================================================================
-
     }
     return config;
   },

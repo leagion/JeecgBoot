@@ -2,7 +2,7 @@ import { render } from '@/common/renderUtils';
 //列表数据
 export const columns = [
     {
-    title: '是否清退',
+    title: '是否办结',
     align:"center",
     dataIndex: 'returnfile',
     customRender:({text}) => {

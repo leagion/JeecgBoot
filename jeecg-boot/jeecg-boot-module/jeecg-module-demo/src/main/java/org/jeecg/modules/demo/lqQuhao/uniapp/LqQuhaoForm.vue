@@ -10,8 +10,8 @@
 			<form>
               <view class="cu-form-group">
                 <view class="flex align-center">
-                  <view class="title"><text space="ensp">是否清退：</text></view>
-                  <input  placeholder="请输入是否清退" v-model="model.returnfile"/>
+                  <view class="title"><text space="ensp">是否办结：</text></view>
+                  <input  placeholder="请输入是否办结" v-model="model.returnfile"/>
                 </view>
               </view>
               <view class="cu-form-group">

@@ -17,13 +17,13 @@ navigationBarTitleText: '文件取号',
           <view class="{ 'mt-14px': 0 == 0 }">
         <!-- 开关 -->
               <wd-cell
-                :label="get4Label('是否清退')"
+                :label="get4Label('是否办结')"
                 name='returnfile'
                 title-width="100px"
                 center
               >
                 <wd-switch
-                  :label="get4Label('是否清退')"
+                  :label="get4Label('是否办结')"
                   name='returnfile'
                   size="18px"
                   v-model="myFormData['returnfile']"
