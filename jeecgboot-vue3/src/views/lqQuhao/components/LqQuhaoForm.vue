@@ -27,15 +27,20 @@
               </a-col>
               <a-col :xs="24" :sm="24" style="margin-bottom: 4px; padding-left: 0; padding-right: 0">
                 <a-form-item label="文件名称" v-bind="validateInfos.name" id="LqQuhaoForm-name" name="name">
-                  <a-input v-model:value="formData.name" placeholder="请输入文件名称" allow-clear size="small" />
+                  <a-input v-model:value="formData.name" placeholder="请输入文件名称" allow-clear size="middle" />
                 </a-form-item>
               </a-col>
-
+              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
+                <a-form-item label="承办人" v-bind="validateInfos.dochandler" id="LqQuhaoForm-dochandler" name="dochandler">
+                  <a-input v-model:value="formData.dochandler" placeholder="请输入承办人" allow-clear size="small" />
+                </a-form-item>
+              </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="文件类型" v-bind="validateInfos.filetype" id="LqQuhaoForm-filetype" name="filetype">
                   <j-dict-select-tag v-model:value="formData.filetype" dictCode="fileType" placeholder="请选择文件类型" allow-clear size="small" />
                 </a-form-item>
               </a-col>
+
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="来文/主送单位" v-bind="validateInfos.primaryrecipient" id="LqQuhaoForm-primaryrecipient" name="primaryrecipient">
                   <a-input v-model:value="formData.primaryrecipient" placeholder="请输入主送单位" allow-clear size="small" />
@@ -46,11 +51,7 @@
                   <a-input v-model:value="formData.ccorganization" placeholder="请输入抄送单位" allow-clear size="small" />
                 </a-form-item>
               </a-col>
-              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="承办人" v-bind="validateInfos.dochandler" id="LqQuhaoForm-dochandler" name="dochandler">
-                  <a-input v-model:value="formData.dochandler" placeholder="请输入承办人" allow-clear size="small" />
-                </a-form-item>
-              </a-col>
+
               <a-divider dashed style="border-color: #222">以下为文件办理完毕后填写</a-divider>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="正式文件号" v-bind="validateInfos.filenum" id="LqQuhaoForm-filenum" name="filenum">
@@ -153,15 +154,29 @@
     return props.formDisabled;
   });
   async function autoFillChunum() {
-    const res = await getMaxChunum();
-    if (res && res.success) {
-      const maxNum = res.result || 0;
-      formData.chunum = (res.result || 0) + 1;
-      createMessage.info(`当前最大取号值为：${maxNum}`); // 弹窗提示
-      console.log('当前最大取号值:', maxNum); // 控制台输出
+    try {
+      const res = await getMaxChunum();
+
+      // 直接处理数字类型的返回值
+      let maxNum = typeof res === 'number' ? res : 0;
+
+      // 新取号 = 最大号 + 1
+      const newNum = maxNum + 1;
+
+      // 确保赋值为数字类型
+      formData.chunum = Number(newNum);
+
+      if (!isNaN(newNum)) {
+        createMessage.success(`已自动填充取号: ${newNum} (当前最大号: ${maxNum})`);
+      } else {
+        throw new Error('计算新取号失败');
+      }
+    } catch (error) {
+      console.error('获取取号异常:', error);
+      createMessage.warning('获取取号失败，已默认设置为1');
+      formData.chunum = 1;
     }
   }
-
   function getToday() {
     const d = new Date();
     const yyyy = d.getFullYear();

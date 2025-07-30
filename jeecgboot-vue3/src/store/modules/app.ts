@@ -1,4 +1,4 @@
-import type { MainAppProps } from "#/main";
+import type { MainAppProps } from '#/main';
 import type { ProjectConfig, HeaderSetting, MenuSetting, TransitionSetting, MultiTabsSetting } from '/#/config';
 import type { BeforeMiniState } from '/#/store';
 
@@ -23,9 +23,9 @@ interface AppState {
   // When the window shrinks, remember some states, and restore these states when the window is restored
   beforeMiniInfo: BeforeMiniState;
   // 页面跳转临时参数存储
-  messageHrefParams: any,
+  messageHrefParams: any;
   // 应用参数
-  mainAppProps: MainAppProps,
+  mainAppProps: MainAppProps;
 }
 let timeId: TimeoutHandle;
 export const useAppStore = defineStore({
@@ -79,7 +79,7 @@ export const useAppStore = defineStore({
     getMultiTabsSetting(): MultiTabsSetting {
       return this.getProjectConfig.multiTabsSetting;
     },
-    getMessageHrefParams():any{
+    getMessageHrefParams(): any {
       return this.messageHrefParams;
     },
     getMainAppProps(): MainAppProps {
@@ -151,12 +151,11 @@ export const useAppStore = defineStore({
     },
 
     // 设置主应用参数
-    setMainAppProps(args: MainAppProps)  {
+    setMainAppProps(args: MainAppProps) {
       this.mainAppProps.hideHeader = args.hideHeader ?? false;
       this.mainAppProps.hideSider = args.hideSider ?? false;
       this.mainAppProps.hideMultiTabs = args.hideMultiTabs ?? false;
     },
-
   },
 });
 

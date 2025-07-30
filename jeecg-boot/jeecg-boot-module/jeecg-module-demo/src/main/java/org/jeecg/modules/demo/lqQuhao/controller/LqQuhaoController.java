@@ -182,15 +182,16 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 		return super.importExcel(request, response, LqQuhao.class);
 	}
 
-	@Operation(summary = "文件取号-查询最大值取号值")
-	@GetMapping(value = "/maxChunum")
-	public Result<Integer> getMaxChunum() {
-		// 查询最大号
-		QueryWrapper<LqQuhao> queryWrapper = new QueryWrapper<>();
-		queryWrapper.select("max(chunum) as chunum");
-		LqQuhao result = lqQuhaoService.getOne(queryWrapper, false);
-		Integer maxNum = (result != null && result.getChunum() != null) ? result.getChunum() : 0;
-		return Result.OK(maxNum);
+		@GetMapping("/getMaxChunum")
+		public Result<Integer> getMaxChunum() {
+		//	log.info("开始获取最大取号");
+			try {
+				Integer maxNum = lqQuhaoService.getMaxChunum();
+				//log.info("获取到的最大取号为: {}", maxNum);
+				return Result.OK(maxNum);
+			} catch (Exception e) {
+			//	log.error("获取最大取号异常", e);
+				return Result.error("获取最大取号失败：" + e.getMessage());
+			}
+		}
 	}
-
-}

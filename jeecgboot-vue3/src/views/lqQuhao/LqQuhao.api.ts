@@ -11,8 +11,14 @@ enum Api {
   deleteBatch = '/lqQuhao/lqQuhao/deleteBatch',
   importExcel = '/lqQuhao/lqQuhao/importExcel',
   exportXls = '/lqQuhao/lqQuhao/exportXls',
-  maxChunum = '/lqQuhao/lqQuhao/maxChunum',
+  getMaxChunum = '/lqQuhao/lqQuhao/getMaxChunum', // 添加这个接口
 }
+/**
+ * 获取最大取号值
+ */
+export const getMaxChunum = () => {
+  return defHttp.get({ url: Api.getMaxChunum });
+};
 
 /**
  * 导出api
@@ -71,4 +77,3 @@ export const saveOrUpdate = (params, isUpdate) => {
   let url = isUpdate ? Api.edit : Api.save;
   return defHttp.post({ url: url, params }, { isTransformResponse: false });
 };
-export const getMaxChunum = (params?) => defHttp.get({ url: Api.maxChunum, params });

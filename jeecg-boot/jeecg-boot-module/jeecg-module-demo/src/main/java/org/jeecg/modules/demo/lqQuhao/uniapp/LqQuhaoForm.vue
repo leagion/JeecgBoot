@@ -8,19 +8,16 @@
 		 <!--表单区域-->
 		<view>
 			<form>
-              <view class="cu-form-group">
-                <view class="flex align-center">
-                  <view class="title"><text space="ensp">是否办结：</text></view>
-                  <input  placeholder="请输入是否办结" v-model="model.returnfile"/>
-                </view>
+         <my-date label="日期时间：" fields="day" v-model="model.datatimeQuhao" placeholder="请输入日期时间"></my-date>
+             
               </view>
               <view class="cu-form-group">
                 <view class="flex align-center">
-                  <view class="title"><text space="ensp">取号(数字）：</text></view>
+                  <view class="title"><text space="ensp">取号（数字）：</text></view>
                   <input type="number" placeholder="请输入取号(数字）" v-model="model.chunum"/>
                 </view>
               </view>
-              <my-date label="日期时间：" fields="day" v-model="model.datatimeQuhao" placeholder="请输入日期时间"></my-date>
+             
               <view class="cu-form-group">
                 <view class="flex align-center">
                   <view class="title"><text space="ensp">文件名称：</text></view>
@@ -33,6 +30,11 @@
                   <input  placeholder="请输入承办人" v-model="model.dochandler"/>
                 </view>
               </view>
+               <view class="cu-form-group">
+                <view class="flex align-center">
+                  <view class="title"><text space="ensp">是否办结：</text></view>
+                  <input  placeholder="请输入是否办结" v-model="model.returnfile"/>
+                </view>
               <view class="cu-form-group">
                 <view class="flex align-center">
                   <view class="title"><text space="ensp">文件类型：</text></view>
@@ -121,11 +123,18 @@
                   queryById: "/lqQuhao/lqQuhao/queryById",
                   add: "/lqQuhao/lqQuhao/add",
                   edit: "/lqQuhao/lqQuhao/edit",
+                   // 添加获取最大取号值的接口地址
+                    getMaxChunum: "/lqQuhao/lqQuhao/getMaxChunum" 
                 },
             }
         },
         created(){
              this.initFormData();
+             console.log("formData1111111",this.formData.dataId);
+              // 如果是新增记录，调用获取最大取号值的方法
+            if (!this.formData.dataId) {
+                this.getMaxChunum();
+            }
         },
         methods:{
            initFormData(){
@@ -133,11 +142,24 @@
                     let dataId = this.formData.dataId;
                     this.$http.get(this.url.queryById,{params:{id:dataId}}).then((res)=>{
                         if(res.data.success){
-                            console.log("表单数据",res);
+                            // console.log("表单数据",res);
                             this.model = res.data.result;
                         }
                     })
                 }
+            },
+              // 获取最大取号值的方法
+              getMaxChunum() { 
+                this.$http.get(this.url.getMaxChunum).then(res => {
+                    if (res.data.success) {
+                        // 将最大取号值加 1 赋值给 model.chunum
+                        this.model.chunum = (res.data.result || 0) + 1; 
+                    }
+                }).catch(err => {
+                    console.error('获取最大取号值失败', err);
+                    // 失败时默认从 1 开始
+                    this.model.chunum = 1; 
+                });
             },
             onSubmit() {
                 let myForm = {...this.model};

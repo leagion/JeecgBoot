@@ -15,7 +15,7 @@ export const columns: BasicColumn[] = [
     },
   },
   {
-    title: '取号(数字）',
+    title: '取号',
     align: 'center',
     dataIndex: 'chunum',
   },
@@ -33,11 +33,18 @@ export const columns: BasicColumn[] = [
     title: '是否办结',
     align: 'center',
     dataIndex: 'returnfile',
-    customRender: ({ text }) => {
-      return render.renderSwitch(text, [
-        { text: '是', value: 'Y' },
-        { text: '否', value: 'N' },
-      ]);
+    customRender: ({ text, record }) => {
+      if (text === 'Y') {
+        return '是';
+      } else {
+        // 计算天数差
+        const startDate = new Date(record.datatimeQuhao);
+        const today = new Date();
+        const diffTime = Math.abs(today - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        return `否 (${diffDays}天)`;
+      }
     },
   },
   {

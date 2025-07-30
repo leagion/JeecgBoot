@@ -1,5 +1,6 @@
 package org.jeecg.modules.demo.lqQuhao.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.modules.demo.lqQuhao.entity.LqQuhao;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -11,4 +12,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ILqQuhaoService extends IService<LqQuhao> {
 
-    }
+  /**
+   * 获取最大chunum
+   * @return
+   */
+  Integer getMaxChunum();
+}
