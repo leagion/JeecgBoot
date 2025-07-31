@@ -17,4 +17,10 @@ public interface ILqQuhaoService extends IService<LqQuhao> {
    * @return
    */
   Integer getMaxChunum();
+  /**
+   * 获取指定部门的最大取号
+   * @param sysOrgCode 部门编码
+   * @return 最大取号
+   */
+  Integer getMaxChunumByOrgCode(String sysOrgCode);
 }

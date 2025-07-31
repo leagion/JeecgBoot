@@ -35,6 +35,10 @@ export const columns: BasicColumn[] = [
     align: 'center',
     width: 50,
     dataIndex: 'chunum',
+    defaultSortOrder: 'descend', // 默认降序排序
+    sorter: (a, b) => {
+      return b.chunum - a.chunum; // 从大到小排序
+    },
   },
   {
     title: '文件名称',

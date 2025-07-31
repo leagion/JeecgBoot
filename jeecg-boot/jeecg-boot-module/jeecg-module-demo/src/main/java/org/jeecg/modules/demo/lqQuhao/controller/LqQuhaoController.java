@@ -10,6 +10,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.system.query.QueryGenerator;
 import org.jeecg.common.system.query.QueryRuleEnum;
@@ -62,6 +64,7 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 	 * @param req
 	 * @return
 	 */
+	/**
 	// @AutoLog(value = "文件取号-分页列表查询")
 	@Operation(summary = "文件取号-分页列表查询")
 	@GetMapping(value = "/list")
@@ -79,7 +82,7 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 		IPage<LqQuhao> pageList = lqQuhaoService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
-
+**/
 	/**
 	 * 添加
 	 *
@@ -194,4 +197,48 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 				return Result.error("获取最大取号失败：" + e.getMessage());
 			}
 		}
+
+
+
+	/**
+	 * 按部门编码获取最大取号
+	 * @param sysOrgCode
+	 * @return
+	 */
+	@GetMapping("/getMaxChunumByOrgCode")
+	public Result<Integer> getMaxChunumByOrgCode(@RequestParam(name = "sysOrgCode") String sysOrgCode) {
+		log.info("获取部门最大取号, sysOrgCode: {}", sysOrgCode);
+		try {
+			Integer maxNum = lqQuhaoService.getMaxChunumByOrgCode(sysOrgCode);
+			log.info("部门最大取号: {}", maxNum);
+			return Result.OK(maxNum);
+		} catch (Exception e) {
+			log.error("获取部门最大取号失败", e);
+			return Result.error("获取最大取号失败：" + e.getMessage());
+		}
 	}
+
+	/**
+	 * 分页列表查询
+	 * @param lqQuhao
+	 * @param pageNo
+	 * @param pageSize
+	 * @param req
+	 * @return
+	 */
+	@GetMapping("/list")
+	public Result<IPage<LqQuhao>> queryPageList(LqQuhao lqQuhao,
+												@RequestParam(name = "pageNo", defaultValue = "1") Integer pageNo,
+												@RequestParam(name = "pageSize", defaultValue = "10") Integer pageSize,
+												HttpServletRequest req) {
+		// 添加部门编码过滤
+		if (StringUtils.isNotBlank(lqQuhao.getSysOrgCode())) {
+			QueryWrapper<LqQuhao> queryWrapper = QueryGenerator.initQueryWrapper(lqQuhao, req.getParameterMap());
+			Page<LqQuhao> page = new Page<>(pageNo, pageSize);
+			IPage<LqQuhao> pageList = lqQuhaoService.page(page, queryWrapper);
+			return Result.OK(pageList);
+		} else {
+			return Result.error("缺少部门编码参数");
+		}
+	}
+}

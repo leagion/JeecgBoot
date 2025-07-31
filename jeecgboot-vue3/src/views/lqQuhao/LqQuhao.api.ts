@@ -1,5 +1,6 @@
 import { defHttp } from '/@/utils/http/axios';
 import { useMessage } from '/@/hooks/web/useMessage';
+import { useUserStore } from '/@/store/modules/user';
 
 const { createConfirm } = useMessage();
 
@@ -12,12 +13,39 @@ enum Api {
   importExcel = '/lqQuhao/lqQuhao/importExcel',
   exportXls = '/lqQuhao/lqQuhao/exportXls',
   getMaxChunum = '/lqQuhao/lqQuhao/getMaxChunum', // 添加这个接口
+  getMaxChunumByOrgCode = '/lqQuhao/lqQuhao/getMaxChunumByOrgCode', // 修改为按部门获取最大号
 }
+
 /**
- * 获取最大取号值
+ * 获取当前部门最大取号
+ */
+export const getMaxChunumByOrgCode = () => {
+  const userStore = useUserStore();
+  const sysOrgCode = userStore.getUserInfo?.orgCode; // 使用 sysOrgCode
+  return defHttp.get({
+    url: Api.getMaxChunumByOrgCode,
+    params: { sysOrgCode }, // 参数名改为 sysOrgCode
+  });
+};
+
+/**
+ * 获取列表数据
+ */
+export const getFileList = (params) => {
+  const userStore = useUserStore();
+  const sysOrgCode = userStore.getUserInfo?.orgCode;
+  return defHttp.get({
+    url: Api.list,
+    params: { ...params, sysOrgCode },
+  });
+};
+
+/**
+ * 获取****所有文件*****最大取号值
  */
 export const getMaxChunum = () => {
-  return defHttp.get({ url: Api.getMaxChunum });
+  // return defHttp.get({ url: Api.getMaxChunum });
+  return getMaxChunumByOrgCode(); // 使用带部门编码的方法
 };
 
 /**
@@ -35,7 +63,26 @@ export const getImportUrl = Api.importExcel;
  * 列表接口
  * @param params
  */
-export const list = (params) => defHttp.get({ url: Api.list, params });
+// export const list = (params) => defHttp.get({ url: Api.list, params });
+/**
+ * 列表查询接口
+ * @param params 查询参数
+ */
+export const list = (params) => {
+  const userStore = useUserStore();
+  const sysOrgCode = userStore.getUserInfo?.orgCode;
+
+  // 确保参数中包含部门编码
+  const queryParams = {
+    ...params,
+    sysOrgCode: sysOrgCode,
+  };
+
+  return defHttp.get({
+    url: Api.list,
+    params: queryParams,
+  });
+};
 
 /**
  * 删除单个
