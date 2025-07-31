@@ -88,7 +88,7 @@
       </a-form>
     </div>
     <!--引用表格-->
-    <BasicTable @register="registerTable" :rowSelection="rowSelection">
+    <BasicTable @register="registerTable" :rowSelection="rowSelection" @row-db-click="handleDetail">
       <!--插槽:table标题-->
       <template #tableTitle>
         <a-button type="primary" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
@@ -224,6 +224,7 @@
   function handleDetail(record: Recordable) {
     registerModal.value.disableSubmit = true;
     registerModal.value.edit(record);
+    registerModal.value.title = '查看详情';
   }
 
   /**

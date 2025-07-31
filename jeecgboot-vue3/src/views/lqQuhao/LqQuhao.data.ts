@@ -33,7 +33,7 @@ export const columns: BasicColumn[] = [
   {
     title: '取号',
     align: 'center',
-    width: 50,
+    width: 80,
     dataIndex: 'chunum',
     defaultSortOrder: 'descend', // 默认降序排序
     sorter: (a, b) => {
