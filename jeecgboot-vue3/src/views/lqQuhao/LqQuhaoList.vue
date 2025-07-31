@@ -112,6 +112,18 @@
         </a-dropdown>
         <!-- 高级查询 -->
         <super-query :config="superQueryConfig" @search="handleSuperQuery" />
+        <!-- 显示当前部门办文数量排名前 3 的承办人及其办文数量 -->
+
+        <div class="top3-doc-handlers">
+          <span class="title">办文数量排名:</span>
+          <div class="rank-list">
+            <div v-for="(item, index) in top3DocHandlers" :key="index" :class="['rank-item', `rank-${index + 1}`]">
+              <span class="rank-number">{{ index + 1 }}.</span>
+              <span class="name">{{ item.dochandler }}</span>
+              <span class="count">({{ item.fileCount }})</span>
+            </div>
+          </div>
+        </div>
       </template>
       <!--操作栏-->
       <template #action="{ record }">
@@ -133,11 +145,11 @@
 </template>
 
 <script lang="ts" name="lqQuhao-lqQuhao" setup>
-  import { ref, reactive } from 'vue';
+  import { ref, reactive, watch, onMounted } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
   import { columns, superQuerySchema } from './LqQuhao.data';
-  import { list, deleteOne, batchDelete, getImportUrl, getExportUrl } from './LqQuhao.api';
+  import { list, deleteOne, batchDelete, getImportUrl, getExportUrl, getTop3DocHandlersByDept } from './LqQuhao.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import LqQuhaoModal from './components/LqQuhaoModal.vue';
   import { useUserStore } from '/@/store/modules/user';
@@ -150,6 +162,60 @@
   const toggleSearchStatus = ref<boolean>(false);
   const registerModal = ref();
   const userStore = useUserStore();
+
+  const top3DocHandlers = ref<any[]>([]);
+  const allData = ref<any[]>([]);
+
+  // 获取全部数据
+  async function fetchAllData() {
+    try {
+      // 假设后端支持通过设置 pageSize 为一个很大的值来获取全部数据
+      const params = { ...queryParam, pageSize: 999999, pageNo: 1 };
+      const res = await list(params);
+      console.log('接口返回数据:', res); // 添加日志输出
+
+      // 检查响应数据格式，直接检查 res.records
+      if (res && Array.isArray(res.records)) {
+        allData.value = res.records;
+      } else {
+        console.error('返回数据格式不符合预期:', res);
+        allData.value = [];
+      }
+      calculateTop3();
+    } catch (error) {
+      console.error('获取全部数据失败:', error);
+    }
+  }
+
+  // 计算办文数量排名前 3 的承办人
+  function calculateTop3() {
+    const handlerMap = new Map();
+    allData.value.forEach((item) => {
+      if (item.dochandler) {
+        const count = handlerMap.get(item.dochandler) || 0;
+        handlerMap.set(item.dochandler, count + 1);
+      }
+    });
+
+    const handlerArray = Array.from(handlerMap, ([dochandler, fileCount]) => ({ dochandler, fileCount }));
+    handlerArray.sort((a, b) => b.fileCount - a.fileCount);
+    top3DocHandlers.value = handlerArray.slice(0, 3);
+  }
+
+  // 监听查询参数变化，重新获取全部数据
+  watch(
+    queryParam,
+    () => {
+      fetchAllData();
+    },
+    { deep: true }
+  );
+
+  // 在组件挂载时获取全部数据
+  onMounted(() => {
+    fetchAllData();
+  });
+
   //注册table数据
   const { prefixCls, tableContext, onExportXls, onImportXls } = useListPage({
     tableProps: {
@@ -244,8 +310,12 @@
   /**
    * 成功回调
    */
-  function handleSuccess() {
-    (selectedRowKeys.value = []) && reload();
+ 
+  async function handleSuccess() {
+    selectedRowKeys.value = [];
+    await reload();
+    // 重新获取全部数据并计算排名
+    await fetchAllData();
   }
 
   /**
@@ -324,5 +394,52 @@
     :deep(.ant-input-number) {
       width: 100%;
     }
+  }
+  .top3-doc-handlers {
+    display: inline-block;
+    margin-left: 16px;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; // 使用漂亮字体
+  }
+
+  .title {
+    font-weight: bold;
+    margin-right: 8px;
+  }
+
+  .rank-list {
+    display: inline-block;
+  }
+
+  .rank-item {
+    display: inline-block;
+    margin-right: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .rank-1 {
+    background-color: #ffd700; /* 第一名金色背景 */
+  }
+
+  .rank-2 {
+    background-color: #dbd8d8; /* 第二名银色背景 */
+  }
+
+  .rank-3 {
+    background-color: #cd7f32; /* 第三名古铜色背景 */
+  }
+
+  .rank-number {
+    font-weight: bold;
+    margin-right: 4px;
+  }
+
+  .name {
+    font-weight: 500;
+  }
+
+  .count {
+    color: #666;
+    font-size: 0.9em;
   }
 </style>

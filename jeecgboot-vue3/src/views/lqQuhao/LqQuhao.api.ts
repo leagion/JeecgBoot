@@ -14,6 +14,9 @@ enum Api {
   exportXls = '/lqQuhao/lqQuhao/exportXls',
   getMaxChunum = '/lqQuhao/lqQuhao/getMaxChunum', // 添加这个接口
   getMaxChunumByOrgCode = '/lqQuhao/lqQuhao/getMaxChunumByOrgCode', // 修改为按部门获取最大号
+
+  // 新增办文前三的接口
+  getTop3DocHandlersByDept = '/lqQuhao/lqQuhao/getTop3DocHandlersByDept',
 }
 
 /**
@@ -25,6 +28,18 @@ export const getMaxChunumByOrgCode = () => {
   return defHttp.get({
     url: Api.getMaxChunumByOrgCode,
     params: { sysOrgCode }, // 参数名改为 sysOrgCode
+  });
+};
+
+/**
+ * 获取当前部门办文数量排名前 3 的承办人
+ */
+export const getTop3DocHandlersByDept = () => {
+  const userStore = useUserStore();
+  const sysOrgCode = userStore.getUserInfo?.orgCode;
+  return defHttp.get({
+    url: Api.getTop3DocHandlersByDept,
+    params: { sysOrgCode },
   });
 };
 
