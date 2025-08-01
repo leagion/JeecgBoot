@@ -207,13 +207,13 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 	 */
 	@GetMapping("/getMaxChunumByOrgCode")
 	public Result<Integer> getMaxChunumByOrgCode(@RequestParam(name = "sysOrgCode") String sysOrgCode) {
-		log.info("获取部门最大取号, sysOrgCode: {}", sysOrgCode);
+	//	log.info("获取部门最大取号, sysOrgCode: {}", sysOrgCode);
 		try {
 			Integer maxNum = lqQuhaoService.getMaxChunumByOrgCode(sysOrgCode);
-			log.info("部门最大取号: {}", maxNum);
+		//	log.info("部门最大取号: {}", maxNum);
 			return Result.OK(maxNum);
 		} catch (Exception e) {
-			log.error("获取部门最大取号失败", e);
+			//log.error("获取部门最大取号失败", e);
 			return Result.error("获取最大取号失败：" + e.getMessage());
 		}
 	}

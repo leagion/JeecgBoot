@@ -187,11 +187,23 @@
 
   // 十进制转度分秒
   function decimalToDMS(decimal: number, isLat: boolean): string {
-    const abs = Math.abs(decimal);
-    const degrees = Math.floor(abs);
-    const minutesFloat = (abs - degrees) * 60;
-    const minutes = Math.floor(minutesFloat);
-    const seconds = Math.round((minutesFloat - minutes) * 60 * 100) / 100;
+    let abs = Math.abs(decimal);
+    let degrees = Math.floor(abs);
+    let minutesFloat = (abs - degrees) * 60;
+    let minutes = Math.floor(minutesFloat);
+    let seconds = Math.round((minutesFloat - minutes) * 60 * 100) / 100;
+
+    // 处理秒数满 60 向分钟进位
+    if (seconds >= 60) {
+      minutes += 1;
+      seconds = 0;
+    }
+
+    // 处理分钟数满 60 向度数进位
+    if (minutes >= 60) {
+      degrees += 1;
+      minutes = 0;
+    }
 
     const direction = isLat ? (decimal >= 0 ? 'N' : 'S') : decimal >= 0 ? 'E' : 'W';
 
@@ -275,7 +287,11 @@
 
   // 构建标签文本
   function buildLabelText(data: any) {
-    const coordStr = data.searchText || formattedCoord.value;
+    // const coordStr = data.searchText || formattedCoord.value;
+    // 实时格式化经纬度（使用传入的实时lon/lat）
+    const latDMS = decimalToDMS(data.lat, true);
+    const lonDMS = decimalToDMS(data.lon, false);
+    const coordStr = `${latDMS}, ${lonDMS}`;
     return `名称:${data.name || '未命名'}\n时间:${data.time || '未知'}\n坐标:${coordStr}\n航向:${data.heading || 0}\n航速:${data.speed || 0}`;
   }
 
@@ -567,6 +583,7 @@
 
   // 右键菜单事件
   function onRightClick(movement: any) {
+    console.log('右键点击事件触发', movement); // 添加日志输出
     if (!props.viewer) return;
 
     const picked = props.viewer.scene.pick(movement.position);
@@ -696,7 +713,8 @@
         handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
         handler.setInputAction(onRightClick, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
       }
-    }
+    },
+    { immediate: true }
   );
 </script>
 
