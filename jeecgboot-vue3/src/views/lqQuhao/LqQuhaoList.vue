@@ -115,7 +115,7 @@
         <!-- 显示当前部门办文数量排名前 3 的承办人及其办文数量 -->
 
         <div class="top3-doc-handlers">
-          <span class="title">办文数量排名:</span>
+          <span class="title">办文数量排行榜:</span>
           <div class="rank-list">
             <div v-for="(item, index) in top3DocHandlers" :key="index" :class="['rank-item', `rank-${index + 1}`]">
               <span class="rank-number">{{ index + 1 }}.</span>

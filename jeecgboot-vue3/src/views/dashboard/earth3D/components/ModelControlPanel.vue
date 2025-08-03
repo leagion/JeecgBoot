@@ -59,8 +59,8 @@
       <div class="button-group">
         <a-button type="primary" size="small" @click="loadModel" :disabled="!isCoordValid"> 加载模型 </a-button>
         <a-button type="primary" size="small" @click="startNavigation">开始航行</a-button>
-        <a-button type="primary" danger size="small" @click="stopNavigation">停止</a-button>
-        <a-button type="primary" size="small" @click="flyToModel">定位</a-button>
+        <!-- <a-button type="primary" danger size="small" @click="stopNavigation">停止</a-button>
+        <a-button type="primary" size="small" @click="flyToModel">定位</a-button> -->
       </div>
     </a-form>
   </div>
@@ -77,7 +77,7 @@
     </div>
     <div class="menu-row">
       <span class="menu-label">经纬度</span>
-      <span class="menu-value">{{ selectedEntityData.searchText || formattedCoord }}</span>
+      <input v-model="selectedEntityData.searchText" class="menu-input" placeholder="输入经纬度" @input="parseCoordInputFromMenu" />
     </div>
     <div class="menu-row">
       <span class="menu-label">航向</span>
@@ -88,7 +88,9 @@
       <input v-model.number="selectedEntityData.speed" class="menu-input" />
     </div>
     <div class="menu-actions">
-      <button @click="saveEntity" class="menu-btn">保存</button>
+      <button @click="startNavigationFromMenu" class="menu-btn primary">开始</button>
+      <button @click="stopNavigationFromMenu" class="menu-btn">停止</button>
+      <!-- <button @click="flyToModel" class="menu-btn">定位</button> -->
       <button @click="deleteEntity" class="menu-btn danger">删除</button>
       <button @click="closeMenu" class="menu-btn">取消</button>
     </div>
@@ -96,10 +98,11 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onUnmounted, reactive, watch } from 'vue';
+  import { ref, computed, onUnmounted, reactive, watch, nextTick } from 'vue';
   import * as Cesium from 'cesium';
   import { CloseOutlined } from '@ant-design/icons-vue';
   import { customGeocoderService } from '../utils/customGeocoder';
+  import { message } from 'ant-design-vue';
 
   const props = defineProps<{
     viewer: Cesium.Viewer | null;
@@ -114,9 +117,18 @@
   // 模型管理
   const modelEntities = ref<Cesium.Entity[]>([]);
   let currentModelEntity: Cesium.Entity | null = null;
-  let headingLineEntity: Cesium.Entity | null = null;
-  let trackLineEntity: Cesium.Entity | null = null;
-  let trackPoints: number[][] = [];
+
+  // 新增：按模型实例存储导航状态（替代全局intervalId、headingLineEntity等）
+  const modelNavStates = ref<
+    Array<{
+      entity: Cesium.Entity; // 模型实体
+      intervalId: number | null; // 导航定时器ID
+      headingLineEntity: Cesium.Entity | null; // 航向线实体
+      trackLineEntity: Cesium.Entity | null; // 轨迹线实体
+      trackPoints: number[][]; // 轨迹点集合
+      lastHeading: number; // 上一时刻航向
+    }>
+  >([]);
 
   // 坐标解析
   const coordInput = ref('');
@@ -158,10 +170,6 @@
   const panelPosition = ref({ x: 60, y: 80 });
   let dragOffset = { x: 0, y: 0 };
   let dragging = false;
-
-  // 导航相关
-  let intervalId: number | null = null;
-  let lastHeading = form.value.heading;
 
   // 右键菜单
   const menuVisible = ref(false);
@@ -267,13 +275,13 @@
         form.value.longitude = 116;
         form.value.latitude = 19;
         isCoordValid.value = false;
-        window.$message?.error?.('经纬度格式解析失败');
+        // message.error?.('经纬度解析过程中发生错误');
       }
     } catch (error) {
       form.value.longitude = 116;
       form.value.latitude = 19;
       isCoordValid.value = false;
-      window.$message?.error?.('经纬度解析过程中发生错误');
+      message.error?.('经纬度解析过程中发生错误');
     }
   }
 
@@ -292,6 +300,7 @@
     const latDMS = decimalToDMS(data.lat, true);
     const lonDMS = decimalToDMS(data.lon, false);
     const coordStr = `${latDMS}, ${lonDMS}`;
+
     return `名称:${data.name || '未命名'}\n时间:${data.time || '未知'}\n坐标:${coordStr}\n航向:${data.heading || 0}\n航速:${data.speed || 0}`;
   }
 
@@ -300,14 +309,49 @@
     const d = new Date();
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
   }
+  async function parseCoordInputFromMenu() {
+    if (!selectedEntityData.searchText) return;
 
+    try {
+      const results = await customGeocoderService.geocode(selectedEntityData.searchText);
+      if (results && results.length > 0) {
+        selectedEntityData.lon = results[0].lon;
+        selectedEntityData.lat = results[0].lat;
+      }
+    } catch (error) {
+      message.error?.('经纬度解析过程中发生错误');
+    }
+  }
+  function startNavigationFromMenu() {
+    if (selectedEntity.value) {
+      currentModelEntity = selectedEntity.value;
+      // 更新实体的航向属性
+      if (currentModelEntity.properties) {
+        currentModelEntity.properties.heading.setValue(selectedEntityData.heading);
+      }
+      saveEntity();
+      startNavigation();
+      menuVisible.value = false;
+    }
+  }
+
+  function stopNavigationFromMenu() {
+    if (selectedEntity.value) {
+      currentModelEntity = selectedEntity.value;
+      stopNavigation();
+      menuVisible.value = false;
+    }
+  }
   // 加载模型
   async function loadModel() {
     if (!props.viewer || !isCoordValid.value) return;
 
     // 停止当前导航
     // stopNavigation();
-
+    let headingOffset = 90;
+    if (isAircraft.value) {
+      headingOffset = -90;
+    }
     // 创建新模型
     const modelName = modelOptions.find((item) => item.value === form.value.modelUrl)?.label || '模型';
     const time = getNowTimeStr();
@@ -318,10 +362,13 @@
         uri: form.value.modelUrl,
         minimumPixelSize: 128,
         maximumScale: 1000,
-        heading: Cesium.Math.toRadians(form.value.heading),
-        pitch: 0,
-        roll: 0,
       },
+      orientation: new Cesium.ConstantProperty(
+        Cesium.Transforms.headingPitchRollQuaternion(
+          Cesium.Cartesian3.fromDegrees(form.value.longitude, form.value.latitude, isAircraft.value ? form.value.altitude : 0),
+          new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(form.value.heading + headingOffset), 0, 0)
+        )
+      ),
       properties: {
         name: modelName,
         time,
@@ -384,153 +431,253 @@
 
   // 定位到模型
   function flyToModel() {
+    // 确保使用当前选中实体
+    if (selectedEntity.value) {
+      currentModelEntity = selectedEntity.value;
+    }
+    // 原有定位逻辑
     if (!props.viewer || !currentModelEntity) return;
-    props.viewer.flyTo(currentModelEntity, { duration: 2 });
+
+    // 新增：关闭右键菜单
+    menuVisible.value = false;
+    props.viewer.flyTo(currentModelEntity, {
+      duration: 2,
+      offset: new Cesium.HeadingPitchRange(0, -Math.PI / 4, 1000), // 新增观察角度
+    });
+    // props.viewer.flyTo(currentModelEntity, { duration: 2 });
   }
 
   // 开始导航
+  // 开始导航
   function startNavigation() {
-    if (intervalId || !props.viewer || !currentModelEntity) return;
-
-    const updateInterval = 1000;
-    const degreePerMeter = 0.00000898;
-
-    // 清除之前的导航线
-    if (headingLineEntity) {
-      props.viewer.entities.remove(headingLineEntity);
-      headingLineEntity = null;
+    if (!props.viewer || !currentModelEntity) return;
+    // 隐藏右键菜单
+    // menuVisible.value = false;
+    // 1. 清除当前模型已有的导航状态（若存在）
+    const existingIndex = modelNavStates.value.findIndex((state) => state.entity === currentModelEntity);
+    if (existingIndex !== -1) {
+      const oldState = modelNavStates.value[existingIndex];
+      clearInterval(oldState.intervalId!);
+      if (oldState.headingLineEntity) {
+        props.viewer.entities.remove(oldState.headingLineEntity);
+      }
+      if (oldState.trackLineEntity) {
+        props.viewer.entities.remove(oldState.trackLineEntity);
+      }
+      modelNavStates.value.splice(existingIndex, 1);
     }
-    if (trackLineEntity) {
-      props.viewer.entities.remove(trackLineEntity);
-      trackLineEntity = null;
-    }
 
-    // 初始化轨迹点
-    trackPoints = [];
-    trackPoints.push([form.value.longitude, form.value.latitude]);
-    lastHeading = form.value.heading;
+    // 2. 初始化当前模型的导航状态
+    const navState = {
+      entity: currentModelEntity,
+      intervalId: null as number | null,
+      headingLineEntity: null as Cesium.Entity | null, // 修复点
+      trackLineEntity: null as Cesium.Entity | null, // 修复点
+      trackPoints: (() => {
+        const initialPosition = currentModelEntity.position?.getValue(props.viewer.clock.currentTime || Cesium.JulianDate.now());
+        if (initialPosition) {
+          const cartographic = Cesium.Cartographic.fromCartesian(initialPosition);
+          if (cartographic) {
+            return [[Cesium.Math.toDegrees(cartographic.longitude), Cesium.Math.toDegrees(cartographic.latitude)]];
+          }
+        }
+        return [[form.value.longitude, form.value.latitude]];
+      })(), // 初始轨迹点
+      lastHeading: currentModelEntity.properties?.heading?.getValue() || form.value.heading, // 初始航向
+      // 新增：累积位移变量（弧度）
+      accumulatedLonDelta: 0, // 累积经度变化（弧度）
+      accumulatedLatDelta: 0, // 累积纬度变化（弧度）
+      minAngleThreshold: 0.0125, // 最小角度阈值（Cesium要求）
+      lastSpeed: currentModelEntity.properties?.speed?.getValue() || form.value.speed,
+    };
+    modelNavStates.value.push(navState);
 
-    intervalId = window.setInterval(() => {
-      if (!currentModelEntity || !props.viewer) return;
+    // 3. 启动独立定时器（使用当前模型的导航状态）
+    navState.intervalId = window.setInterval(() => {
+      // 从模型实体获取当前的航向和航速
+      const speedInKnots = navState.entity.properties?.speed?.getValue() || 10;
+      const heading = navState.entity.properties?.heading?.getValue() || 0;
 
-      const speedInKnots = form.value.speed;
       const speedInMetersPerSecond = speedInKnots * 0.514444;
-      const degreePerMeter = 0.00000898;
+      const adjustedHeading = isAircraft.value ? (360 - heading) % 360 : (360 - heading) % 360;
 
-      const radian = Cesium.Math.toRadians(form.value.heading);
-      const deltaLon = speedInMetersPerSecond * Math.sin(radian) * degreePerMeter;
-      const deltaLat = speedInMetersPerSecond * Math.cos(radian) * degreePerMeter;
-
-      form.value.longitude += deltaLon;
-      form.value.latitude += deltaLat;
-
-      // 更新模型位置和方向
       let headingOffset = 90;
       if (isAircraft.value) {
         headingOffset = -90;
       }
-      const position = Cesium.Cartesian3.fromDegrees(form.value.longitude, form.value.latitude, isAircraft.value ? form.value.altitude : 0);
-      const hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(form.value.heading + headingOffset), 0, 0);
-      currentModelEntity.position = position;
-      currentModelEntity.orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
 
-      // 更新实体属性
-      if (currentModelEntity.properties) {
-        currentModelEntity.properties.lon = form.value.longitude;
-        currentModelEntity.properties.lat = form.value.latitude;
-        currentModelEntity.properties.heading = form.value.heading;
-        currentModelEntity.properties.speed = form.value.speed;
+      const radian = Cesium.Math.toRadians(adjustedHeading + headingOffset);
+      // 获取当前位置
+      let currentLon = navState.entity.properties?.lon?.getValue() || form.value.longitude;
+      let currentLat = navState.entity.properties?.lat?.getValue() || form.value.latitude;
 
-        // 更新标签
-        currentModelEntity.label.text = buildLabelText({
-          name: currentModelEntity.properties.name?.getValue(),
-          time: currentModelEntity.properties.time?.getValue(),
-          lon: form.value.longitude,
-          lat: form.value.latitude,
-          heading: form.value.heading,
-          speed: form.value.speed,
-          format: currentModelEntity.properties.format?.getValue(),
-          searchText: currentModelEntity.properties.searchText?.getValue(),
-        });
+      // 使用Cesium的大地测量方法计算新位置
+      const startPosition = Cesium.Cartographic.fromDegrees(currentLon, currentLat);
+
+      // 沿着地球表面计算新位置（考虑地球曲率）
+
+      const geodesic = new Cesium.EllipsoidGeodesic(startPosition, startPosition);
+      geodesic.setEndPoints(
+        startPosition,
+        Cesium.Cartographic.fromRadians(
+          startPosition.longitude + Math.cos(radian) * (speedInMetersPerSecond / Cesium.Ellipsoid.WGS84.maximumRadius),
+          startPosition.latitude + Math.sin(radian) * (speedInMetersPerSecond / Cesium.Ellipsoid.WGS84.maximumRadius)
+        )
+      );
+      const newPosition = geodesic.interpolateUsingFraction(1.0, new Cesium.Cartographic());
+
+      const newLon = Cesium.Math.toDegrees(newPosition.longitude);
+      const newLat = Cesium.Math.toDegrees(newPosition.latitude);
+
+      // 更新模型位置和方向
+      // let headingOffset = isAircraft.value ? -90 : 90;
+
+      const position = Cesium.Cartesian3.fromDegrees(newLon, newLat, isAircraft.value ? form.value.altitude : 0);
+
+      navState.entity.position = new Cesium.ConstantPositionProperty(position);
+
+      navState.entity.orientation = new Cesium.ConstantProperty(
+        Cesium.Transforms.headingPitchRollQuaternion(position, new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(heading + headingOffset), 0, 0))
+      );
+      // 更新实体属性和标签
+      if (navState.entity.properties) {
+        navState.entity.properties.lon.setValue(newLon);
+        navState.entity.properties.lat.setValue(newLat);
+
+        if (navState.entity.label) {
+          navState.entity.label.text = new Cesium.ConstantProperty(
+            buildLabelText({
+              name: navState.entity.properties.name?.getValue(),
+              time: navState.entity.properties.time?.getValue(),
+              lon: newLon,
+              lat: newLat,
+              heading: heading,
+              speed: speedInKnots,
+            })
+          );
+        }
       }
 
-      // 更新航向线
-      const lineLength = isAircraft.value ? 0.1 : 0.01;
-      if (!headingLineEntity) {
-        headingLineEntity = props.viewer.entities.add({
+      // 更新航向线和轨迹线
+      const lineLength = isAircraft.value ? 10000 : 1000; // 以米为单位
+      navState.trackPoints.push([newLon, newLat]);
+
+      // 航向线更新（使用正确的大地测量方法）
+      if (!navState.headingLineEntity) {
+        // 替换原来的 ellipsoid.geodesicDirect 调用为以下方式
+        const geodesic = new Cesium.EllipsoidGeodesic(newPosition, newPosition);
+        geodesic.setEndPoints(
+          newPosition,
+          new Cesium.Cartographic(
+            newPosition.longitude + Math.cos(radian) * (lineLength / Cesium.Ellipsoid.WGS84.maximumRadius),
+            newPosition.latitude + Math.sin(radian) * (lineLength / Cesium.Ellipsoid.WGS84.maximumRadius)
+          )
+        );
+        const endPosition = geodesic.interpolateUsingFraction(1.0, new Cesium.Cartographic());
+        const headingLineEnd = Cesium.Cartesian3.fromDegrees(
+          Cesium.Math.toDegrees(endPosition.longitude),
+          Cesium.Math.toDegrees(endPosition.latitude),
+          isAircraft.value ? form.value.altitude : 0
+        );
+
+        if (!props.viewer) return;
+
+        navState.headingLineEntity = props.viewer.entities.add({
           polyline: {
-            positions: new Cesium.CallbackProperty(() => {
-              const start = Cesium.Cartesian3.fromDegrees(form.value.longitude, form.value.latitude);
-              const end = Cesium.Cartesian3.fromDegrees(
-                form.value.longitude + lineLength * Math.sin(radian),
-                form.value.latitude + lineLength * Math.cos(radian)
-              );
-              return [start, end];
-            }, false),
-            width: 1,
-            material: Cesium.Color.RED,
+            positions: new Cesium.ConstantProperty([position, headingLineEnd]),
+            width: 2,
+            material: Cesium.Color.RED.withAlpha(0.8),
           },
-          show: true,
         });
       } else {
-        const start = Cesium.Cartesian3.fromDegrees(form.value.longitude, form.value.latitude);
-        const end = Cesium.Cartesian3.fromDegrees(
-          form.value.longitude + lineLength * Math.sin(radian),
-          form.value.latitude + lineLength * Math.cos(radian)
+        // 替换原来的 ellipsoid.geodesicDirect 调用为以下方式
+        const geodesic = new Cesium.EllipsoidGeodesic(newPosition, newPosition);
+        geodesic.setEndPoints(
+          newPosition,
+          new Cesium.Cartographic(
+            newPosition.longitude + Math.cos(radian) * (lineLength / Cesium.Ellipsoid.WGS84.maximumRadius),
+            newPosition.latitude + Math.sin(radian) * (lineLength / Cesium.Ellipsoid.WGS84.maximumRadius)
+          )
         );
-        headingLineEntity.polyline.positions = [start, end];
+        const endPosition = geodesic.interpolateUsingFraction(1.0, new Cesium.Cartographic());
+        const headingLineEnd = Cesium.Cartesian3.fromDegrees(
+          Cesium.Math.toDegrees(endPosition.longitude),
+          Cesium.Math.toDegrees(endPosition.latitude),
+          isAircraft.value ? form.value.altitude : 0
+        );
+        if (navState.headingLineEntity && navState.headingLineEntity.polyline) {
+          (navState.headingLineEntity.polyline.positions as Cesium.ConstantProperty).setValue([position, headingLineEnd]);
+        }
       }
 
-      // 更新轨迹线
-      trackPoints.push([form.value.longitude, form.value.latitude]);
-      if (!trackLineEntity) {
-        trackLineEntity = props.viewer.entities.add({
+      // 轨迹线更新
+      if (!navState.trackLineEntity) {
+        if (!props.viewer) return; // 添加非空判断
+
+        navState.trackLineEntity = props.viewer.entities.add({
           polyline: {
-            positions: new Cesium.CallbackProperty(() => {
-              return trackPoints.map((point) => Cesium.Cartesian3.fromDegrees(point[0], point[1]));
-            }, false),
+            positions: new Cesium.ConstantProperty(
+              navState.trackPoints.map((point) => Cesium.Cartesian3.fromDegrees(point[0], point[1], isAircraft.value ? form.value.altitude : 0))
+            ),
             width: 2,
             material: new Cesium.PolylineDashMaterialProperty({
               color: Cesium.Color.BLUE,
-              dashLength: 16,
+              dashLength: 8.0,
             }),
           },
         });
-      }
-
-      // 更新航向变化
-      if (form.value.heading !== lastHeading && headingLineEntity) {
-        lastHeading = form.value.heading;
-        headingLineEntity.polyline.positions = new Cesium.CallbackProperty(() => {
-          const radian = Cesium.Math.toRadians(form.value.heading);
-          const start = Cesium.Cartesian3.fromDegrees(form.value.longitude, form.value.latitude);
-          const end = Cesium.Cartesian3.fromDegrees(
-            form.value.longitude + lineLength * Math.sin(radian),
-            form.value.latitude + lineLength * Math.cos(radian)
+      } else {
+        if (navState.trackLineEntity && navState.trackLineEntity.polyline) {
+          (navState.trackLineEntity.polyline.positions as Cesium.ConstantProperty).setValue(
+            navState.trackPoints.map((point) => Cesium.Cartesian3.fromDegrees(point[0], point[1], isAircraft.value ? form.value.altitude : 0))
           );
-          return [start, end];
-        }, false);
+        }
       }
-    }, updateInterval);
-  }
 
-  // 停止导航
-  function stopNavigation() {
-    if (intervalId) {
-      clearInterval(intervalId);
-      intervalId = null;
-      if (props.viewer) {
-        if (headingLineEntity) {
-          props.viewer.entities.remove(headingLineEntity);
-          headingLineEntity = null;
-        }
-        if (trackLineEntity) {
-          props.viewer.entities.remove(trackLineEntity);
-          trackLineEntity = null;
+      // 航向变化处理
+      if (heading !== navState.lastHeading) {
+        navState.lastHeading = heading;
+        if (navState.headingLineEntity) {
+          // 使用考虑偏移的角度计算
+
+          const radian = Cesium.Math.toRadians(heading);
+          const lineLength = isAircraft.value ? 10000 : 1000; // 以米为单位
+          // 替换原来的 ellipsoid.geodesicDirect 调用为以下方式
+          const geodesic = new Cesium.EllipsoidGeodesic(newPosition, newPosition);
+          geodesic.setEndPoints(
+            newPosition,
+            new Cesium.Cartographic(
+              newPosition.longitude + Math.cos(radian) * (lineLength / Cesium.Ellipsoid.WGS84.maximumRadius),
+              newPosition.latitude + Math.sin(radian) * (lineLength / Cesium.Ellipsoid.WGS84.maximumRadius)
+            )
+          );
+          const endPosition = geodesic.interpolateUsingFraction(1.0, new Cesium.Cartographic());
+          const headingLineEnd = Cesium.Cartesian3.fromDegrees(
+            Cesium.Math.toDegrees(endPosition.longitude),
+            Cesium.Math.toDegrees(endPosition.latitude),
+            isAircraft.value ? form.value.altitude : 0
+          );
+          if (navState.headingLineEntity?.polyline) {
+            (navState.headingLineEntity.polyline.positions as Cesium.ConstantProperty).setValue([position, headingLineEnd]);
+          }
         }
       }
-      trackPoints = [];
-    }
+    }, 1000);
+  }
+  // 停止导航（修改为支持指定模型，默认停止所有）
+  function stopNavigation(targetEntity?: Cesium.Entity) {
+    modelNavStates.value.forEach((state, index) => {
+      // 若指定了模型，则只停止目标模型；否则停止所有
+      if (targetEntity && state.entity !== targetEntity) return;
+
+      // 清理当前模型的导航资源
+      clearInterval(state.intervalId!);
+      if (props.viewer) {
+        props.viewer.entities.remove(state.headingLineEntity!);
+        props.viewer.entities.remove(state.trackLineEntity!);
+      }
+      modelNavStates.value.splice(index, 1);
+    });
   }
 
   // 切换面板
@@ -583,7 +730,7 @@
 
   // 右键菜单事件
   function onRightClick(movement: any) {
-    console.log('右键点击事件触发', movement); // 添加日志输出
+    // console.log('右键点击事件触发', movement); // 添加日志输出
     if (!props.viewer) return;
 
     const picked = props.viewer.scene.pick(movement.position);
@@ -636,10 +783,23 @@
       entity.properties.searchText.setValue(selectedEntityData.searchText);
 
       // 更新位置
-      entity.position = Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, isAircraft.value ? form.value.altitude : 0);
+      entity.position = new Cesium.ConstantPositionProperty(
+        Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, isAircraft.value ? form.value.altitude : 0)
+      );
+      // 修复：确保标签文本使用更新后的航向值
 
-      // 更新标签
-      entity.label.text = buildLabelText(selectedEntityData);
+      if (entity.label) {
+        entity.label.text = new Cesium.ConstantProperty(
+          buildLabelText({
+            name: selectedEntityData.name,
+            time: selectedEntityData.time,
+            lon: selectedEntityData.lon,
+            lat: selectedEntityData.lat,
+            heading: selectedEntityData.heading,
+            speed: selectedEntityData.speed,
+          })
+        );
+      }
 
       // 如果是当前模型，更新表单数据
       if (entity === currentModelEntity) {
@@ -649,17 +809,61 @@
         form.value.speed = selectedEntityData.speed;
       }
     }
+    // 同步更新模型方向（修复核心）
+    const isAircraftModel = ['客机', '飞机', '战机', '无人机', 'MQ-9无人机'].some((name) => entity.properties?.name?.getValue?.().includes(name));
+    const headingOffset = isAircraftModel ? -90 : 90;
+
+    entity.orientation = new Cesium.ConstantProperty(
+      Cesium.Transforms.headingPitchRollQuaternion(
+        Cesium.Cartesian3.fromDegrees(selectedEntityData.lon, selectedEntityData.lat, isAircraftModel ? form.value.altitude : 0),
+        new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(selectedEntityData.heading + headingOffset), 0, 0)
+      )
+    );
+
+    // 强制更新航向线方向（修复航向线不一致）
+    const navStateIndex = modelNavStates.value.findIndex((state) => state.entity === entity);
+    if (navStateIndex !== -1) {
+      const navState = modelNavStates.value[navStateIndex];
+      navState.lastHeading = selectedEntityData.heading; // 更新缓存航向
+    }
 
     menuVisible.value = false;
   }
 
   // 删除实体
   function deleteEntity() {
+    //stopNavigation(selectedEntity.value);
     if (!selectedEntity.value || !props.viewer) return;
 
+    // 1. 显式清除标签（核心修复）
+    if (selectedEntity.value.label) {
+      (selectedEntity.value.label.show as Cesium.ConstantProperty).setValue(false);
+      delete selectedEntity.value.label; // 移除标签属性
+    }
+
+    // 2. 强制清理可能残留的导航状态（双重保险）
+    const navIndex = modelNavStates.value.findIndex((state) => state.entity === selectedEntity.value);
+    if (navIndex !== -1) {
+      const navState = modelNavStates.value[navIndex];
+      // 清除定时器
+      if (navState.intervalId) {
+        clearInterval(navState.intervalId);
+      }
+      // 移除航向线实体
+      if (navState.headingLineEntity) {
+        props.viewer.entities.remove(navState.headingLineEntity);
+        navState.headingLineEntity = null;
+      }
+      // 移除轨迹线实体
+      if (navState.trackLineEntity) {
+        props.viewer.entities.remove(navState.trackLineEntity);
+        navState.trackLineEntity = null;
+      }
+      // 从导航状态列表中移除
+      modelNavStates.value.splice(navIndex, 1);
+    }
     // 停止导航
     if (selectedEntity.value === currentModelEntity) {
-      stopNavigation();
       currentModelEntity = null;
     }
 
@@ -671,8 +875,11 @@
 
     // 从场景中移除
     props.viewer.entities.remove(selectedEntity.value);
-    menuVisible.value = false;
+
     selectedEntity.value = null;
+    nextTick(() => {
+      menuVisible.value = false;
+    });
   }
 
   // 关闭菜单
