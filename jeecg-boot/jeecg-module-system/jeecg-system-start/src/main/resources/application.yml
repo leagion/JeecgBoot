@@ -345,3 +345,8 @@ justauth:
     type: default
     prefix: 'demo::'
     timeout: 1h
+
+mindmap:
+  encrypt-key: "default_encrypt_key"
+  max-content-size: 10485760
+  auto-save-interval: 30000

@@ -31,7 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,10 +48,9 @@ import java.lang.reflect.Method;
 @Service
 public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap> implements ILqMindmapService {
 
-    @Autowired
+
     private LqMindmapVersionMapper versionMapper;
 
-    @Autowired
     private LqMindmapTagRelMapper tagRelMapper;
 
     @Autowired
@@ -194,6 +192,11 @@ public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap
         return true;
     }
 
+    private void startAutoSave(String id, String content) {
+    }
+
+    private void stopAutoSave(String id) {
+    }
 
 
     @Override
@@ -220,14 +223,24 @@ public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap
         return jdbcTemplate.queryForObject(sql, byte[].class, content, encryptKey);
     }
 
+    @Override
+    public boolean addTagRel(LqMindmapTagRel tagRel) {
+        return false;
+    }
+
+    @Override
+    public boolean removeTagRel(String mindmapId, String tagId) {
+        return false;
+    }
+
     /**
      * 清理旧版本，只保留最近50个版本，关键版本除外
      */
     private void cleanupOldVersions(String mindmapId) {
         // 查询所有版本
         Wrapper<LqMindmapVersion> queryWrapper = new QueryWrapper<LqMindmapVersion>();
-        queryWrapper.eq("mindmap_id", mindmapId);
-        queryWrapper.orderByAsc("version");
+       // queryWrapper.eq("mindmap_id", mindmapId);
+        //queryWrapper.orderByAsc("version");
         List<LqMindmapVersion> versions = versionMapper.selectList(queryWrapper);
 
         // 如果版本数超过50，删除旧版本（保留关键版本）
@@ -316,6 +329,11 @@ public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap
                 (Wrapper<LqMindmapVersion>) new QueryWrapper<LqMindmapVersion>()
                         .eq("mindmap_id", mindmapId)
                         .orderByDesc("version"));
+    }
+
+    @Override
+    public List<Map<String, Object>> getMindmapTags(String mindmapId) {
+        return null;
     }
 
     @Transactional
@@ -414,6 +432,20 @@ public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap
         return false;
     }
 
+    @Override
+    public String rebuildContentFromVersions(String mindmapId) {
+        return null;
+    }
+
+    public String rebuildContentFromVersions(String mindmapId, Integer version) {
+        return null;
+    }
+
+    @Override
+    public IPage<LqMindmap> queryMindmapsByTag(Page<LqMindmap> page, String userId, String tagId, String keyword) {
+        return null;
+    }
+
     @Transactional
     @Override
     public boolean rollbackVersion(String mindmapId, Integer version) {
@@ -440,7 +472,7 @@ public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap
         Date now = new Date();
         LqMindmapVersion newVersion = new LqMindmapVersion();
         newVersion.setMindmapId(mindmapId);
-        newVersion.setVersion(m mindmap.getLatestVersion() + 1);
+        newVersion.setVersion(mindmap.getLatestVersion() + 1);
         newVersion.setContentDiff(Base64.getEncoder().encodeToString(encryptContent(targetContent)));
         newVersion.setCreateTime(now);
         newVersion.setIsKeyVersion(true);
@@ -456,4 +488,8 @@ public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap
         mindmap.setContent(Base64.getEncoder().encodeToString(encryptContent(targetContent)));
         mindmap.setLatestVersion(newVersion.getVersion());
         mindmap.setUpdateTime(now);
-       
+        baseMapper.updateById(mindmap);
+
+        return true;
+    }
+}
