@@ -53,4 +53,11 @@ public class LqMindmapTagRel implements Serializable {
 	@Excel(name = "租户ID", width = 15)
     @Schema(description = "租户ID")
     private java.lang.String tenantId;
+    
+    /**创建时间*/
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "创建时间", width = 20, format = "yyyy-MM-dd HH:mm:ss")
+    @Schema(description = "创建时间")
+    private java.util.Date createTime;
 }

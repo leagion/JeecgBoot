@@ -1,13 +1,13 @@
 /*
  * 路由实例存储文件，请勿轻易添加其他代码，防止出现 HMR 或其他问题
  */
-import type {Router, RouterHistory} from 'vue-router';
-import {createRouter as createVueRouter, createWebHistory, createWebHashHistory, RouterOptions} from 'vue-router';
+import type { Router, RouterHistory } from 'vue-router';
+import { createRouter as createVueRouter, createWebHistory, createWebHashHistory, RouterOptions } from 'vue-router';
 
 export let router: Router = null as unknown as Router;
 
 export function setRouter(r: Router) {
-  router = r
+  router = r;
 }
 
 let webHistory: Nullable<RouterHistory> = null;
@@ -27,9 +27,9 @@ export function createRouter(options: Partial<RouterOptions>, useHashHistory = f
     ...options,
   });
 
-  setRouter(router)
+  setRouter(router);
 
-  return router
+  return router;
 }
 
 // 销毁路由
@@ -38,5 +38,5 @@ export function destroyRouter() {
   if (webHistory) {
     webHistory.destroy();
   }
-  webHistory = null
+  webHistory = null;
 }

@@ -9,6 +9,8 @@ import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.AutoLog;
 import org.jeecg.modules.demo.lqMindmap.entity.LqMindmap;
 import org.jeecg.modules.demo.lqMindmap.service.ILqMindmapService;
+import org.jeecg.modules.demo.lqMindmapTagRel.entity.LqMindmapTagRel;
+import org.jeecg.modules.demo.lqMindmapVersion.entity.LqMindmapVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.apache.shiro.SecurityUtils;
@@ -16,6 +18,7 @@ import org.jeecg.common.system.vo.LoginUser;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -160,5 +163,241 @@ public class LqMindmapController {
 		lqMindmapService.removeById(id);
 		// TODO: 同时删除关联的版本记录
 		return Result.OK("删除成功");
+	}
+
+	/**
+	 * 比较两个版本
+	 */
+	@AutoLog(value = "思维导图-比较版本")
+	@Operation(summary = "思维导图-比较版本", description = "思维导图-比较版本")
+	@GetMapping(value = "/compareVersions")
+	public Result<String> compareVersions(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId,
+			@RequestParam(name = "version1", required = true) Integer version1,
+			@RequestParam(name = "version2", required = true) Integer version2) {
+		try {
+			// 权限检查
+			LqMindmap mindmap = lqMindmapService.getById(mindmapId);
+			if (mindmap == null) {
+				return Result.error("未找到对应数据");
+			}
+
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String userId = loginUser.getId();
+			if (!mindmap.getUserId().equals(userId)) {
+				return Result.error("没有查看权限");
+			}
+
+			String diff = lqMindmapService.compareVersions(mindmapId, version1, version2);
+			return Result.OK(diff);
+		} catch (Exception e) {
+			return Result.error("比较版本失败: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * 获取版本列表
+	 */
+	@AutoLog(value = "思维导图-版本列表")
+	@Operation(summary = "思维导图-版本列表", description = "思维导图-版本列表")
+	@GetMapping(value = "/versionList")
+	public Result<List<LqMindmapVersion>> getVersionList(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId) {
+		try {
+			// 权限检查
+			LqMindmap mindmap = lqMindmapService.getById(mindmapId);
+			if (mindmap == null) {
+				return Result.error("未找到对应数据");
+			}
+
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String userId = loginUser.getId();
+			if (!mindmap.getUserId().equals(userId)) {
+				return Result.error("没有查看权限");
+			}
+
+			List<LqMindmapVersion> versions = lqMindmapService.getVersionList(mindmapId);
+			return Result.OK(versions);
+		} catch (Exception e) {
+			return Result.error("获取版本列表失败: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * 回滚到指定版本
+	 */
+	@AutoLog(value = "思维导图-版本回滚")
+	@Operation(summary = "思维导图-版本回滚", description = "思维导图-版本回滚")
+	@PostMapping(value = "/rollbackVersion")
+	public Result<String> rollbackVersion(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId,
+			@RequestParam(name = "version", required = true) Integer version) {
+		try {
+			// 权限检查
+			LqMindmap mindmap = lqMindmapService.getById(mindmapId);
+			if (mindmap == null) {
+				return Result.error("未找到对应数据");
+			}
+
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String userId = loginUser.getId();
+			if (!mindmap.getUserId().equals(userId)) {
+				return Result.error("没有操作权限");
+			}
+
+			lqMindmapService.rollbackVersion(mindmapId, version);
+			return Result.OK("版本回滚成功");
+		} catch (Exception e) {
+			return Result.error("版本回滚失败: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * 共享思维导图
+	 */
+	@AutoLog(value = "思维导图-共享")
+	@Operation(summary = "思维导图-共享", description = "思维导图-共享")
+	@PostMapping(value = "/share")
+	public Result<String> shareMindmap(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId,
+			@RequestParam(name = "userIds", required = false) List<String> userIds,
+			@RequestParam(name = "roleIds", required = false) List<String> roleIds) {
+		try {
+			// 权限检查
+			LqMindmap mindmap = lqMindmapService.getById(mindmapId);
+			if (mindmap == null) {
+				return Result.error("未找到对应数据");
+			}
+
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String currentUserId = loginUser.getId();
+			if (!mindmap.getUserId().equals(currentUserId)) {
+				return Result.error("没有共享权限");
+			}
+
+			lqMindmapService.shareMindmap(mindmapId, userIds, roleIds);
+			return Result.OK("共享设置成功");
+		} catch (Exception e) {
+			return Result.error("共享设置失败: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * 检查共享权限
+	 */
+	@AutoLog(value = "思维导图-检查共享权限")
+	@Operation(summary = "思维导图-检查共享权限", description = "思维导图-检查共享权限")
+	@GetMapping(value = "/checkSharePermission")
+	public Result<Boolean> checkSharePermission(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId) {
+		try {
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String userId = loginUser.getId();
+			boolean hasPermission = lqMindmapService.checkSharePermission(mindmapId, userId);
+			return Result.OK(hasPermission);
+		} catch (Exception e) {
+			return Result.error("检查权限失败: " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * 添加标签到思维导图
+	 */
+	@AutoLog(value = "思维导图-添加标签")
+	@Operation(summary = "思维导图-添加标签", description = "思维导图-添加标签")
+	@PostMapping(value = "/tag/add")
+	public Result<String> addTag(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId,
+			@RequestParam(name = "tagId", required = true) String tagId) {
+		try {
+			// 权限检查
+			LqMindmap mindmap = lqMindmapService.getById(mindmapId);
+			if (mindmap == null) {
+				return Result.error("未找到对应思维导图");
+			}
+
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String userId = loginUser.getId();
+			if (!mindmap.getUserId().equals(userId)) {
+				return Result.error("没有操作权限");
+			}
+			
+			// 创建标签关联
+			LqMindmapTagRel tagRel = new LqMindmapTagRel();
+			tagRel.setMindmapId(mindmapId);
+			tagRel.setTagId(tagId);
+			tagRel.setUserId(userId);
+			tagRel.setCreateTime(new java.util.Date());
+			
+			boolean success = lqMindmapService.addTagRel(tagRel);
+			if (success) {
+				return Result.OK("添加标签成功");
+			} else {
+				return Result.error("添加标签失败");
+			}
+		} catch (Exception e) {
+			return Result.error("添加标签失败: " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * 从思维导图中移除标签
+	 */
+	@AutoLog(value = "思维导图-移除标签")
+	@Operation(summary = "思维导图-移除标签", description = "思维导图-移除标签")
+	@DeleteMapping(value = "/tag/remove")
+	public Result<String> removeTag(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId,
+			@RequestParam(name = "tagId", required = true) String tagId) {
+		try {
+			// 权限检查
+			LqMindmap mindmap = lqMindmapService.getById(mindmapId);
+			if (mindmap == null) {
+				return Result.error("未找到对应思维导图");
+			}
+
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String userId = loginUser.getId();
+			if (!mindmap.getUserId().equals(userId)) {
+				return Result.error("没有操作权限");
+			}
+			
+			boolean success = lqMindmapService.removeTagRel(mindmapId, tagId);
+			if (success) {
+				return Result.OK("移除标签成功");
+			} else {
+				return Result.error("移除标签失败");
+			}
+		} catch (Exception e) {
+			return Result.error("移除标签失败: " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * 获取思维导图的所有标签
+	 */
+	@AutoLog(value = "思维导图-获取标签")
+	@Operation(summary = "思维导图-获取标签", description = "思维导图-获取标签")
+	@GetMapping(value = "/tags")
+	public Result<List<Map<String, Object>>> getMindmapTags(
+			@RequestParam(name = "mindmapId", required = true) String mindmapId) {
+		try {
+			// 权限检查
+			LqMindmap mindmap = lqMindmapService.getById(mindmapId);
+			if (mindmap == null) {
+				return Result.error("未找到对应思维导图");
+			}
+
+			LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+			String userId = loginUser.getId();
+			if (!mindmap.getUserId().equals(userId) && !lqMindmapService.checkSharePermission(mindmapId, userId)) {
+				return Result.error("没有查看权限");
+			}
+			
+			List<Map<String, Object>> tags = lqMindmapService.getMindmapTags(mindmapId);
+			return Result.OK(tags);
+		} catch (Exception e) {
+			return Result.error("获取标签失败: " + e.getMessage());
+		}
 	}
 }

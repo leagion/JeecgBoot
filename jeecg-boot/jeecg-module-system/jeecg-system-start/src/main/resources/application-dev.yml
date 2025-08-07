@@ -345,3 +345,8 @@ justauth:
     type: default
     prefix: 'demo::'
     timeout: 1h
+
+mindmap:
+  encrypt-key: ${MINDMAP_ENCRYPT_KEY:default_encrypt_key} # 加密密钥，可通过环境变量覆盖
+  auto-save-interval: 30000 # 自动保存间隔(毫秒)
+  max-content-size: 10485760 # 最大内容大小(10MB)

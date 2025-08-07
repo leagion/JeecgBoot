@@ -6,7 +6,8 @@ import java.util.Date;
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import javax.persistence.Table;
+import javax.persistence.Index;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import org.jeecg.common.constant.ProvinceCityArea;
 import org.jeecg.common.util.SpringContextUtils;
@@ -26,7 +27,9 @@ import lombok.experimental.Accessors;
  * @Version: V1.0
  */
 @Data
-@TableName("lq_mindmap_version")
+@Table(name = "lq_mindmap_version", indexes = {
+    @Index(name = "idx_mindmap_version", columnList = "mindmap_id,version", unique = true)
+})
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
 @Schema(description="lq_mindmap_version")

@@ -20,9 +20,11 @@
             <groupId>org.jeecgframework.boot</groupId>
             <artifactId>jeecg-system-biz</artifactId>
         </dependency>
+        <!-- JSON Patch 依赖 -->
         <dependency>
-            <groupId>org.jeecgframework.boot</groupId>
-            <artifactId>jeecg-system-biz</artifactId>
+            <groupId>com.github.fge</groupId>
+            <artifactId>json-patch</artifactId>
+            <version>1.9</version>
         </dependency>
     </dependencies>
 
