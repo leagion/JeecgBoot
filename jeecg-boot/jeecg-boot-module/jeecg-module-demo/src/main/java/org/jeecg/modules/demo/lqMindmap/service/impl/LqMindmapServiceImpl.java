@@ -48,9 +48,9 @@ import java.lang.reflect.Method;
 @Service
 public class LqMindmapServiceImpl extends ServiceImpl<LqMindmapMapper, LqMindmap> implements ILqMindmapService {
 
-
+    @Autowired
     private LqMindmapVersionMapper versionMapper;
-
+    @Autowired
     private LqMindmapTagRelMapper tagRelMapper;
 
     @Autowired

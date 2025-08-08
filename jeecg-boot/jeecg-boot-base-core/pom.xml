@@ -105,23 +105,22 @@
 			<artifactId>spring-boot-starter-freemarker</artifactId>
 		</dependency>
 
-		<!-- mybatis-plus -->
-		<dependency>
-			<groupId>com.baomidou</groupId>
-			<artifactId>mybatis-plus-boot-starter</artifactId>
-			<version>${mybatis-plus.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.baomidou</groupId>
-			<artifactId>mybatis-plus-jsqlparser-4.9</artifactId>
-			<version>${mybatis-plus.version}</version>
-		</dependency>
 		<!-- minidao -->
 		<dependency>
 			<groupId>org.jeecgframework</groupId>
-			<artifactId>minidao-spring-boot-starter-jsqlparser-4.9</artifactId>
+			<artifactId>minidao-spring-boot-starter</artifactId>
+			<version>${minidao.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>druid</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jsqlparser</artifactId>
+					<groupId>com.github.jsqlparser</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-
 		<!-- druid -->
 		<dependency>
 			<groupId>com.alibaba</groupId>
@@ -137,42 +136,58 @@
 		</dependency>
 
 		<!-- 数据库驱动 -->
-		<!--mysql-->
+		<!--mysql
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql-connector-java.version}</version>
 			<scope>runtime</scope>
-		</dependency>
-		<!--  sqlserver-->
+		</dependency>-->
+		<!--  sqlserver
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>sqljdbc4</artifactId>
 			<version>${sqljdbc4.version}</version>
 			<scope>runtime</scope>
-		</dependency>
-		<!-- oracle驱动 -->
+		</dependency>-->
+		<!-- oracle驱动
 		<dependency>
 			<groupId>com.oracle</groupId>
 			<artifactId>ojdbc6</artifactId>
 			<version>${ojdbc6.version}</version>
 			<scope>runtime</scope>
-		</dependency>
-		<!-- postgresql驱动 -->
+		</dependency>-->
+		<!-- postgresql驱动
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>${postgresql.version}</version>
 			<scope>runtime</scope>
+		</dependency> -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.7.7</version>
 		</dependency>
-		<!--人大金仓驱动 版本号V008R006C005B0013 -->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<version>3.5.3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-pgvector</artifactId>
+			<version>0.31.0</version>
+		</dependency>
+		<!--人大金仓驱动 版本号V008R006C005B0013
 		<dependency>
 			<groupId>org.jeecgframework</groupId>
 			<artifactId>kingbase8</artifactId>
 			<version>9.0.0</version>
 			<scope>runtime</scope>
-		</dependency>
-		<!--达梦数据库驱动 版本号1-3-26-2023.07.26-197096-20046-ENT -->
+		</dependency>-->
+		<!--达梦数据库驱动 版本号1-3-26-2023.07.26-197096-20046-ENT
 		<dependency>
 			<groupId>com.dameng</groupId>
 			<artifactId>Dm8JdbcDriver18</artifactId>
@@ -182,12 +197,19 @@
 			<groupId>com.dameng</groupId>
 			<artifactId>DmDialect-for-hibernate5.0</artifactId>
 			<version>${dm8.version}</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- Quartz定时任务 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-quartz</artifactId>
+		</dependency>
+
+		<!-- protobuf-java-util for MessageOrBuilder -->
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java-util</artifactId>
+			<version>3.21.12</version>
 		</dependency>
 
 		<!--JWT-->
