@@ -39,13 +39,13 @@ public class LqQuhaoServiceImpl extends ServiceImpl<LqQuhaoMapper, LqQuhao> impl
 
     @Override
     public Integer getMaxChunumByOrgCode(String sysOrgCode) {
-        log.info("查询部门最大取号, sysOrgCode: {}", sysOrgCode);
+      //  log.info("查询部门最大取号, sysOrgCode: {}", sysOrgCode);
 
         QueryWrapper<LqQuhao> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("COALESCE(MAX(chunum), 0) as maxNum")
                 .eq("sys_org_code", sysOrgCode);
 
-        log.info("SQL查询条件: {}", queryWrapper.getSqlSegment());
+      //  log.info("SQL查询条件: {}", queryWrapper.getSqlSegment());
 
         // 执行查询并处理结果
         Integer maxNum = this.baseMapper.selectObjs(queryWrapper)
@@ -54,7 +54,7 @@ public class LqQuhaoServiceImpl extends ServiceImpl<LqQuhaoMapper, LqQuhao> impl
                 .map(obj -> (Integer)obj)
                 .orElse(0);
 
-        log.info("查询结果: {}", maxNum);
+     //   log.info("查询结果: {}", maxNum);
         return maxNum;
     }
     }

@@ -70,7 +70,7 @@
   import { DownOutlined } from '@ant-design/icons-vue';
   import VersionHistoryDialog from './VersionHistoryDialog.vue';
   import ShareDialog from './ShareDialog.vue';
-  import MindElixir from 'mind-elixir';
+  import SimpleMindMap from 'simple-mind-map';
   import { message } from 'ant-design-vue';
   import { useRoute } from 'vue-router';
 
@@ -93,17 +93,22 @@
 
       // 初始化思维导图
       onMounted(() => {
-        mindmap.value = new MindElixir({
+        mindmap.value = new SimpleMindMap({
           el: '#mindmap-container',
-          direction: MindElixir.LEFT,
           data: {
-            nodeData: {
-              topic: '新思维导图',
-              children: [],
+            text: '新思维导图',
+            children: [],
+          },
+          theme: {
+            name: 'blueWhite',
+            palette: ['#1E88E5', '#42A5F5', '#90CAF9'],
+            cssVar: {
+              '--main-color': '#1E88E5',
+              '--text-color': '#333',
+              '--bg-color': '#fff',
             },
           },
         });
-        mindmap.value.init();
 
         // 设置自动保存定时器
         setInterval(() => {
@@ -119,7 +124,7 @@
 
       // 保存思维导图
       const saveMindmap = () => {
-        const data = mindmap.value.getData();
+        const data = mindmap.value.getData(true); // 获取完整数据
         // 调用 API 保存数据
         console.log('保存数据:', data);
         message.success('保存成功');

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-  import { MindMap } from 'simple-mind-map';
+  import MindMap from 'simple-mind-map';
 
   export default {
     name: 'MindMap',
