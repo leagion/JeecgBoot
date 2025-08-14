@@ -25,6 +25,8 @@
       contextMenu: true,
       allowUndo: true,
       editable: true,
+      locale: 'zh-CN',
+      // theme: getThemeConfig(),
     });
     // 创建新数据并初始化
     const data = MindElixir.new('新主题');

@@ -35,9 +35,6 @@ importers:
       '@logicflow/vue-node-registry':
         specifier: ^1.0.12
         version: 1.1.0(@logicflow/core@2.1.0)(vue@3.5.18(typescript@4.9.5))
-      '@svgdotjs/svg.js':
-        specifier: ^3.2.4
-        version: 3.2.4
       '@tinymce/tinymce-vue':
         specifier: 4.0.7
         version: 4.0.7(vue@3.5.18(typescript@4.9.5))
@@ -1485,9 +1482,6 @@ packages:
   '@spz-loader/core@0.3.0':
     resolution: {integrity: sha512-sbStwMHb/MIE29st7rRuMYWqhX1UmLSFzdpyGtUZUXLkFNIuYKblzjQdtiet8bau8sUf21uL1DQ451zuySGmcA==}
     engines: {node: '>=16', pnpm: '>=8'}
-
-  '@svgdotjs/svg.js@3.2.4':
-    resolution: {integrity: sha512-BjJ/7vWNowlX3Z8O4ywT58DqbNRyYlkk6Yz/D13aB7hGmfQTvGX4Tkgtm/ApYlu9M7lCQi15xUEidqMUmdMYwg==}
 
   '@tinymce/tinymce-vue@4.0.7':
     resolution: {integrity: sha512-1esB8wGWrjPCY+rK8vy3QB1cxwXo7HLJWuNrcyPl6LOVR+QJjub0OiV/C+TUEsLN6OpCtRv+QnIqMC5vXz783Q==}
@@ -8303,8 +8297,6 @@ snapshots:
   '@sphinxxxx/color-conversion@2.2.2': {}
 
   '@spz-loader/core@0.3.0': {}
-
-  '@svgdotjs/svg.js@3.2.4': {}
 
   '@tinymce/tinymce-vue@4.0.7(vue@3.5.18(typescript@4.9.5))':
     dependencies:

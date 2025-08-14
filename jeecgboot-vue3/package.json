@@ -32,7 +32,6 @@
     "@logicflow/core": "^2.0.10",
     "@logicflow/extension": "^2.0.14",
     "@logicflow/vue-node-registry": "^1.0.12",
-    "@svgdotjs/svg.js": "^3.2.4",
     "@tinymce/tinymce-vue": "4.0.7",
     "@traptitech/markdown-it-katex": "^3.6.0",
     "@vant/area-data": "^1.5.2",
