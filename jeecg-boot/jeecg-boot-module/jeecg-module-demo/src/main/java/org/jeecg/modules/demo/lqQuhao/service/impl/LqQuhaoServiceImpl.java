@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 /**
  * @Description: 文件取号
  * @Author: jeecg-boot
@@ -36,9 +39,9 @@ public class LqQuhaoServiceImpl extends ServiceImpl<LqQuhaoMapper, LqQuhao> impl
       //  log.info("查询结果: {}", maxNum);
         return maxNum;
     }
-
-    @Override
-    public Integer getMaxChunumByOrgCode(String sysOrgCode) {
+    /**
+     @Override
+ public Integer getMaxChunumByOrgCode(String sysOrgCode) {
       //  log.info("查询部门最大取号, sysOrgCode: {}", sysOrgCode);
 
         QueryWrapper<LqQuhao> queryWrapper = new QueryWrapper<>();
@@ -57,4 +60,25 @@ public class LqQuhaoServiceImpl extends ServiceImpl<LqQuhaoMapper, LqQuhao> impl
      //   log.info("查询结果: {}", maxNum);
         return maxNum;
     }
+    **/
+    @Override
+    public Integer getMaxChunumByOrgCode(String sysOrgCode) {
+        // 获取当前日期的年份（格式：yyyy）
+        String currentYear = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
+
+        // 拼接查询条件：按部门代码和取号日期的年份查询最大编号
+        QueryWrapper<LqQuhao> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("COALESCE(MAX(chunum), 0) as maxNum")
+                .eq("sys_org_code", sysOrgCode)
+                .apply("datatime_quhao::text LIKE {0}", currentYear + "-%"); // 使用类型转换和参数绑定
+// 匹配当前年份的取号记录（格式：yyyy-MM-dd）
+
+        // 执行查询并返回结果
+        return this.baseMapper.selectObjs(queryWrapper)
+                .stream()
+                .findFirst()
+                .map(obj -> (Integer) obj)
+                .orElse(0);
     }
+
+}

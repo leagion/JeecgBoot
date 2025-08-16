@@ -115,7 +115,7 @@
         <!-- 显示当前部门办文数量排名前 3 的承办人及其办文数量 -->
 
         <div class="top3-doc-handlers">
-          <span class="title">办文数量排行榜:</span>
+          <span class="title">今年办文数量排行榜:</span>
           <div class="rank-list">
             <div v-for="(item, index) in top3DocHandlers" :key="index" :class="['rank-item', `rank-${index + 1}`]">
               <span class="rank-number">{{ index + 1 }}.</span>
@@ -188,20 +188,61 @@
   }
 
   // 计算办文数量排名前 3 的承办人
+  // function calculateTop3() {
+  //   const currentYear = new Date().getFullYear();
+  //   console.log('当前年份:', currentYear);
+  //   const handlerMap = new Map();
+  //   allData.value.forEach((item) => {
+  //     if (item.dochandler) {
+  //       console.log('当前item:', item);
+  //       const count = handlerMap.get(item.dochandler) || 0;
+  //       handlerMap.set(item.dochandler, count + 1);
+  //     }
+  //   });
+
+  //   const handlerArray = Array.from(handlerMap, ([dochandler, fileCount]) => ({ dochandler, fileCount }));
+  //   handlerArray.sort((a, b) => b.fileCount - a.fileCount);
+  //   top3DocHandlers.value = handlerArray.slice(0, 3);
+  // }
+  // 计算办文数量排名前 3 的承办人
   function calculateTop3() {
+    const currentYear = new Date().getFullYear();
+    // console.log('当前年份:', currentYear);
     const handlerMap = new Map();
     allData.value.forEach((item) => {
       if (item.dochandler) {
-        const count = handlerMap.get(item.dochandler) || 0;
-        handlerMap.set(item.dochandler, count + 1);
+        // 使用datatimeQuhao字段判断年份
+        const dateStr = item.datatimeQuhao;
+        if (!dateStr) {
+          // console.warn('承办人记录缺少datatimeQuhao字段:', item);
+          return;
+        }
+
+        // 解析日期并验证格式（YYYY-MM-DD）
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(dateStr)) {
+          // console.warn('datatimeQuhao格式不正确（需为YYYY-MM-DD）:', dateStr, '数据项:', item);
+          return;
+        }
+
+        // 提取年份
+        const itemYear = parseInt(dateStr.split('-')[0], 10);
+        // console.log('datatimeQuhao解析年份:', itemYear, '原始值:', dateStr);
+
+        // 只统计当年数据
+        if (itemYear === currentYear) {
+          const count = handlerMap.get(item.dochandler) || 0;
+          handlerMap.set(item.dochandler, count + 1);
+          // console.log('计入当年数据:', item.dochandler, '年份:', itemYear);
+        }
       }
     });
 
     const handlerArray = Array.from(handlerMap, ([dochandler, fileCount]) => ({ dochandler, fileCount }));
     handlerArray.sort((a, b) => b.fileCount - a.fileCount);
     top3DocHandlers.value = handlerArray.slice(0, 3);
+    // console.log('当年办文排名:', top3DocHandlers.value);
   }
-
   // 监听查询参数变化，重新获取全部数据
   watch(
     queryParam,
@@ -310,7 +351,7 @@
   /**
    * 成功回调
    */
- 
+
   async function handleSuccess() {
     selectedRowKeys.value = [];
     await reload();
