@@ -35,5 +35,35 @@
     "url": "http://localhost:8080/geoserver/aiccgmap/ows",
     "layer": "aiccgmap:lq_poi_static"
   },
-  "appId": "1947650682653323265"
+  "appId": "1947650682653323265",
+  "mapConfig": {
+    "imageServer": {
+      "ip": "0.0.0.0",
+      "port": 5160
+    },
+    "lineServer": {
+      "ip": "0.0.0.0",
+      "port": 5160
+    },
+    "geoServer": {
+      "ip": "localhost",
+      "port": 8080,
+      "layers": "ne:coastlines"
+    },
+    "overlayLayers": [
+      {
+        "id": "geoserver_overlay",
+        "name": "GeoServer 叠加图层",
+        "url": "http://localhost:8080/geoserver/ne/wms",
+        "layers": "ne:coastlines",
+        "parameters": {
+          "transparent": true,
+          "format": "image/png"
+        },
+        "alpha": 0.8,
+        "visible": true
+      }
+    ],
+    "defaultBaseMap": 0
+  }
 }

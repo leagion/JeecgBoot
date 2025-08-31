@@ -15,6 +15,7 @@
   import { addWmsLayer } from '../utils/addWmsLayer';
   import ModelControlPanel from './ModelControlPanel.vue';
   import EntityManager from './EntityManager.vue';
+  import { loadMapConfig, createMapProviders } from '../utils/mapConfig';
 
   // 动态引入 chat.js，确保 window.createAiChat 可用
   if (typeof window !== 'undefined' && !window.createAiChat) {
@@ -38,53 +39,15 @@
   const entityManagerRef = ref();
   const isUnmounted = ref(false);
 
-  // 添加自定义瓦片图层
-
-  // 1. 获取 Cesium 自带的底图，并只保留我们需要的地图
-  const defaultImageryViewModels = Cesium.createDefaultImageryProviderViewModels();
-
-  // 查找 Natural Earth II 底图（考虑可能的名称变化）
-  let naturalEarthViewModel = defaultImageryViewModels.find((model) => model.name && model.name.includes('Natural Earth'));
-
-  // 如果找不到 Cesium 自带的 Natural Earth II，使用我们的自定义实现
-  if (!naturalEarthViewModel) {
-    naturalEarthViewModel = new Cesium.ProviderViewModel({
-      name: 'Natural Earth II',
-      iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/naturalEarthII.png'),
-      tooltip: 'Natural Earth II',
-      creationFunction: function () {
-        return new Cesium.TileMapServiceImageryProvider({
-          url: Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'),
-        });
-      },
-    });
-  }
-
-  // 2. GeoServer WMS 底图
-  const wmsMap = new Cesium.ProviderViewModel({
-    name: 'GeoServer WMS',
-    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/ArcGisMapServiceWorldImagery.png'),
-    tooltip: 'GeoServer WMS 底图',
-    creationFunction: function () {
-      return new Cesium.WebMapServiceImageryProvider({
-        url: 'http://localhost:8080/geoserver/ne/wms',
-        layers: 'ne:coastlines',
-        parameters: {
-          service: 'WMS',
-          format: 'image/png',
-          transparent: true,
-          version: '1.1.1',
-        },
-      });
-    },
-  });
-
-  // 3. 底图列表 - 只保留 Natural Earth II 和 GeoServer WMS
-  const imageryViewModels = [naturalEarthViewModel, wmsMap];
-
   onMounted(async () => {
     // 添加async
     try {
+      // 加载地图配置
+      const mapConfig = await loadMapConfig();
+
+      // 创建地图提供者
+      const { imageryViewModels, defaultIndex } = createMapProviders(mapConfig);
+
       viewer.value = new Cesium.Viewer('cesiumContainer', {
         animation: false,
         timeline: false,
@@ -100,7 +63,7 @@
         geocoder: true,
         imageryProviderViewModels: imageryViewModels, // 关键：自定义底图列表
         // 可选：设置默认底图
-        selectedImageryProviderViewModel: imageryViewModels[0],
+        selectedImageryProviderViewModel: imageryViewModels[defaultIndex],
       });
 
       // 去除版权信息
@@ -282,5 +245,26 @@
   }
   :deep(.compass) {
     margin-top: -50px !important; /* 负值向上，正值向下 */
+  }
+  
+  /* 底图选择器紧凑排列样式 */
+  :deep(.cesium-baseLayerPicker-itemContainer) {
+    max-height: 400px !important; /* 限制高度，便于紧凑显示 */
+    overflow-y: auto !important;
+  }
+  
+  :deep(.cesium-baseLayerPicker-item) {
+    padding: 4px !important; /* 减少内边距 */
+    margin-bottom: 2px !important; /* 减少项目间距 */
+  }
+  
+  :deep(.cesium-baseLayerPicker-itemLabel) {
+    font-size: 12px !important; /* 减小字体大小 */
+    line-height: 1.2 !important; /* 减小行高 */
+  }
+  
+  :deep(.cesium-baseLayerPicker-preview) {
+    width: 80px !important; /* 减小预览图宽度 */
+    height: 60px !important; /* 减小预览图高度 */
   }
 </style>
