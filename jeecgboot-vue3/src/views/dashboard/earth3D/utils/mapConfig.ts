@@ -147,35 +147,6 @@ export function createMapProviders(config: MapConfig): {
     },
   });
 
-  // 3.2 影像图 TileJSON 方式
-  const imageTileJson = new Cesium.ProviderViewModel({
-    name: '影像图-TileJSON',
-    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/ArcGisMapServiceWorldImagery.png'),
-    tooltip: '影像图 - TileJSON 方式调用',
-    creationFunction: function () {
-      // TileJSON 方式需要通过异步加载配置，这里使用自定义实现
-      const provider = new Cesium.UrlTemplateImageryProvider({
-        url: '', // 空URL，在请求时动态设置
-        tilingScheme: new Cesium.WebMercatorTilingScheme(),
-        minimumLevel: 0,
-        maximumLevel: 20,
-      });
-
-      // 重写 requestImage 方法以确保正确加载
-      provider.requestImage = function (x, y, level, request) {
-        const url = `${imageBaseUrl}/v1.0/gr/${level}/${x}/${y}.jpg`;
-        const image = new Image();
-        if (request) {
-          image.crossOrigin = request.crossOrigin;
-        }
-        image.src = url;
-        return image;
-      };
-
-      return provider;
-    },
-  });
-
   // 3.3 影像图 WMTS 方式
   const imageWmts = new Cesium.ProviderViewModel({
     name: '影像图-WMTS',
@@ -256,14 +227,19 @@ export function createMapProviders(config: MapConfig): {
   });
 
   // 底图列表 - 包含所有地图选项
-  // 将Natural Earth和GeoServer WMS排列在一起
-  const imageryViewModels = [naturalEarthViewModel, wmsMap, imageRestful, imageTileJson, imageWmts, lineRestful, lineTileJson, lineWmts];
+  // 将Natural Earth移到GeoServer WMS前面并排放置
+  const imageryViewModels = [naturalEarthViewModel, wmsMap, imageRestful, imageWmts, lineRestful, lineTileJson, lineWmts];
 
   // 确定默认底图索引
-  let defaultIndex = 0;
+  // 默认使用GeoServer WMS作为第二个选项（索引1）
+  let defaultIndex = 1;
+
+  // 检查配置的defaultBaseMap是否有效
   if (typeof config.defaultBaseMap === 'number') {
+    // 确保索引在有效范围内
     defaultIndex = Math.max(0, Math.min(config.defaultBaseMap, imageryViewModels.length - 1));
   } else if (typeof config.defaultBaseMap === 'string') {
+    // 如果是字符串，则通过名称查找索引
     const index = imageryViewModels.findIndex((model) => model.name === config.defaultBaseMap);
     if (index >= 0) {
       defaultIndex = index;

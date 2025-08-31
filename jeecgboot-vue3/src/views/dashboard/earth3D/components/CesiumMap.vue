@@ -16,6 +16,7 @@
   import ModelControlPanel from './ModelControlPanel.vue';
   import EntityManager from './EntityManager.vue';
   import { loadMapConfig, createMapProviders } from '../utils/mapConfig';
+  import { initOverlayLayers, OverlayLayerManager } from '../utils/overlayLayerManager';
 
   // 动态引入 chat.js，确保 window.createAiChat 可用
   if (typeof window !== 'undefined' && !window.createAiChat) {
@@ -38,6 +39,7 @@
   const viewer = ref<Cesium.Viewer | null>(null);
   const entityManagerRef = ref();
   const isUnmounted = ref(false);
+  const overlayLayerManager = ref<OverlayLayerManager | null>(null);
 
   onMounted(async () => {
     // 添加async
@@ -175,7 +177,10 @@
       }
 
       // 添加WMS服务图层
-      await addWmsLayer(viewer.value);
+        await addWmsLayer(viewer.value);
+
+        // 初始化叠加图层管理器
+        overlayLayerManager.value = await initOverlayLayers(viewer.value);
     } catch (error) {
       console.error('初始化 Cesium 地图时出错:', error);
     }
@@ -201,14 +206,18 @@
 
   onUnmounted(() => {
     isUnmounted.value = true;
+    if (overlayLayerManager.value) {
+      overlayLayerManager.value.destroy();
+      overlayLayerManager.value = null;
+    }
     if (viewer.value) {
       viewer.value.destroy();
       viewer.value = null;
     }
   });
 
-  // 暴露 viewer 给父组件
-  defineExpose({ viewer });
+  // 暴露 viewer 和叠加图层管理器给父组件
+  defineExpose({ viewer, overlayLayerManager });
 </script>
 
 <style scoped>
