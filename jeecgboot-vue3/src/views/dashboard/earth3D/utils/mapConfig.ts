@@ -114,12 +114,12 @@ export function createMapProviders(config: MapConfig): {
 
   // 2. GeoServer WMS 底图
   const wmsMap = new Cesium.ProviderViewModel({
-    name: 'GeoServer WMS',
+    name: '我的地图',
     iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/ArcGisMapServiceWorldImagery.png'),
-    tooltip: 'GeoServer WMS 底图',
+    tooltip: '自定义WMS 底图',
     creationFunction: function () {
       return new Cesium.WebMapServiceImageryProvider({
-        url: `${geoServerBaseUrl}/geoserver/ne/wms`,
+        url: `${geoServerBaseUrl}/geoserver/aiccgmap/wms`,
         layers: config.geoServer.layers,
         parameters: {
           service: 'WMS',
@@ -134,9 +134,9 @@ export function createMapProviders(config: MapConfig): {
   // 3. 影像图服务（gr）
   // 3.1 影像图 RESTful 方式
   const imageRestful = new Cesium.ProviderViewModel({
-    name: '影像图-RESTful',
-    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/bingAerialLabels.png'),
-    tooltip: '影像图 - RESTful 方式调用',
+    name: '影像图',
+    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/bingAerial.png'),
+    tooltip: '无标注影像图',
     creationFunction: function () {
       return new Cesium.UrlTemplateImageryProvider({
         url: `${imageBaseUrl}/v1.0/gr/{z}/{x}/{y}.jpg`,
@@ -147,26 +147,41 @@ export function createMapProviders(config: MapConfig): {
     },
   });
 
-  // 3.3 影像图 WMTS 方式
-  const imageWmts = new Cesium.ProviderViewModel({
-    name: '影像图-WMTS',
-    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/bingAerial.png'),
-    tooltip: '影像图 - WMTS 方式调用',
+  // 3. 影像图服务（gr）
+  // 3.1 影像图 RESTful 方式
+  const imageLabelRestful = new Cesium.ProviderViewModel({
+    name: '标注影像',
+    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/bingAerialLabels.png'),
+    tooltip: '全球影像图带标注',
     creationFunction: function () {
-      return new Cesium.WebMapTileServiceImageryProvider({
-        url: `${imageBaseUrl}/wmts/gr/1.0.0/WMTSCapabilities.xml`,
-        layer: 'gr',
-        style: 'default',
-        format: 'image/jpeg',
-        tileMatrixSetID: 'GoogleMapsCompatible',
+      return new Cesium.UrlTemplateImageryProvider({
+        url: `${imageBaseUrl}/v1.0/gh/{z}/{x}/{y}.jpg`,
+        tilingScheme: new Cesium.WebMercatorTilingScheme(),
+        minimumLevel: 0,
+        maximumLevel: 20,
       });
     },
   });
+  // // 3.3 影像图 WMTS 方式
+  // const imageWmts = new Cesium.ProviderViewModel({
+  //   name: '影像图-WMTS',
+  //   iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/bingAerial.png'),
+  //   tooltip: '影像图 - WMTS 方式调用',
+  //   creationFunction: function () {
+  //     return new Cesium.WebMapTileServiceImageryProvider({
+  //       url: `${imageBaseUrl}/wmts/gr/1.0.0/WMTSCapabilities.xml`,
+  //       layer: 'gr',
+  //       style: 'default',
+  //       format: 'image/jpeg',
+  //       tileMatrixSetID: 'GoogleMapsCompatible',
+  //     });
+  //   },
+  // });
 
   // 4. 线划图服务（gm）
   // 4.1 线划图 RESTful 方式
   const lineRestful = new Cesium.ProviderViewModel({
-    name: '线划图-RESTful',
+    name: '全球线划图',
     iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/bingRoads.png'),
     tooltip: '线划图 - RESTful 方式调用',
     creationFunction: function () {
@@ -180,55 +195,72 @@ export function createMapProviders(config: MapConfig): {
     },
   });
 
-  // 4.2 线划图 TileJSON 方式
-  const lineTileJson = new Cesium.ProviderViewModel({
-    name: '线划图-TileJSON',
-    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/stamenWatercolor.png'),
-    tooltip: '线划图 - TileJSON 方式调用',
+  // 4. 线划图服务（gm）
+  // 4.1 线划图 RESTful 方式
+  const lineDEMRestful = new Cesium.ProviderViewModel({
+    name: '地势晕渲图',
+    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/bingRoads.png'),
+    tooltip: '全球地势晕渲图',
     creationFunction: function () {
-      // TileJSON 方式需要通过异步加载配置，这里使用自定义实现
-      const provider = new Cesium.UrlTemplateImageryProvider({
-        url: '', // 空URL，在请求时动态设置
+      return new Cesium.UrlTemplateImageryProvider({
+        url: `${lineBaseUrl}/v1.0/gt/{z}/{x}/{y}.png`,
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         minimumLevel: 0,
         maximumLevel: 20,
         transparent: true,
       });
-
-      // 重写 requestImage 方法以确保正确加载
-      provider.requestImage = function (x, y, level, request) {
-        const url = `${lineBaseUrl}/v1.0/gm/${level}/${x}/${y}.png`;
-        const image = new Image();
-        if (request) {
-          image.crossOrigin = request.crossOrigin;
-        }
-        image.src = url;
-        return image;
-      };
-
-      return provider;
     },
   });
+  // // 4.2 线划图 TileJSON 方式
+  // const lineTileJson = new Cesium.ProviderViewModel({
+  //   name: '线划图-TileJSON',
+  //   iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/stamenWatercolor.png'),
+  //   tooltip: '线划图 - TileJSON 方式调用',
+  //   creationFunction: function () {
+  //     // TileJSON 方式需要通过异步加载配置，这里使用自定义实现
+  //     const provider = new Cesium.UrlTemplateImageryProvider({
+  //       url: '', // 空URL，在请求时动态设置
+  //       tilingScheme: new Cesium.WebMercatorTilingScheme(),
+  //       minimumLevel: 0,
+  //       maximumLevel: 20,
+  //       transparent: true,
+  //     });
 
-  // 4.3 线划图 WMTS 方式
-  const lineWmts = new Cesium.ProviderViewModel({
-    name: '线划图-WMTS',
-    iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/mapboxStreets.png'),
-    tooltip: '线划图 - WMTS 方式调用',
-    creationFunction: function () {
-      return new Cesium.WebMapTileServiceImageryProvider({
-        url: `${lineBaseUrl}/wmts/gm/1.0.0/WMTSCapabilities.xml`,
-        layer: 'gm',
-        style: 'default',
-        format: 'image/png',
-        tileMatrixSetID: 'GoogleMapsCompatible',
-      });
-    },
-  });
+  //     // 重写 requestImage 方法以确保正确加载
+  //     provider.requestImage = function (x, y, level, request) {
+  //       const url = `${lineBaseUrl}/v1.0/gm/${level}/${x}/${y}.png`;
+  //       const image = new Image();
+  //       if (request) {
+  //         image.crossOrigin = request.crossOrigin;
+  //       }
+  //       image.src = url;
+  //       return image;
+  //     };
+
+  //     return provider;
+  //   },
+  // });
+
+  // // 4.3 线划图 WMTS 方式
+  // const lineWmts = new Cesium.ProviderViewModel({
+  //   name: '线划图-WMTS',
+  //   iconUrl: Cesium.buildModuleUrl('Widgets/Images/ImageryProviders/mapboxStreets.png'),
+  //   tooltip: '线划图 - WMTS 方式调用',
+  //   creationFunction: function () {
+  //     return new Cesium.WebMapTileServiceImageryProvider({
+  //       url: `${lineBaseUrl}/wmts/gm/1.0.0/WMTSCapabilities.xml`,
+  //       layer: 'gm',
+  //       style: 'default',
+  //       format: 'image/png',
+  //       tileMatrixSetID: 'GoogleMapsCompatible',
+  //     });
+  //   },
+  // });
 
   // 底图列表 - 包含所有地图选项
   // 将Natural Earth移到GeoServer WMS前面并排放置
-  const imageryViewModels = [naturalEarthViewModel, wmsMap, imageRestful, imageWmts, lineRestful, lineTileJson, lineWmts];
+  //const imageryViewModels = [naturalEarthViewModel, wmsMap, imageRestful, imageWmts, lineRestful, lineTileJson, lineWmts];
+  const imageryViewModels = [naturalEarthViewModel, wmsMap, imageRestful,imageLabelRestful, lineRestful,lineDEMRestful];
 
   // 确定默认底图索引
   // 默认使用GeoServer WMS作为第二个选项（索引1）

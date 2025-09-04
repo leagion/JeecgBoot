@@ -173,6 +173,28 @@
         s.parentNode.insertBefore(hm, s);
       })();
     </script>-->
-    <script src=http://localhost:3100/src/views/super/airag/aiapp/chat/js/chat.js id="e7e007dd52f67fe36365eff636bbffbd"></script>
+    <!-- 动态加载chat.js -->
+    <script>
+      async function loadChatJs() {
+        try {
+          // 从config.json加载配置
+          const response = await fetch('/config.json');
+          const config = await response.json();
+          
+          // 如果配置中存在chatJsUrl，则动态加载
+          if (config && config.chatJsUrl) {
+            const script = document.createElement('script');
+            script.src = config.chatJsUrl;
+            script.id = 'e7e007dd52f67fe36365eff636bbffbd';
+            document.body.appendChild(script);
+          }
+        } catch (error) {
+          console.error('加载chat.js配置失败:', error);
+        }
+      }
+      
+      // 页面加载完成后执行
+      document.addEventListener('DOMContentLoaded', loadChatJs);
+    </script>
   </body>
 </html>

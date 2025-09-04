@@ -1,7 +1,13 @@
 import path from 'path';
 import fs from 'fs-extra';
 
-const uploadUrl = 'http://localhost:3300/static/upload';
+// 读取配置文件
+const configPath = path.join(__dirname, '../../../public/config.json');
+const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+
+// 从配置文件中获取fileservice信息
+const { host, port, uploadPath } = config.fileservice;
+const uploadUrl = `http://${host}:${port}${uploadPath}`;
 const filePath = path.join(__dirname, '../static/upload/');
 
 fs.ensureDir(filePath);

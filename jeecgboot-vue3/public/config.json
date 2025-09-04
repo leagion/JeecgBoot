@@ -36,6 +36,7 @@
     "layer": "aiccgmap:lq_poi_static"
   },
   "appId": "1947650682653323265",
+  "chatJsUrl": "/chat/chat.js",
   "mapConfig": {
     "imageServer": {
       "ip": "0.0.0.0",
@@ -50,7 +51,12 @@
       "port": 8080,
       "layers": "ne:coastlines"
     },
-
-    "defaultBaseMap": 0
-  }
+   
+    "defaultBaseMap": 2
+  },
+   "fileservice": {
+      "host": "localhost",
+      "port": 8090,
+      "uploadPath": "/static/upload"
+    }
 }

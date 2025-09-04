@@ -42,6 +42,8 @@
             z-index: 998;
             ${getPositionStyles(finalConfig.iconPosition)}
             cursor: pointer;
+            user-select: none;
+            touch-action: none;
         `;
     // 创建图标
     const icon = document.createElement('div');
@@ -67,12 +69,6 @@
     let bottom = finalConfig.chatHeight === '100%' ? '0' : '10px';
     let chatWidth = finalConfig.chatWidth;
     let chatHeight = finalConfig.chatHeight;
-    if (isMobileDevice()) {
-      chatWidth = '100%';
-      chatHeight = '100%';
-      right = '0';
-      bottom = '0';
-    }
     iframeContainer.style.cssText = `
             position: fixed;
             right: ${right};
@@ -101,10 +97,6 @@
     //update-end---author:wangshuai---date:2025-04-25---for:【QQYUN-12159】【AI 广告位】让需要自建AI知识库的用户知道如何通过敲敲云搭建自己的AI知识库---
     let iconRight = finalConfig.chatWidth === '100%' ? '0' : '-6px';
     let iconTop = finalConfig.chatWidth === '100%' ? '0' : '-9px';
-    if (isMobileDevice()) {
-      iconRight = '2px';
-      iconTop = '2px';
-    }
     // 创建关闭按钮
     const closeBtn = document.createElement('div');
     closeBtn.innerHTML =
@@ -131,9 +123,110 @@
     container.appendChild(icon);
     document.body.appendChild(container);
 
-    // 事件监听
-    icon.addEventListener('click', () => {
-      iframeContainer.style.display = 'block';
+    // 拖动相关变量
+    let isDragging = false;
+    let offsetX, offsetY;
+    let startX, startY;
+
+    // 开始拖动
+    function startDrag(e) {
+      // 阻止冒泡，避免触发点击事件
+      e.stopPropagation();
+      
+      isDragging = true;
+      
+      // 处理鼠标事件和触摸事件
+      if (e.type === 'mousedown') {
+        startX = e.clientX;
+        startY = e.clientY;
+      } else if (e.type === 'touchstart') {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }
+      
+      // 计算鼠标在图标内的偏移量
+      const rect = container.getBoundingClientRect();
+      offsetX = startX - rect.left;
+      offsetY = startY - rect.top;
+      
+      // 添加移动和结束事件监听
+      if (e.type === 'mousedown') {
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+      } else if (e.type === 'touchstart') {
+        document.addEventListener('touchmove', drag, { passive: false });
+        document.addEventListener('touchend', stopDrag);
+      }
+    }
+    
+    // 拖动过程
+    function drag(e) {
+      if (!isDragging) return;
+      
+      // 阻止默认行为，避免页面滚动
+      e.preventDefault();
+      
+      let clientX, clientY;
+      
+      // 处理鼠标事件和触摸事件
+      if (e.type === 'mousemove') {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      } else if (e.type === 'touchmove') {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      }
+      
+      // 计算新位置
+      const newLeft = clientX - offsetX;
+      const newTop = clientY - offsetY;
+      
+      // 限制在视口范围内
+      const maxX = window.innerWidth - container.offsetWidth;
+      const maxY = window.innerHeight - container.offsetHeight;
+      
+      const boundedLeft = Math.max(0, Math.min(newLeft, maxX));
+      const boundedTop = Math.max(0, Math.min(newTop, maxY));
+      
+      // 设置新位置
+      container.style.left = boundedLeft + 'px';
+      container.style.top = boundedTop + 'px';
+      container.style.right = 'auto';
+      container.style.bottom = 'auto';
+    }
+    
+    // 停止拖动
+    function stopDrag() {
+      isDragging = false;
+      
+      // 移除事件监听
+      document.removeEventListener('mousemove', drag);
+      document.removeEventListener('mouseup', stopDrag);
+      document.removeEventListener('touchmove', drag);
+      document.removeEventListener('touchend', stopDrag);
+    }
+    
+    // 添加拖动事件监听
+    container.addEventListener('mousedown', startDrag);
+    container.addEventListener('touchstart', startDrag);
+    
+    // 点击事件 - 使用mouseup事件来区分点击和拖动
+    container.addEventListener('mouseup', (e) => {
+      // 如果鼠标位置与开始位置相近，则视为点击而非拖动
+      if (Math.abs(e.clientX - startX) < 5 && Math.abs(e.clientY - startY) < 5) {
+        iframeContainer.style.display = 'block';
+      }
+    });
+    
+    // 触摸结束事件 - 用于移动设备
+    container.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length > 0) {
+        const touch = e.changedTouches[0];
+        // 如果触摸位置与开始位置相近，则视为点击而非拖动
+        if (Math.abs(touch.clientX - startX) < 5 && Math.abs(touch.clientY - startY) < 5) {
+          iframeContainer.style.display = 'block';
+        }
+      }
     });
 
     closeBtn.addEventListener('click', () => {
@@ -175,13 +268,7 @@
     }
   }
 
-  /**
-   * 判断是否为手机
-   * @returns {boolean}
-   */
-  function isMobileDevice() {
-    return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  }
+
 
   // 暴露全局方法
   window.createAiChat = createAiChat;

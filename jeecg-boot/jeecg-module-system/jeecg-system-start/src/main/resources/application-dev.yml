@@ -30,6 +30,9 @@ spring:
     enabled: false
     # 是否关闭要清除已有库下的表功能,生产环境必须为true,否则会删库，非常重要！！！
     clean-disabled: true
+
+custom:
+  url: ${EXTERNAL_URL:http://default-url.com}
   servlet:
     multipart:
       max-file-size: 10MB
@@ -168,9 +171,9 @@ spring:
           #username: root
           #password: root
           #driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:postgresql://localhost:5432/aiccg_pgdb?stringtype=unspecified
-          username: aiccgdb
-          password: hkzdlq@CCG2025
+          url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/aiccg_pgdb?stringtype=unspecified
+          username: ${DB_USERNAME:aiccgdb}
+          password: ${DB_PASSWORD:hkzdlq@CCG2025}
           driver-class-name: org.postgresql.Driver
 
 
@@ -178,9 +181,9 @@ spring:
   #redis 配置
   redis:
     database: 0
-    host: 127.0.0.1
-    port: 6379
-    password:
+    host: ${REDIS_HOST:127.0.0.1}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/**/xml/*Mapper.xml
@@ -204,9 +207,9 @@ jeecg:
   # AI集成
   ai-chat:
     enabled: true
-    model: ds-lq:latest
+    model: ${AI_MODEL:ds-lq:latest}
     apiKey: ollama
-    apiHost: http://localhost:11434
+    apiHost: ${AI_API_HOST:http://localhost:11434}
     timeout: 120000
     # 新增连接池配置
     pool:

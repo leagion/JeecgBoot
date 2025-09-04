@@ -137,7 +137,7 @@
           //update-begin---author:wangshuai---date:2025-03-28---for:【QQYUN-11649】应用嵌入，支持一个小图标点击出聊天---
           let path = '/src/views/super/airag/aiapp/chat/js/chat.js';
           if (!isDevMode()) {
-            path = '/chat/chat.js';
+            path = '/dist/chat/chat.js';
           }
           let text = '<script src=' + locationUrl + path + ' id="e7e007dd52f67fe36365eff636bbffbd">' + '<' + '/script>';
           text += '\n <' + 'script>\n';

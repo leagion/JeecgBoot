@@ -177,10 +177,10 @@
       }
 
       // 添加WMS服务图层
-        await addWmsLayer(viewer.value);
+      await addWmsLayer(viewer.value);
 
-        // 初始化叠加图层管理器
-        overlayLayerManager.value = await initOverlayLayers(viewer.value);
+      // 初始化叠加图层管理器
+      overlayLayerManager.value = await initOverlayLayers(viewer.value);
     } catch (error) {
       console.error('初始化 Cesium 地图时出错:', error);
     }
@@ -255,23 +255,23 @@
   :deep(.compass) {
     margin-top: -50px !important; /* 负值向上，正值向下 */
   }
-  
+
   /* 底图选择器紧凑排列样式 */
   :deep(.cesium-baseLayerPicker-itemContainer) {
     max-height: 400px !important; /* 限制高度，便于紧凑显示 */
     overflow-y: auto !important;
   }
-  
+
   :deep(.cesium-baseLayerPicker-item) {
     padding: 4px !important; /* 减少内边距 */
     margin-bottom: 2px !important; /* 减少项目间距 */
   }
-  
+
   :deep(.cesium-baseLayerPicker-itemLabel) {
     font-size: 12px !important; /* 减小字体大小 */
     line-height: 1.2 !important; /* 减小行高 */
   }
-  
+
   :deep(.cesium-baseLayerPicker-preview) {
     width: 80px !important; /* 减小预览图宽度 */
     height: 60px !important; /* 减小预览图高度 */
