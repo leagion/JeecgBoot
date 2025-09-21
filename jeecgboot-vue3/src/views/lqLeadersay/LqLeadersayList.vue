@@ -12,7 +12,7 @@
           >导入</j-upload-button
         >
 
-        <a-dropdown v-if="selectedRowKeys.length > 0">
+        <a-dropdown v-if="selectedRowKeys && selectedRowKeys.length > 0">
           <template #overlay>
             <a-menu>
               <a-menu-item key="1" @click="batchHandleDelete">
@@ -124,7 +124,13 @@
     },
   });
 
-  const [registerTable, { reload }, { rowSelection, selectedRowKeys }] = tableContext;
+  const tableContextArray = tableContext || [];
+  const registerTable = tableContextArray[0];
+  const tableMethods = tableContextArray[1] || {};
+  const tableState = tableContextArray[2] || {};
+  
+  const { reload } = tableMethods;
+  const { rowSelection, selectedRowKeys } = tableState;
 
   // 高级查询配置
   const superQueryConfig = reactive(superQuerySchema);
@@ -136,7 +142,7 @@
     Object.keys(params).map((k) => {
       queryParam[k] = params[k];
     });
-    reload();
+    reload && reload();
   }
   /**
    * 新增事件
@@ -177,13 +183,16 @@
    * 批量删除事件
    */
   async function batchHandleDelete() {
-    await batchDelete({ ids: selectedRowKeys.value }, handleSuccess);
+    await batchDelete({ ids: selectedRowKeys?.value || [] }, handleSuccess);
   }
   /**
    * 成功回调
    */
   function handleSuccess() {
-    (selectedRowKeys.value = []) && reload();
+    if (selectedRowKeys?.value) {
+      selectedRowKeys.value = [];
+    }
+    reload && reload();
   }
 
   /**

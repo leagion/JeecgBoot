@@ -35,13 +35,13 @@
         </a-button>
 
         <a-button @click="showSpeedSettings = !showSpeedSettings" type="default">
-    <template #icon><Icon icon="ant-design:setting-outlined" /></template>
-    速度设置
-  </a-button>
-  <a-button @click="showFontSettings = !showFontSettings" type="default">
-    <template #icon><Icon icon="ant-design:font-size-outlined" /></template>
-    字体设置
-  </a-button>
+          <template #icon><Icon icon="ant-design:setting-outlined" /></template>
+          速度设置
+        </a-button>
+        <a-button @click="showFontSettings = !showFontSettings" type="default">
+          <template #icon><Icon icon="ant-design:font-size-outlined" /></template>
+          字体设置
+        </a-button>
       </template>
 
       <!-- 滚动速度设置面板（非全屏模式下显示） -->
@@ -62,7 +62,7 @@
       <a-drawer v-if="!isFullScreen" title="字体大小设置" placement="right" :closable="true" v-model:open="showFontSettings" width="300">
         <div class="speed-settings">
           <p>当前字体大小: {{ fontSize }}px</p>
-          <a-slider v-model:value="fontSize" :min="12" :max="24" :step="1" @change="handleFontSizeChange" />
+          <a-slider v-model:value="fontSize" :min="12" :max="34" :step="1" @change="handleFontSizeChange" />
           <div class="speed-labels">
             <span>小</span>
             <span>中</span>
@@ -70,9 +70,7 @@
           </div>
           <div class="preview-section">
             <h5>预览效果：</h5>
-            <div :style="{ fontSize: `${fontSize}px` }" class="preview-text">
-              这是一段预览文本，展示当前字体大小效果。
-            </div>
+            <div :style="{ fontSize: `${fontSize}px` }" class="preview-text"> 这是一段预览文本，展示当前字体大小效果。 </div>
           </div>
           <a-button type="primary" block @click="resetFontSize">恢复默认字体</a-button>
         </div>
@@ -190,6 +188,8 @@
       }
     } catch (e) {
       console.error('加载滚动速度设置失败:', e);
+      // 使用默认值
+      scrollSpeed.value = 0.5;
     }
   };
 
@@ -211,6 +211,8 @@
       }
     } catch (e) {
       console.error('加载字体大小设置失败:', e);
+      // 使用默认值
+      fontSize.value = 16;
     }
   };
 
@@ -253,31 +255,13 @@
       const res = await list({ pageSize: 1000, pageNo: 1 });
       if (res && (res.success || res.records)) {
         const records = res.records || res.result?.records || [];
-        // 从本地存储加载置顶状态
-        const loadPinnedItemsFromStorage = () => {
-          try {
-            const savedPinnedItems = localStorage.getItem('leaderSayPinnedItems');
-            if (savedPinnedItems) {
-              return JSON.parse(savedPinnedItems) as string[];
-            }
-          } catch (e) {
-            console.error('加载置顶状态失败:', e);
-          }
-          return [];
-        };
-        // 保存置顶状态到本地存储
-        const savePinnedItemsToStorage = (pinnedIds: string[]) => {
-          try {
-            localStorage.setItem('leaderSayPinnedItems', JSON.stringify(pinnedIds));
-          } catch (e) {
-            console.error('保存置顶状态失败:', e);
-          }
-        };
+        // 加载保存的置顶状态
+        const savedPinnedIds = loadPinnedItemsFromStorage();
         // 创建新的数组对象，避免直接修改响应式数据
         items.value = records.map((item) => ({
           ...item,
           sayDate: item.sayDate && typeof item.sayDate === 'string' ? new Date(item.sayDate).toISOString() : item.sayDate,
-          isPinned: false, // 默认不置顶
+          isPinned: savedPinnedIds.includes(item.id), // 应用保存的置顶状态
         }));
         extractLeaderOptions();
         message.success('数据加载成功，共获取到 ' + items.value.length + ' 条记录');
@@ -308,6 +292,28 @@
     }));
   };
 
+  // 从本地存储加载置顶状态
+  const loadPinnedItemsFromStorage = () => {
+    try {
+      const savedPinnedItems = localStorage.getItem('leaderSayPinnedItems');
+      if (savedPinnedItems) {
+        return JSON.parse(savedPinnedItems) as string[];
+      }
+    } catch (e) {
+      console.error('加载置顶状态失败:', e);
+    }
+    return [];
+  };
+
+  // 保存置顶状态到本地存储
+  const savePinnedItemsToStorage = (pinnedIds: string[]) => {
+    try {
+      localStorage.setItem('leaderSayPinnedItems', JSON.stringify(pinnedIds));
+    } catch (e) {
+      console.error('保存置顶状态失败:', e);
+    }
+  };
+
   // 过滤后的数据
   const allFilteredItems = computed(() => {
     if (!items.value || items.value.length === 0) return [];
@@ -317,13 +323,9 @@
         .filter((item) => {
           if (!item) return false;
 
-          // 只显示标记为"是"的记录（处理字符串'是'和布尔值true两种情况）
-          if (item.is_show !== undefined && item.is_show !== null) {
-            // 统一转换为字符串后比较
-            const isShow = String(item.is_show).toLowerCase();
-            if (isShow !== '是' && isShow !== 'true' && isShow !== '1') {
-              return false;
-            }
+          // 新增：只显示isshow为1的记录
+          if (item.isshow === '0' || item.isshow === 0 || item.isshow === false) {
+            return false;
           }
 
           // 日期范围过滤（仅在用户主动选择日期范围时过滤）
@@ -369,7 +371,7 @@
       message.success('已置顶');
       menuVisible.value = false;
       // 保存置顶状态
-      const pinnedIds = items.value.filter(item => item.isPinned).map(item => item.id);
+      const pinnedIds = items.value.filter((item) => item.isPinned).map((item) => item.id);
       savePinnedItemsToStorage(pinnedIds);
     }
   };
@@ -381,7 +383,7 @@
       message.success('已取消置顶');
       menuVisible.value = false;
       // 保存置顶状态
-      const pinnedIds = items.value.filter(item => item.isPinned).map(item => item.id);
+      const pinnedIds = items.value.filter((item) => item.isPinned).map((item) => item.id);
       savePinnedItemsToStorage(pinnedIds);
     }
   };
@@ -410,11 +412,6 @@
     if (!isClickOnMenu && !isClickOnSayItem) {
       closeContextMenu();
     }
-  };
-
-  // 处理过滤变化
-  const handleFilterChange = () => {
-    // 实时过滤，无需额外操作
   };
 
   // 处理点击图钉取消置顶
@@ -452,6 +449,11 @@
     applyFontSize(value);
   };
 
+  // 处理过滤条件变化
+  const handleFilterChange = () => {
+    // 实时过滤，无需额外操作
+  };
+
   // 重置字体大小
   const resetFontSize = () => {
     const defaultSize = 16;
@@ -464,7 +466,7 @@
   const applyFontSize = (size: number) => {
     // 更新所有内容项的字体大小
     const contentElements = document.querySelectorAll('.say-item .item-content');
-    contentElements.forEach(el => {
+    contentElements.forEach((el) => {
       (el as HTMLElement).style.fontSize = `${size}px`;
     });
   };
@@ -551,8 +553,6 @@
       const diffTime = Math.abs(now.getTime() - itemDate.getTime());
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      console.log(`日期: ${itemDate.toLocaleDateString()}, 差异天数: ${diffDays}`); // 添加调试日志
-
       if (diffDays <= 7) {
         return 'time-range-week'; // 近一周
       } else if (diffDays <= 15) {
@@ -576,17 +576,27 @@
     loadScrollSpeedFromStorage(); // 加载保存的滚动速度
     loadFontSizeFromStorage(); // 加载保存的字体大小
     setDefaultDateRange(); // 设置默认日期范围（最近4个月）
-    loadData();
+
+    // 修改数据加载和滚动启动逻辑
+    loadData().then(() => {
+      // 确保有数据且容器已渲染后再启动滚动
+      const checkAndStartScroll = () => {
+        if (scrollInner.value && items.value.length > 0 && scrollInner.value.scrollHeight > 0) {
+          if (isPlaying.value) {
+            startAutoScroll();
+          }
+        } else {
+          // 如果条件不满足，稍后再次检查
+          setTimeout(checkAndStartScroll, 100);
+        }
+      };
+
+      // 开始检查
+      checkAndStartScroll();
+    });
 
     // 添加document点击事件监听器
     document.addEventListener('click', handleDocumentClick);
-
-    // 延迟启动自动滚动，等待内容加载
-    setTimeout(() => {
-      if (isPlaying.value) {
-        startAutoScroll();
-      }
-    }, 1000);
   });
 
   onUnmounted(() => {

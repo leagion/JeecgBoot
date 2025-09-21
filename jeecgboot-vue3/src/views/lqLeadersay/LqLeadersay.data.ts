@@ -1,7 +1,7 @@
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
 import { rules } from '/@/utils/helper/validator';
-import { render } from '/@/utils/common/renderUtils';
+import { h } from 'vue';
 import { getWeekMonthQuarterYear } from '/@/utils';
 //列表数据
 export const columns: BasicColumn[] = [
@@ -31,15 +31,46 @@ export const columns: BasicColumn[] = [
     dataIndex: 'doit',
   },
 
-  {
-    title: '是否完成',
-    align: 'center',
-    dataIndex: 'isfinished',
-  },
+  {    
+    title: '是否完成',    
+    align: 'center',    
+    dataIndex: 'isfinished',    
+    customRender: ({ text, record }) => {
+      // 将0/1转换为否/是显示
+      if (text === '1') {
+        return '是';
+      } else if (text === '0') {
+        // 计算未完成天数
+        let days = 0;
+        try {
+          if (record && record.sayDate) {
+            const sayDate = new Date(record.sayDate);
+            const today = new Date();
+            // 计算两个日期之间的天数差
+            const timeDiff = today.getTime() - sayDate.getTime();
+            days = Math.ceil(timeDiff / (1000 * 3600 * 24));
+          }
+        } catch (error) {
+          console.error('计算天数差出错:', error);
+        }
+        // 如果有天数，则显示红色字体的天数
+        if (days > 0) {
+          // 使用h函数创建VNode来渲染HTML
+          return h('span', { innerHTML: `否 <span style="color: red;">(${days}天)</span>` });
+        } else {
+          return '否';
+        }
+      }
+      return text;
+    },  },
   {
     title: '是否显示',
     align: 'center',
     dataIndex: 'isshow',
+    customRender: ({ text }) => {
+      // 将0/1转换为否/是显示
+      return text === '1' ? '是' : text === '0' ? '否' : text;
+    },
   },
   {
     title: '备注',
@@ -82,7 +113,7 @@ export const formSchema: FormSchema[] = [
       style: { width: '100%' },
     },
     colProps: { span: 12 },
-    dynamicRules: ({ model, schema }) => {
+    dynamicRules: () => {
       return [{ required: true, message: '请输入日期!' }];
     },
   },
@@ -94,7 +125,7 @@ export const formSchema: FormSchema[] = [
       style: { width: '100%' },
     },
     colProps: { span: 12 },
-    dynamicRules: ({ model, schema }) => {
+    dynamicRules: () => {
       return [{ required: true, message: '请输入首长姓名!' }];
     },
   },
@@ -105,7 +136,7 @@ export const formSchema: FormSchema[] = [
     componentProps: {
       style: { width: '100%' },
     },
-    dynamicRules: ({ model, schema }) => {
+    dynamicRules: () => {
       return [{ required: true, message: '请输入首长指示!' }];
     },
   },

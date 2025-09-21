@@ -32,9 +32,20 @@
     isUpdate.value = !!data?.isUpdate;
     isDetail.value = !!data?.showFooter;
     if (unref(isUpdate)) {
-      //表单赋值
+      //表单赋值 - 注意：数据库存储的是字符串'1'/'0'，需要转换为布尔值
+      const record = data.record;
+      if (record) {
+        // 将字符串类型的布尔值转换为真正的布尔值
+        if ('isfinished' in record) {
+          record.isfinished = record.isfinished === '1' || record.isfinished === true;
+        }
+        if ('isshow' in record) {
+          record.isshow = record.isshow === '1' || record.isshow === true;
+        }
+      }
+      
       await setFieldsValue({
-        ...data.record,
+        ...record,
       });
     }
     // 隐藏底部时禁用整个表单
@@ -50,6 +61,15 @@
       let values = await validate();
       // 预处理日期数据
       changeDateValue(values);
+      
+      // 关键修复：将布尔值转换为字符串'1'/'0'，适应数据库varchar类型字段
+      if ('isfinished' in values) {
+        values.isfinished = values.isfinished ? '1' : '0';
+      }
+      if ('isshow' in values) {
+        values.isshow = values.isshow ? '1' : '0';
+      }
+      
       setModalProps({ confirmLoading: true });
       //提交表单
       await saveOrUpdate(values, isUpdate.value);
@@ -57,14 +77,19 @@
       closeModal();
       //刷新列表
       emit('success');
-    } catch ({ errorFields }) {
-      if (errorFields) {
-        const firstField = errorFields[0];
+    } catch (error) {
+      // 改进错误处理逻辑
+      if (error && error.errorFields) {
+        const firstField = error.errorFields[0];
         if (firstField) {
           scrollToField(firstField.name, { behavior: 'smooth', block: 'center' });
         }
+      } else if (error) {
+        // 显示错误信息
+        createMessage.error('提交失败，请稍后重试');
+        console.error('表单提交错误:', error);
       }
-      return Promise.reject(errorFields);
+      // 不再返回空的Promise.reject，让错误正常传播
     } finally {
       setModalProps({ confirmLoading: false });
     }
