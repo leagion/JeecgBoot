@@ -12,7 +12,7 @@
           >导入</j-upload-button
         >
 
-        <a-dropdown v-if="selectedRowKeys && selectedRowKeys.length > 0">
+        <a-dropdown v-if="selectedRowKeys.length > 0">
           <template #overlay>
             <a-menu>
               <a-menu-item key="1" @click="batchHandleDelete">
@@ -26,9 +26,12 @@
             <Icon icon="mdi:chevron-down"></Icon>
           </a-button>
         </a-dropdown>
+        <a-button type="primary" @click="handleDisplay" preIcon="ant-design:play-circle-outlined" style="margin-left: 8px"> 滚动播放 </a-button>
+      </template>
+      <!-- 在查询按钮前面插入高级查询 -->
+      <template #submitBefore>
         <!-- 高级查询 -->
         <super-query :config="superQueryConfig" @search="handleSuperQuery" />
-        <a-button type="primary" @click="handleDisplay" preIcon="ant-design:play-circle-outlined" style="margin-left: 8px"> 滚动播放 </a-button>
       </template>
       <!--操作栏-->
       <template #action="{ record }">
@@ -45,21 +48,18 @@
 <script lang="ts" name="lqLeadersay-lqLeadersay" setup>
   import { ref, reactive, computed, unref } from 'vue';
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
+  import { useRouter } from 'vue-router';
   import { useModal } from '/@/components/Modal';
   import { useListPage } from '/@/hooks/system/useListPage';
   import LqLeadersayModal from './components/LqLeadersayModal.vue';
   import { columns, searchFormSchema, superQuerySchema } from './LqLeadersay.data';
   import { list, deleteOne, batchDelete, getImportUrl, getExportUrl } from './LqLeadersay.api';
-  import { useRouter } from 'vue-router';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import { useUserStore } from '/@/store/modules/user';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { getDateByPicker } from '/@/utils';
   //日期个性化选择
-  const fieldPickers = reactive({
-    sayDate: '',
-    validityPeriod: '',
-  });
+  const fieldPickers = reactive({});
   const queryParam = reactive<any>({});
   const checkedKeys = ref<Array<string | number>>([]);
   const userStore = useUserStore();
@@ -68,17 +68,12 @@
   //注册model
   const [registerModal, { openModal }] = useModal();
   //注册table数据
-  const { tableContext, onExportXls, onImportXls } = useListPage({
+  const { prefixCls, tableContext, onExportXls, onImportXls } = useListPage({
     tableProps: {
-      title: '首长指示',
+      title: 'lq_leadersay',
       api: list,
       columns,
       canResize: true,
-      // 添加默认排序配置，按日期倒序排列
-      sortConfig: {
-        sortField: 'sayDate',
-        sortOrder: 'desc',
-      },
       formConfig: {
         //labelWidth: 120,
         schemas: searchFormSchema,
@@ -99,29 +94,11 @@
             }
           }
         }
-        // 添加默认排序参数，按sayDate降序排列
-        const finalParams = Object.assign({ column: 'sayDate', order: 'desc' }, params, queryParam);
-        return finalParams;
-      },
-      afterFetch: (data) => {
-        // 处理返回数据中的布尔字段，将'Y'/'N'转换为布尔值
-        if (data.records && Array.isArray(data.records)) {
-          data.records.forEach((record) => {
-            // 转换是否完成字段
-            if (record.isfinished === 'Y' || record.isfinished === 'N') {
-              record.isfinished = record.isfinished === 'Y';
-            }
-            // 转换是否显示字段
-            if (record.isshow === 'Y' || record.isshow === 'N') {
-              record.isshow = record.isshow === 'Y';
-            }
-          });
-        }
-        return data;
+        return Object.assign(params, queryParam);
       },
     },
     exportConfig: {
-      name: '首长指示',
+      name: 'lq_leadersay',
       url: getExportUrl,
       params: queryParam,
     },
@@ -131,13 +108,7 @@
     },
   });
 
-  const tableContextArray = tableContext || [];
-  const registerTable = tableContextArray[0];
-  const tableMethods = tableContextArray[1] || {};
-  const tableState = tableContextArray[2] || {};
-  
-  const { reload } = tableMethods;
-  const { rowSelection, selectedRowKeys } = tableState;
+  const [registerTable, { reload }, { rowSelection, selectedRowKeys }] = tableContext;
 
   // 高级查询配置
   const superQueryConfig = reactive(superQuerySchema);
@@ -149,7 +120,7 @@
     Object.keys(params).map((k) => {
       queryParam[k] = params[k];
     });
-    reload && reload();
+    reload();
   }
   /**
    * 新增事件
@@ -190,18 +161,14 @@
    * 批量删除事件
    */
   async function batchHandleDelete() {
-    await batchDelete({ ids: selectedRowKeys?.value || [] }, handleSuccess);
+    await batchDelete({ ids: selectedRowKeys.value }, handleSuccess);
   }
   /**
    * 成功回调
    */
   function handleSuccess() {
-    if (selectedRowKeys?.value) {
-      selectedRowKeys.value = [];
-    }
-    reload && reload();
+    (selectedRowKeys.value = []) && reload();
   }
-
   /**
    * 打开滚动播放页面
    */
@@ -212,6 +179,7 @@
     });
     window.open(routeData.href, '_blank');
   }
+
   /**
    * 操作栏
    */

@@ -31,10 +31,10 @@ export const columns: BasicColumn[] = [
     dataIndex: 'doit',
   },
 
-  {    
-    title: '是否完成',    
-    align: 'center',    
-    dataIndex: 'isfinished',    
+  {
+    title: '是否完成',
+    align: 'center',
+    dataIndex: 'isfinished',
     customRender: ({ text, record }) => {
       // 将0/1转换为否/是显示
       if (text === '1') {
@@ -62,7 +62,8 @@ export const columns: BasicColumn[] = [
         }
       }
       return text;
-    },  },
+    },
+  },
   {
     title: '是否显示',
     align: 'center',
@@ -80,26 +81,38 @@ export const columns: BasicColumn[] = [
 ];
 //查询数据
 export const searchFormSchema: FormSchema[] = [
+  // {
+  //   label: '日期范围',
+  //   field: 'dateRange',
+  //   component: 'RangePicker',
+  //   componentProps: {
+  //     valueFormat: 'YYYY-MM-DD',
+  //     placeholder: ['开始日期', '结束日期'],
+  //     style: { width: '220px' },
+  //   },
+  //   colProps: { span: 6 },
+  // },
+  // {
+  //   label: '首长姓名',
+  //   field: 'leadername',
+  //   component: 'Select',
+  //   componentProps: {
+  //     mode: 'multiple',
+  //     placeholder: '选择首长姓名',
+  //     options: [],
+  //     style: { width: '200px' },
+  //   },
+  //   colProps: { span: 6 },
+  // },
   {
-    label: '日期',
-    field: 'sayDate',
-    component: 'DatePicker',
-    componentProps: {
-      valueFormat: 'YYYY-MM-DD',
-    },
-    //colProps: {span: 6},
-  },
-  {
-    label: '首长姓名',
-    field: 'leadername',
-    component: 'Input',
-    //colProps: {span: 6},
-  },
-  {
-    label: '首长指示',
+    label: '',
     field: 'leadersay',
-    component: 'Input',
-    //colProps: {span: 6},
+    component: 'JInput',
+    colProps: { span: 8 },
+    componentProps: {
+      type: 'like',
+      placeholder: '请输入首长指示关键词',
+    },
   },
 ];
 //表单数据
