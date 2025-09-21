@@ -85,39 +85,39 @@
         <div class="theme-settings">
           <h4>预设主题</h4>
           <div class="theme-presets">
-            <div 
-              v-for="theme in blueThemes" 
+            <div
+              v-for="theme in blueThemes"
               :key="theme.name"
               class="theme-preset"
               :style="{
                 background: theme.background,
                 color: theme.text,
-                borderColor: theme.primary
+                borderColor: theme.primary,
               }"
               @click="applyTheme(theme)"
             >
               {{ theme.name }}
             </div>
           </div>
-          
+
           <h4>自定义主题</h4>
           <div class="color-picker">
             <label>主色:</label>
-            <input type="color" v-model="currentTheme.primary" @change="updateCustomTheme">
+            <input type="color" v-model="currentTheme.primary" @change="updateCustomTheme" />
           </div>
           <div class="color-picker">
             <label>次色:</label>
-            <input type="color" v-model="currentTheme.secondary" @change="updateCustomTheme">
+            <input type="color" v-model="currentTheme.secondary" @change="updateCustomTheme" />
           </div>
           <div class="color-picker">
             <label>背景:</label>
-            <input type="color" v-model="currentTheme.background" @change="updateCustomTheme">
+            <input type="color" v-model="currentTheme.background" @change="updateCustomTheme" />
           </div>
           <div class="color-picker">
             <label>文字:</label>
-            <input type="color" v-model="currentTheme.text" @change="updateCustomTheme">
+            <input type="color" v-model="currentTheme.text" @change="updateCustomTheme" />
           </div>
-          
+
           <a-button type="primary" block @click="saveCustomTheme">保存自定义主题</a-button>
         </div>
       </a-drawer>
@@ -125,7 +125,7 @@
 
     <!-- 表单区域 -->
     <LqLeadersayModal @register="registerModal" @success="handleEditSuccess"></LqLeadersayModal>
-    
+
     <!-- 滚动内容区域 -->
     <div class="scroll-container" ref="scrollContainer">
       <!-- 置顶内容区域 -->
@@ -186,12 +186,8 @@
         >
           取消置顶
         </div>
-        <div class="menu-item" @click="handleEditItem">
-          编辑
-        </div>
-        <div class="menu-item" @click="handleHideItem">
-          不显示
-        </div>
+        <div class="menu-item" @click="handleEditItem"> 编辑 </div>
+        <div class="menu-item" @click="handleHideItem"> 不显示 </div>
       </div>
     </div>
   </div>
@@ -233,7 +229,7 @@
   const fontSize = ref(16); // 默认字体大小
   const showFontSettings = ref(false); // 字体设置抽屉显示状态
   const showThemeSettings = ref(false); // 主题设置抽屉显示状态
-  
+
   // 蓝色系主题配置
   const blueThemes = ref([
     {
@@ -241,37 +237,37 @@
       primary: '#1890ff',
       secondary: '#096dd9',
       background: '#0d1a26',
-      text: '#ffffff'
+      text: '#ffffff',
     },
     {
       name: '深海蓝',
       primary: '#1e88e5',
       secondary: '#0d47a1',
       background: '#0a1929',
-      text: '#e3f2fd'
+      text: '#e3f2fd',
     },
     {
       name: '冰川蓝',
       primary: '#4fc3f7',
       secondary: '#0288d1',
       background: '#e1f5fe',
-      text: '#01579b'
-    }
+      text: '#01579b',
+    },
   ]);
-  
+
   const currentTheme = ref({
     name: '自定义',
     primary: '#1890ff',
     secondary: '#096dd9',
     background: '#0d1a26',
-    text: '#ffffff'
+    text: '#ffffff',
   });
 
   // 获取当前选中的项
   const selectedItem = ref<LeaderSayItem | null>(null);
   const menuVisible = ref(false);
   const menuPosition = ref({ x: 0, y: 0 });
-  
+
   // 注册编辑弹窗
   const [registerModal, { openModal }] = useModal();
 
@@ -357,17 +353,17 @@
         items.value = records.map((item) => {
           // 处理布尔值转换为字符串
           let processedItem = { ...item };
-          
+
           // 处理是否完成字段
           if (typeof processedItem.isfinished === 'boolean') {
             processedItem.isfinished = processedItem.isfinished ? '1' : '0';
           }
-          
+
           // 处理是否显示字段
           if (typeof processedItem.isshow === 'boolean') {
             processedItem.isshow = processedItem.isshow ? '1' : '0';
           }
-          
+
           return {
             ...processedItem,
             sayDate: item.sayDate && typeof item.sayDate === 'string' ? new Date(item.sayDate).toISOString() : item.sayDate,
@@ -466,10 +462,10 @@
               return 0;
             }
           };
-          
+
           const dateA = getDateValue(a);
           const dateB = getDateValue(b);
-          
+
           // 按say_date倒序排列
           return dateB - dateA;
         });
@@ -512,7 +508,7 @@
       savePinnedItemsToStorage(pinnedIds);
     }
   };
-  
+
   // 处理编辑操作
   const handleEditItem = () => {
     if (selectedItem.value) {
@@ -524,14 +520,14 @@
       menuVisible.value = false;
     }
   };
-  
+
   // 编辑成功后的回调
   const handleEditSuccess = () => {
     // 重新加载数据，确保布尔值被正确转换为字符串
     loadData();
     message.success('编辑成功');
   };
-  
+
   // 处理不显示操作
   const handleHideItem = async () => {
     if (selectedItem.value) {
@@ -539,20 +535,20 @@
         // 确保所有布尔值都转换为字符串格式
         const updatedItem = {
           ...selectedItem.value,
-          isshow: '0'  // 明确设置为字符串"0"
+          isshow: '0', // 明确设置为字符串"0"
         };
-        
+
         // 如果isfinished是布尔值，转换为字符串
         if (typeof updatedItem.isfinished === 'boolean') {
           updatedItem.isfinished = updatedItem.isfinished ? '1' : '0';
         }
-        
+
         // 调用API更新记录
         await saveOrUpdate(updatedItem, true);
-        
+
         // 从列表中移除该项
-        items.value = items.value.filter(item => item.id !== selectedItem.value?.id);
-        
+        items.value = items.value.filter((item) => item.id !== selectedItem.value?.id);
+
         message.success('已设置为不显示');
         menuVisible.value = false;
       } catch (error) {
@@ -788,7 +784,8 @@
   onMounted(() => {
     loadScrollSpeedFromStorage(); // 加载保存的滚动速度
     loadFontSizeFromStorage(); // 加载保存的字体大小
-    setDefaultDateRange(); // 设置默认日期范围（最近4个月）
+    applyFontSize(fontSize.value); // 应用保存的字体大小
+    setDefaultDateRange(); // 设置默认日期范围（支持本地存储和最近3个月默认）
 
     // 修改数据加载和滚动启动逻辑
     loadData().then(() => {
@@ -798,6 +795,8 @@
           if (isPlaying.value) {
             startAutoScroll();
           }
+          // 数据加载完成后重新应用字体大小
+          applyFontSize(fontSize.value);
         } else {
           // 如果条件不满足，稍后再次检查
           setTimeout(checkAndStartScroll, 100);
