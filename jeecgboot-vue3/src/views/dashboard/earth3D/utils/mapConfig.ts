@@ -142,7 +142,7 @@ export function createMapProviders(config: MapConfig): {
         url: `${imageBaseUrl}/v1.0/gr/{z}/{x}/{y}.jpg`,
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         minimumLevel: 0,
-        maximumLevel: 20,
+        maximumLevel: 21,
       });
     },
   });
@@ -158,7 +158,7 @@ export function createMapProviders(config: MapConfig): {
         url: `${imageBaseUrl}/v1.0/gh/{z}/{x}/{y}.jpg`,
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         minimumLevel: 0,
-        maximumLevel: 20,
+        maximumLevel: 21,
       });
     },
   });
@@ -189,7 +189,7 @@ export function createMapProviders(config: MapConfig): {
         url: `${lineBaseUrl}/v1.0/gm/{z}/{x}/{y}.png`,
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         minimumLevel: 0,
-        maximumLevel: 20,
+        maximumLevel: 21,
         transparent: true,
       });
     },
@@ -206,7 +206,7 @@ export function createMapProviders(config: MapConfig): {
         url: `${lineBaseUrl}/v1.0/gt/{z}/{x}/{y}.png`,
         tilingScheme: new Cesium.WebMercatorTilingScheme(),
         minimumLevel: 0,
-        maximumLevel: 20,
+        maximumLevel: 21,
         transparent: true,
       });
     },

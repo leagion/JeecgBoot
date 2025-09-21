@@ -1,172 +1,111 @@
 <template>
-  <a-spin :spinning="confirmLoading">
-    <JFormContainer :disabled="disabled">
-      <template #detail>
-        <a-form ref="formRef" class="antd-modal-form" :labelCol="labelCol" :wrapperCol="wrapperCol" name="LqLeadersayForm">
-          <a-row>
-						<a-col :span="24">
-							<a-form-item label="日期" v-bind="validateInfos.sayDate" id="LqLeadersayForm-sayDate" name="sayDate">
-								<a-date-picker placeholder="请选择日期"  v-model:value="formData.sayDate" value-format="YYYY-MM-DD"  style="width: 100%"  allow-clear />
-							</a-form-item>
-						</a-col>
-						<a-col :span="24">
-							<a-form-item label="首长姓名" v-bind="validateInfos.leadername" id="LqLeadersayForm-leadername" name="leadername">
-								<a-input v-model:value="formData.leadername" placeholder="请输入首长姓名"  allow-clear ></a-input>
-							</a-form-item>
-						</a-col>
-						<a-col :span="24">
-							<a-form-item label="首长指示" v-bind="validateInfos.leadersay" id="LqLeadersayForm-leadersay" name="leadersay">
-								<a-textarea v-model:value="formData.leadersay" :rows="4" placeholder="请输入首长指示" />
-							</a-form-item>
-						</a-col>
-						<a-col :span="24">
-							<a-form-item label="落实情况" v-bind="validateInfos.doit" id="LqLeadersayForm-doit" name="doit">
-								<a-textarea v-model:value="formData.doit" :rows="4" placeholder="请输入落实情况" />
-							</a-form-item>
-						</a-col>
-						<a-col :span="24">
-							<a-form-item label="备注" v-bind="validateInfos.remark" id="LqLeadersayForm-remark" name="remark">
-								<a-textarea v-model:value="formData.remark" :rows="4" placeholder="请输入备注" />
-							</a-form-item>
-						</a-col>
-          </a-row>
-        </a-form>
-      </template>
-    </JFormContainer>
-  </a-spin>
+  <div style="min-height: 400px">
+    <BasicForm @register="registerForm"></BasicForm>
+    <div style="width: 100%; text-align: center" v-if="!formDisabled">
+      <a-button @click="submitForm" pre-icon="ant-design:check" type="primary">提 交</a-button>
+    </div>
+  </div>
 </template>
 
-<script lang="ts" setup>
-  import { ref, reactive, defineExpose, nextTick, defineProps, computed, onMounted } from 'vue';
+<script lang="ts">
+  import { BasicForm, useForm } from '/@/components/Form/index';
+  import { computed, defineComponent, reactive } from 'vue';
   import { defHttp } from '/@/utils/http/axios';
-  import { useMessage } from '/@/hooks/web/useMessage';
-  import { getValueType } from '/@/utils';
+  import { propTypes } from '/@/utils/propTypes';
+  import { getBpmFormSchema } from '../LqLeadersay.data';
   import { saveOrUpdate } from '../LqLeadersay.api';
-  import { Form } from 'ant-design-vue';
-  import JFormContainer from '/@/components/Form/src/container/JFormContainer.vue';
-  const props = defineProps({
-    formDisabled: { type: Boolean, default: false },
-    formData: { type: Object, default: () => ({})},
-    formBpm: { type: Boolean, default: true }
-  });
-  const formRef = ref();
-  const useForm = Form.useForm;
-  const emit = defineEmits(['register', 'ok']);
-  const formData = reactive<Record<string, any>>({
-    id: '',
-    sayDate: '',   
-    leadername: '',   
-    leadersay: '',   
-    doit: '',   
-    remark: '',   
-  });
-  const { createMessage } = useMessage();
-  const labelCol = ref<any>({ xs: { span: 24 }, sm: { span: 5 } });
-  const wrapperCol = ref<any>({ xs: { span: 24 }, sm: { span: 16 } });
-  const confirmLoading = ref<boolean>(false);
-  //表单验证
-  const validatorRules = reactive({
-    sayDate: [{ required: true, message: '请输入日期!'},],
-    leadername: [{ required: true, message: '请输入首长姓名!'},],
-    leadersay: [{ required: true, message: '请输入首长指示!'},],
-  });
-  const { resetFields, validate, validateInfos } = useForm(formData, validatorRules, { immediate: false });
+  import { getDateByPicker } from '/@/utils';
 
-  // 表单禁用
-  const disabled = computed(()=>{
-    if(props.formBpm === true){
-      if(props.formData.disabled === false){
-        return false;
-      }else{
-        return true;
-      }
-    }
-    return props.formDisabled;
-  });
-
-  
-  /**
-   * 新增
-   */
-  function add() {
-    edit({});
-  }
-
-  /**
-   * 编辑
-   */
-  function edit(record) {
-    nextTick(() => {
-      resetFields();
-      const tmpData = {};
-      Object.keys(formData).forEach((key) => {
-        if(record.hasOwnProperty(key)){
-          tmpData[key] = record[key]
-        }
-      })
-      //赋值
-      Object.assign(formData, tmpData);
-    });
-  }
-
-  /**
-   * 提交数据
-   */
-  async function submitForm() {
-    try {
-      // 触发表单验证
-      await validate();
-    } catch ({ errorFields }) {
-      if (errorFields) {
-        const firstField = errorFields[0];
-        if (firstField) {
-          formRef.value.scrollToField(firstField.name, { behavior: 'smooth', block: 'center' });
-        }
-      }
-      return Promise.reject(errorFields);
-    }
-    confirmLoading.value = true;
-    const isUpdate = ref<boolean>(false);
-    //时间格式化
-    let model = formData;
-    if (model.id) {
-      isUpdate.value = true;
-    }
-    //循环数据
-    for (let data in model) {
-      //如果该数据是数组并且是字符串类型
-      if (model[data] instanceof Array) {
-        let valueType = getValueType(formRef.value.getProps, data);
-        //如果是字符串类型的需要变成以逗号分割的字符串
-        if (valueType === 'string') {
-          model[data] = model[data].join(',');
-        }
-      }
-    }
-    await saveOrUpdate(model, isUpdate.value)
-      .then((res) => {
-        if (res.success) {
-          createMessage.success(res.message);
-          emit('ok');
-        } else {
-          createMessage.warning(res.message);
-        }
-      })
-      .finally(() => {
-        confirmLoading.value = false;
+  export default defineComponent({
+    name: 'LqLeadersayForm',
+    components: {
+      BasicForm,
+    },
+    props: {
+      formData: propTypes.object.def({}),
+      formBpm: propTypes.bool.def(true),
+    },
+    setup(props) {
+      const [registerForm, { setFieldsValue, setProps, getFieldsValue }] = useForm({
+        labelWidth: 150,
+        schemas: getBpmFormSchema(props.formData),
+        showActionButtonGroup: false,
+        baseColProps: { span: 24 },
       });
-  }
 
+      const formDisabled = computed(() => {
+        if (props.formData.disabled === false) {
+          return false;
+        }
+        return true;
+      });
 
-  defineExpose({
-    add,
-    edit,
-    submitForm,
+      //日期个性化选择 - 定义需要特殊处理的日期字段
+      const fieldPickers = reactive({
+        sayDate: '',
+        validityPeriod: '',
+      });
+
+      /**
+       * 处理表单数据，包括日期和布尔字段
+       * @param formData 表单数据
+       */
+      const processFormData = (formData) => {
+        if (formData) {
+          // 处理日期字段 - 直接使用日期选择器格式化后的值
+          // 不需要额外处理，因为DatePicker组件已经按照valueFormat="YYYY-MM-DD"格式化
+
+          // 处理布尔字段，转换为字符串格式以便后端正确接收
+          if (typeof formData.isfinished === 'boolean') {
+            formData.isfinished = formData.isfinished ? 'Y' : 'N';
+          }
+          if (typeof formData.isshow === 'boolean') {
+            formData.isshow = formData.isshow ? 'Y' : 'N';
+          }
+        }
+        console.log('【处理后表单数据】:', formData);
+        return formData;
+      };
+
+      let formData = {};
+      const queryByIdUrl = '/lqLeadersay/lqLeadersay/queryById';
+      async function initFormData() {
+        let params = { id: props.formData.dataId };
+        const data = await defHttp.get({ url: queryByIdUrl, params });
+        formData = { ...data };
+        //设置表单的值
+        await setFieldsValue(formData);
+        //默认是禁用
+        await setProps({ disabled: formDisabled.value });
+      }
+
+      async function submitForm() {
+        let data = getFieldsValue();
+        let params = Object.assign({}, formData, data);
+        // 处理表单数据，包括日期和布尔字段
+        params = processFormData(params);
+
+        await saveOrUpdate(params, true);
+      }
+
+      initFormData();
+
+      return {
+        registerForm,
+        formDisabled,
+        submitForm,
+      };
+    },
   });
 </script>
 
 <style lang="less" scoped>
-  .antd-modal-form {
-    padding: 14px;
+  /** 表单控件宽度样式，确保所有控件右侧对齐 */
+  :deep(.ant-input-number),
+  :deep(.ant-calendar-picker),
+  :deep(.ant-picker),
+  :deep(.ant-input),
+  :deep(.ant-input-textarea) {
+    width: 100%;
   }
 </style>

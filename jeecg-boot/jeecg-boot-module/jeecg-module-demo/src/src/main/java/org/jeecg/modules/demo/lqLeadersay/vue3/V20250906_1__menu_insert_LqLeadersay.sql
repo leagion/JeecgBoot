@@ -3,24 +3,24 @@
 
 
 INSERT INTO sys_permission(id, parent_id, name, url, component, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_route, is_leaf, keep_alive, hidden, hide_tab, description, status, del_flag, rule_flag, create_by, create_time, update_by, update_time, internal_or_external) 
-VALUES ('2025053104485770500', NULL, '首长指示', '/lqLeadersay/lqLeadersayList', 'lqLeadersay/LqLeadersayList', NULL, NULL, 0, NULL, '1', 0.00, 0, NULL, 1, 0, 0, 0, 0, NULL, '1', 0, 0, 'admin', '2025-05-31 16:48:50', NULL, NULL, 0);
+VALUES ('2025090611236830090', NULL, 'lq_leadersay', '/lqLeadersay/lqLeadersayList', 'lqLeadersay/LqLeadersayList', NULL, NULL, 0, NULL, '1', 0.00, 0, NULL, 1, 0, 0, 0, 0, NULL, '1', 0, 0, 'admin', '2025-09-06 23:23:09', NULL, NULL, 0);
 
 -- 权限控制sql
 -- 新增
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025053104485770501', '2025053104485770500', '添加首长指示', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:add', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-31 16:48:50', NULL, NULL, 0, 0, '1', 0);
+VALUES ('2025090611236830091', '2025090611236830090', '添加lq_leadersay', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:add', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-09-06 23:23:09', NULL, NULL, 0, 0, '1', 0);
 -- 编辑
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025053104485770502', '2025053104485770500', '编辑首长指示', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:edit', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-31 16:48:50', NULL, NULL, 0, 0, '1', 0);
+VALUES ('2025090611236830092', '2025090611236830090', '编辑lq_leadersay', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:edit', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-09-06 23:23:09', NULL, NULL, 0, 0, '1', 0);
 -- 删除
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025053104485770503', '2025053104485770500', '删除首长指示', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:delete', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-31 16:48:50', NULL, NULL, 0, 0, '1', 0);
+VALUES ('2025090611236830093', '2025090611236830090', '删除lq_leadersay', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:delete', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-09-06 23:23:09', NULL, NULL, 0, 0, '1', 0);
 -- 批量删除
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025053104485770504', '2025053104485770500', '批量删除首长指示', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:deleteBatch', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-31 16:48:50', NULL, NULL, 0, 0, '1', 0);
+VALUES ('2025090611236830094', '2025090611236830090', '批量删除lq_leadersay', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:deleteBatch', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-09-06 23:23:09', NULL, NULL, 0, 0, '1', 0);
 -- 导出excel
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025053104485770505', '2025053104485770500', '导出excel_首长指示', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:exportXls', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-31 16:48:50', NULL, NULL, 0, 0, '1', 0);
+VALUES ('2025090611236830095', '2025090611236830090', '导出excel_lq_leadersay', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:exportXls', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-09-06 23:23:09', NULL, NULL, 0, 0, '1', 0);
 -- 导入excel
 INSERT INTO sys_permission(id, parent_id, name, url, component, is_route, component_name, redirect, menu_type, perms, perms_type, sort_no, always_show, icon, is_leaf, keep_alive, hidden, hide_tab, description, create_by, create_time, update_by, update_time, del_flag, rule_flag, status, internal_or_external)
-VALUES ('2025053104485770506', '2025053104485770500', '导入excel_首长指示', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:importExcel', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-05-31 16:48:50', NULL, NULL, 0, 0, '1', 0);
+VALUES ('2025090611236830096', '2025090611236830090', '导入excel_lq_leadersay', NULL, NULL, 0, NULL, NULL, 2, 'lqLeadersay:lq_leadersay:importExcel', '1', NULL, 0, NULL, 1, 0, 0, 0, NULL, 'admin', '2025-09-06 23:23:09', NULL, NULL, 0, 0, '1', 0);
