@@ -120,14 +120,7 @@ export const customColumns: BasicColumn[] = [
     dataIndex: 'name',
     width: 260,
   },
-  {
-    title: '性别',
-    dataIndex: 'sex',
-    width: 100,
-    customRender: ({ text }) => {
-      return render.renderDict(text, 'sex');
-    },
-  },
+
   {
     title: '身份证号',
     dataIndex: 'idcard',
@@ -153,15 +146,7 @@ export const customerFormSchema: FormSchema[] = [
     component: 'Input',
     required: true,
   },
-  {
-    label: '性别',
-    field: 'sex',
-    component: 'JDictSelectTag',
-    componentProps: {
-      dictCode: 'sex',
-      placeholder: '请选择性别',
-    },
-  },
+
   {
     label: '身份证号码',
     field: 'idcard',

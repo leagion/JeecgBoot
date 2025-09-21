@@ -112,12 +112,7 @@ export const accountFormSchema: FormSchema[] = [
     required: true,
   },
 
-  {
-    label: '邮箱',
-    field: 'email',
-    component: 'Input',
-    required: true,
-  },
+
 
   {
     label: '备注',

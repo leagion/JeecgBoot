@@ -28,11 +28,7 @@ export const columns: BasicColumn[] = [
     width: 150,
     dataIndex: 'phone',
   },
-  {
-    title: '邮箱',
-    width: 150,
-    dataIndex: 'email',
-  },
+
 ];
 
 export const searchFormSchema: FormSchema[] = [

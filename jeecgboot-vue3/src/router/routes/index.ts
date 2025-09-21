@@ -39,18 +39,7 @@ export const LoginRoute: AppRouteRecordRaw = {
   },
 };
 
-//update-begin---author:wangshuai ---date:20220629  for：auth2登录页面路由------------
-export const Oauth2LoginRoute: AppRouteRecordRaw = {
-  path: '/oauth2-app/login',
-  name: 'oauth2-app-login',
-  //新版钉钉免登录，如果想要使用旧版放开即可
-  // component: () => import('/@/views/sys/login/OAuth2Login.vue'),
-  component: () => import('/@/views/system/loginmini/OAuth2Login.vue'),
-  meta: {
-    title: t('routes.oauth2.login'),
-  },
-};
-//update-end---author:wangshuai ---date:20220629  for：auth2登录页面路由------------
+
 
 /**
  * 【通过token直接静默登录】流程办理登录页面 中转跳转
@@ -65,4 +54,4 @@ export const TokenLoginRoute: AppRouteRecordRaw = {
   },
 };
 // Basic routing without permission
-export const basicRoutes = [LoginRoute, RootRoute, ...mainOutRoutes, REDIRECT_ROUTE, PAGE_NOT_FOUND_ROUTE, TokenLoginRoute, Oauth2LoginRoute];
+export const basicRoutes = [LoginRoute, RootRoute, ...mainOutRoutes, REDIRECT_ROUTE, PAGE_NOT_FOUND_ROUTE, TokenLoginRoute];

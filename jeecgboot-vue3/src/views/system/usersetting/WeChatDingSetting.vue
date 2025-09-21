@@ -51,12 +51,7 @@
   });
   const userStore = useUserStore();
 
-  //绑定微信的数据
-  const bindWechatData = ref<any>({});
-  //绑定钉钉的数据
-  const bindDingData = ref<any>({});
-  //绑定企业微信的数据
-  const bindEnterpriseData = ref<any>({});
+  c
 
   const glob = useGlobSetting();
   //第三方类型

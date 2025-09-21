@@ -5,7 +5,9 @@
       <!--插槽:table标题-->
       <template #tableTitle>
         <a-button type="primary" preIcon="ant-design:plus-outlined" @click="handleCreate"> 新增</a-button>
-        <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExportXls" :disabled="isDisabledAuth('system:user:export')"> 导出</a-button>
+        <a-button type="primary" preIcon="ant-design:export-outlined" @click="onExportXls" :disabled="isDisabledAuth('system:user:export')">
+          导出</a-button
+        >
         <j-upload-button type="primary" preIcon="ant-design:import-outlined" @click="onImportXls">导入</j-upload-button>
         <a-button type="primary" @click="openModal(true, {})" preIcon="ant-design:hdd-outlined"> 回收站</a-button>
         <a-dropdown v-if="selectedRowKeys.length > 0">
@@ -59,7 +61,6 @@
   import UserRecycleBinModal from './UserRecycleBinModal.vue';
   import PasswordModal from './PasswordModal.vue';
   import UserAgentModal from './UserAgentModal.vue';
-  import JThirdAppButton from '/@/components/jeecg/thirdApp/JThirdAppButton.vue';
   import UserQuitAgentModal from './UserQuitAgentModal.vue';
   import UserQuitModal from './UserQuitModal.vue';
   import { useDrawer } from '/@/components/Drawer';
@@ -68,7 +69,7 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import { columns, searchFormSchema } from './user.data';
   import { listNoCareTenant, deleteUser, batchDeleteUser, getImportUrl, getExportUrl, frozenBatch } from './user.api';
-  import {usePermission} from "/@/hooks/web/usePermission";
+  import { usePermission } from '/@/hooks/web/usePermission';
 
   const { createMessage, createConfirm } = useMessage();
   const { isDisabledAuth } = usePermission();
@@ -218,16 +219,6 @@
         await frozenBatch({ ids: unref(selectedRowKeys).join(','), status: status }, reload);
       },
     });
-  }
-
-  /**
-   *同步钉钉和微信回调
-   */
-  function onSyncFinally({ isToLocal }) {
-    // 同步到本地时刷新下数据
-    if (isToLocal) {
-      reload();
-    }
   }
 
   /**

@@ -51,40 +51,7 @@
         multiple: 2,
       },
     },
-    {
-      title: '奖金',
-      dataIndex: 'bonusMoney',
-      width: 140,
-      resizable: true,
-    },
-    {
-      title: '性别',
-      dataIndex: 'sex',
-      sorter: {
-        multiple: 3,
-      },
-      filters: [
-        { text: '男', value: '1' },
-        { text: '女', value: '2' },
-      ],
-      customRender: ({ record }) => {
-        return record.sex ? (record.sex == '1' ? '男' : '女') : '';
-      },
-      width: 120,
-      resizable: true,
-    },
-    {
-      title: '生日',
-      dataIndex: 'birthday',
-      width: 120,
-      resizable: true,
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      width: 120,
-      resizable: true,
-    },
+
   ];
 
   //ajax请求api接口

@@ -9,14 +9,7 @@
       <!--      <span class="pointer blue-e5" @click="unbindPhone" v-if="userDetail.phone">解绑?</span>-->
       <!--      <span class="pointer blue-e5" @click="unbindPhone" v-else>绑定?</span>-->
     </div>
-    <div class="account-row-item clearfix">
-      <div class="account-label gray-75">邮箱</div>
-      <span class="gray">{{ userDetail.email ? userDetail.email : '未填写' }}</span>
-      <span class="pointer blue-e5 phone-margin" @click="updateEmail">修改</span>
-      <!--      <span class="pointer blue-e5" @click="unbindEmail" v-if="userDetail.email">解绑?</span>-->
-      <!--      <span class="pointer blue-e5" @click="unbindEmail" v-else>绑定?</span>-->
-      <!--      <span class="pointer blue-e5" style="margin-left:5px" @click="checkEmail" v-if="userDetail.email">验证?</span>-->
-    </div>
+
     <div class="account-row-item">
       <div class="account-label gray-75">密码</div>
       <Icon icon="ant-design:lock-outlined" style="color: #9e9e9e" />
@@ -30,7 +23,7 @@
   </div>
 
   <UserReplacePhoneModal @register="registerModal" @success="initUserDetail" />
-  <UserReplaceEmailModal @register="registerEmailModal" @success="initUserDetail" />
+
   <UserPasswordModal @register="registerPassModal" @success="initUserDetail" />
   <UserPasswordNotBindPhone @register="registerPassNotBindPhoneModal" @success="initUserDetail" />
   <UserCancellationModal @register="registerCancelModal" />
@@ -54,7 +47,7 @@
   const userDetail = ref<any>([]);
   const userStore = useUserStore();
   const [registerModal, { openModal }] = useModal();
-  const [registerEmailModal, { openModal: openEmailModal }] = useModal();
+
   const [registerPassModal, { openModal: openPassModal }] = useModal();
   const [registerPassNotBindPhoneModal, { openModal: openPassNotBindPhoneModal }] = useModal();
   const [registerCancelModal, { openModal: openCancelModal }] = useModal();
@@ -97,14 +90,7 @@
     });
   }
 
-  /**
-   * 修改邮箱
-   */
-  function updateEmail() {
-    openEmailModal(true, {
-      record: { email: userDetail.value.email, id: userDetail.value.id },
-    });
-  }
+
 
   /**
    * 密码修改
@@ -130,19 +116,7 @@
     console.log('手机号解绑');
   }
 
-  /**
-   * 邮箱解绑
-   */
-  function unbindEmail() {
-    console.log('邮箱解绑');
-  }
 
-  /**
-   * 邮箱验证
-   */
-  function checkEmail() {
-    console.log('邮箱验证');
-  }
 
   /**
    * 微信绑定解绑事件

@@ -122,16 +122,7 @@ export const schemas: FormSchema[] = [
     label: '选择值',
     colProps: { span: 12 },
   },
-  {
-    field: 'xldx',
-    component: 'JDictSelectTag',
-    label: '字典下拉多选',
-    colProps: { span: 12 },
-    componentProps: {
-      dictCode: 'sex',
-      mode: 'multiple',
-    },
-  },
+
   {
     field: 'xldx',
     component: 'JEllipsis',

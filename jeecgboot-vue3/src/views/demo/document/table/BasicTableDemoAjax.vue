@@ -36,27 +36,27 @@
       width: 130,
       resizable: true,
     },
-    {
-      title: '打卡时间',
-      dataIndex: 'punchTime',
-      width: 140,
-      resizable: true,
-    },
-    {
-      title: '工资',
-      dataIndex: 'salaryMoney',
-      width: 140,
-      resizable: true,
-      sorter: {
-        multiple: 2,
-      },
-    },
-    {
-      title: '奖金',
-      dataIndex: 'bonusMoney',
-      width: 140,
-      resizable: true,
-    },
+    // {
+    //   title: '打卡时间',
+    //   dataIndex: 'punchTime',
+    //   width: 140,
+    //   resizable: true,
+    // },
+    // {
+    //   title: '工资',
+    //   dataIndex: 'salaryMoney',
+    //   width: 140,
+    //   resizable: true,
+    //   sorter: {
+    //     multiple: 2,
+    //   },
+    // },
+    // {
+    //   title: '奖金',
+    //   dataIndex: 'bonusMoney',
+    //   width: 140,
+    //   resizable: true,
+    // },
     {
       title: '性别',
       dataIndex: 'sex',
@@ -73,18 +73,18 @@
       width: 120,
       resizable: true,
     },
-    {
-      title: '生日',
-      dataIndex: 'birthday',
-      width: 120,
-      resizable: true,
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      width: 120,
-      resizable: true,
-    },
+    // {
+    //   title: '生日',
+    //   dataIndex: 'birthday',
+    //   width: 120,
+    //   resizable: true,
+    // },
+    // {
+    //   title: '邮箱',
+    //   dataIndex: 'email',
+    //   width: 120,
+    //   resizable: true,
+    // },
   ];
   //表单搜索字段
   const searchFormSchema: FormSchema[] = [
@@ -104,17 +104,17 @@
         placeholder: '请选择性别',
       },
     },
-    {
-      label: '邮箱',
-      field: 'email',
-      component: 'JInput',
-      slot: 'email',
-    },
-    {
-      label: '生日',
-      field: 'birthday',
-      component: 'DatePicker',
-    },
+    // {
+    //   label: '邮箱',
+    //   field: 'email',
+    //   component: 'JInput',
+    //   slot: 'email',
+    // },
+    // {
+    //   label: '生日',
+    //   field: 'birthday',
+    //   component: 'DatePicker',
+    // },
   ];
   //ajax请求api接口
   const demoListApi = (params) => {
