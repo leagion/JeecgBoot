@@ -42,6 +42,10 @@
           <template #icon><Icon icon="ant-design:font-size-outlined" /></template>
           字体设置
         </a-button>
+        <a-button @click="showThemeSettings = !showThemeSettings" type="default">
+          <template #icon><Icon icon="ant-design:skin-outlined" /></template>
+          主题设置
+        </a-button>
       </template>
 
       <!-- 滚动速度设置面板（非全屏模式下显示） -->
@@ -62,7 +66,7 @@
       <a-drawer v-if="!isFullScreen" title="字体大小设置" placement="right" :closable="true" v-model:open="showFontSettings" width="300">
         <div class="speed-settings">
           <p>当前字体大小: {{ fontSize }}px</p>
-          <a-slider v-model:value="fontSize" :min="12" :max="34" :step="1" @change="handleFontSizeChange" />
+          <a-slider v-model:value="fontSize" :min="10" :max="50" :step="1" @change="handleFontSizeChange" />
           <div class="speed-labels">
             <span>小</span>
             <span>中</span>
@@ -75,8 +79,53 @@
           <a-button type="primary" block @click="resetFontSize">恢复默认字体</a-button>
         </div>
       </a-drawer>
+
+      <!-- 主题设置面板（非全屏模式下显示） -->
+      <a-drawer v-if="!isFullScreen" title="主题设置" placement="right" :closable="true" v-model:open="showThemeSettings" width="300">
+        <div class="theme-settings">
+          <h4>预设主题</h4>
+          <div class="theme-presets">
+            <div 
+              v-for="theme in blueThemes" 
+              :key="theme.name"
+              class="theme-preset"
+              :style="{
+                background: theme.background,
+                color: theme.text,
+                borderColor: theme.primary
+              }"
+              @click="applyTheme(theme)"
+            >
+              {{ theme.name }}
+            </div>
+          </div>
+          
+          <h4>自定义主题</h4>
+          <div class="color-picker">
+            <label>主色:</label>
+            <input type="color" v-model="currentTheme.primary" @change="updateCustomTheme">
+          </div>
+          <div class="color-picker">
+            <label>次色:</label>
+            <input type="color" v-model="currentTheme.secondary" @change="updateCustomTheme">
+          </div>
+          <div class="color-picker">
+            <label>背景:</label>
+            <input type="color" v-model="currentTheme.background" @change="updateCustomTheme">
+          </div>
+          <div class="color-picker">
+            <label>文字:</label>
+            <input type="color" v-model="currentTheme.text" @change="updateCustomTheme">
+          </div>
+          
+          <a-button type="primary" block @click="saveCustomTheme">保存自定义主题</a-button>
+        </div>
+      </a-drawer>
     </div>
 
+    <!-- 表单区域 -->
+    <LqLeadersayModal @register="registerModal" @success="handleEditSuccess"></LqLeadersayModal>
+    
     <!-- 滚动内容区域 -->
     <div class="scroll-container" ref="scrollContainer">
       <!-- 置顶内容区域 -->
@@ -137,6 +186,12 @@
         >
           取消置顶
         </div>
+        <div class="menu-item" @click="handleEditItem">
+          编辑
+        </div>
+        <div class="menu-item" @click="handleHideItem">
+          不显示
+        </div>
       </div>
     </div>
   </div>
@@ -144,10 +199,12 @@
 
 <script lang="ts" setup>
   import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
-  import { list } from './LqLeadersay.api';
+  import { list, saveOrUpdate } from './LqLeadersay.api';
   import { message, Dropdown } from 'ant-design-vue';
   import { Icon } from '/@/components/Icon';
   import type { DropdownMenuProps } from 'ant-design-vue';
+  import { useModal } from '/@/components/Modal';
+  import LqLeadersayModal from './components/LqLeadersayModal.vue';
 
   interface LeaderSayItem {
     id: string;
@@ -156,6 +213,8 @@
     leadersay: string;
     isVisible?: boolean;
     isPinned?: boolean; // 是否置顶
+    isshow?: string | number | boolean; // 是否显示
+    isfinished?: string | number | boolean; // 是否完成
   }
 
   // 状态定义
@@ -173,11 +232,48 @@
   const showSpeedSettings = ref(false);
   const fontSize = ref(16); // 默认字体大小
   const showFontSettings = ref(false); // 字体设置抽屉显示状态
+  const showThemeSettings = ref(false); // 主题设置抽屉显示状态
+  
+  // 蓝色系主题配置
+  const blueThemes = ref([
+    {
+      name: '科技蓝',
+      primary: '#1890ff',
+      secondary: '#096dd9',
+      background: '#0d1a26',
+      text: '#ffffff'
+    },
+    {
+      name: '深海蓝',
+      primary: '#1e88e5',
+      secondary: '#0d47a1',
+      background: '#0a1929',
+      text: '#e3f2fd'
+    },
+    {
+      name: '冰川蓝',
+      primary: '#4fc3f7',
+      secondary: '#0288d1',
+      background: '#e1f5fe',
+      text: '#01579b'
+    }
+  ]);
+  
+  const currentTheme = ref({
+    name: '自定义',
+    primary: '#1890ff',
+    secondary: '#096dd9',
+    background: '#0d1a26',
+    text: '#ffffff'
+  });
 
   // 获取当前选中的项
   const selectedItem = ref<LeaderSayItem | null>(null);
   const menuVisible = ref(false);
   const menuPosition = ref({ x: 0, y: 0 });
+  
+  // 注册编辑弹窗
+  const [registerModal, { openModal }] = useModal();
 
   // 从本地存储加载滚动速度设置
   const loadScrollSpeedFromStorage = () => {
@@ -258,11 +354,26 @@
         // 加载保存的置顶状态
         const savedPinnedIds = loadPinnedItemsFromStorage();
         // 创建新的数组对象，避免直接修改响应式数据
-        items.value = records.map((item) => ({
-          ...item,
-          sayDate: item.sayDate && typeof item.sayDate === 'string' ? new Date(item.sayDate).toISOString() : item.sayDate,
-          isPinned: savedPinnedIds.includes(item.id), // 应用保存的置顶状态
-        }));
+        items.value = records.map((item) => {
+          // 处理布尔值转换为字符串
+          let processedItem = { ...item };
+          
+          // 处理是否完成字段
+          if (typeof processedItem.isfinished === 'boolean') {
+            processedItem.isfinished = processedItem.isfinished ? '1' : '0';
+          }
+          
+          // 处理是否显示字段
+          if (typeof processedItem.isshow === 'boolean') {
+            processedItem.isshow = processedItem.isshow ? '1' : '0';
+          }
+          
+          return {
+            ...processedItem,
+            sayDate: item.sayDate && typeof item.sayDate === 'string' ? new Date(item.sayDate).toISOString() : item.sayDate,
+            isPinned: savedPinnedIds.includes(item.id), // 应用保存的置顶状态
+          };
+        });
         extractLeaderOptions();
         message.success('数据加载成功，共获取到 ' + items.value.length + ' 条记录');
       } else {
@@ -344,8 +455,22 @@
           return true;
         })
         .sort((a, b) => {
-          const dateA = a.sayDate ? new Date(a.sayDate).getTime() : 0;
-          const dateB = b.sayDate ? new Date(b.sayDate).getTime() : 0;
+          // 确保只使用say_date字段排序
+          const getDateValue = (item: LeaderSayItem) => {
+            if (!item.sayDate) return 0;
+            try {
+              // 直接使用数据库返回的say_date字段
+              return new Date(item.sayDate).getTime();
+            } catch (e) {
+              console.warn('say_date解析失败:', item.sayDate, e);
+              return 0;
+            }
+          };
+          
+          const dateA = getDateValue(a);
+          const dateB = getDateValue(b);
+          
+          // 按say_date倒序排列
           return dateB - dateA;
         });
     } catch (e) {
@@ -385,6 +510,55 @@
       // 保存置顶状态
       const pinnedIds = items.value.filter((item) => item.isPinned).map((item) => item.id);
       savePinnedItemsToStorage(pinnedIds);
+    }
+  };
+  
+  // 处理编辑操作
+  const handleEditItem = () => {
+    if (selectedItem.value) {
+      openModal(true, {
+        record: selectedItem.value,
+        isUpdate: true,
+        showFooter: true,
+      });
+      menuVisible.value = false;
+    }
+  };
+  
+  // 编辑成功后的回调
+  const handleEditSuccess = () => {
+    // 重新加载数据，确保布尔值被正确转换为字符串
+    loadData();
+    message.success('编辑成功');
+  };
+  
+  // 处理不显示操作
+  const handleHideItem = async () => {
+    if (selectedItem.value) {
+      try {
+        // 确保所有布尔值都转换为字符串格式
+        const updatedItem = {
+          ...selectedItem.value,
+          isshow: '0'  // 明确设置为字符串"0"
+        };
+        
+        // 如果isfinished是布尔值，转换为字符串
+        if (typeof updatedItem.isfinished === 'boolean') {
+          updatedItem.isfinished = updatedItem.isfinished ? '1' : '0';
+        }
+        
+        // 调用API更新记录
+        await saveOrUpdate(updatedItem, true);
+        
+        // 从列表中移除该项
+        items.value = items.value.filter(item => item.id !== selectedItem.value?.id);
+        
+        message.success('已设置为不显示');
+        menuVisible.value = false;
+      } catch (error) {
+        console.error('设置不显示失败:', error);
+        message.error('设置不显示失败');
+      }
     }
   };
 
@@ -460,6 +634,45 @@
     fontSize.value = defaultSize;
     saveFontSizeToStorage(defaultSize);
     applyFontSize(defaultSize);
+  };
+
+  // 应用主题
+  const applyTheme = (theme: any) => {
+    currentTheme.value = theme;
+    updateCustomTheme();
+  };
+
+  // 更新自定义主题
+  const updateCustomTheme = () => {
+    const root = document.documentElement;
+    root.style.setProperty('--primary-color', currentTheme.value.primary);
+    root.style.setProperty('--secondary-color', currentTheme.value.secondary);
+    root.style.setProperty('--background-color', currentTheme.value.background);
+    root.style.setProperty('--text-color', currentTheme.value.text);
+  };
+
+  // 保存自定义主题
+  const saveCustomTheme = () => {
+    try {
+      localStorage.setItem('leaderSayCustomTheme', JSON.stringify(currentTheme.value));
+      message.success('自定义主题已保存');
+    } catch (e) {
+      console.error('保存主题失败:', e);
+      message.error('保存主题失败');
+    }
+  };
+
+  // 从本地存储加载自定义主题
+  const loadCustomTheme = () => {
+    try {
+      const savedTheme = localStorage.getItem('leaderSayCustomTheme');
+      if (savedTheme) {
+        currentTheme.value = JSON.parse(savedTheme);
+        updateCustomTheme();
+      }
+    } catch (e) {
+      console.error('加载主题失败:', e);
+    }
   };
 
   // 应用字体大小
@@ -617,15 +830,23 @@
 </script>
 
 <style lang="less" scoped>
+  :root {
+    --primary-color: #1890ff;
+    --secondary-color: #096dd9;
+    --background-color: #0d1a26;
+    --text-color: #ffffff;
+  }
+
   .leader-say-display {
     height: calc(100vh - 120px);
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--primary-color);
     border-radius: 12px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background: #fff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: var(--background-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    color: var(--text-color);
 
     &.full-screen {
       position: fixed;
@@ -640,9 +861,9 @@
 
   .control-bar {
     padding: 16px;
-    background: rgba(245, 245, 245, 0.8);
+    background: rgba(24, 144, 255, 0.2);
     backdrop-filter: blur(8px);
-    border-bottom: 1px solid #d9d9d9;
+    border-bottom: 1px solid var(--primary-color);
     display: flex;
     gap: 12px;
     align-items: center;
@@ -814,13 +1035,15 @@
     padding: 8px 16px;
     cursor: pointer;
     transition: background-color 0.3s;
+    color: #000; /* 确保文字为黑色 */
+    font-weight: 500; /* 加粗提高可读性 */
 
     &:hover {
-      background-color: #f0f0f0;
+      background-color: rgba(255, 255, 255, 0.7); /* 半透明白色背景 */
     }
 
     &:first-child {
-      border-bottom: 1px solid #e8e8e8;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 浅色分隔线 */
     }
   }
 

@@ -74,6 +74,11 @@
       api: list,
       columns,
       canResize: true,
+      // 添加默认排序配置，按日期倒序排列
+      sortConfig: {
+        sortField: 'sayDate',
+        sortOrder: 'desc',
+      },
       formConfig: {
         //labelWidth: 120,
         schemas: searchFormSchema,
@@ -94,7 +99,9 @@
             }
           }
         }
-        return Object.assign(params, queryParam);
+        // 添加默认排序参数，按sayDate降序排列
+        const finalParams = Object.assign({ column: 'sayDate', order: 'desc' }, params, queryParam);
+        return finalParams;
       },
       afterFetch: (data) => {
         // 处理返回数据中的布尔字段，将'Y'/'N'转换为布尔值
