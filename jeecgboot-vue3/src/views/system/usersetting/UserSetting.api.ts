@@ -18,8 +18,8 @@ enum Api {
   changePhone = '/sys/user/changePhone',
   //用户注销
   userLogOff = '/sys/user/userLogOff',
-  //没有绑定手机号用的修改密码请求地址
-  updatePasswordNotBindPhone = '/sys/user/updatePasswordNotBindPhone',
+  // 修改密码接口（使用现有的updatePassword接口）
+  updatePassword = '/sys/user/updatePassword',
 }
 
 /**
@@ -63,11 +63,17 @@ export const updateUserPassword = (params) => {
 };
 
 /**
- * 修改密码
+ * 修改密码（用于未绑定手机号的用户）
  * @param params
  */
 export const updatePasswordNotBindPhone = (params) => {
-  return defHttp.put({ url: Api.updatePasswordNotBindPhone, params }, { isTransformResponse: false, joinParamsToUrl: true });
+  // 使用现有的updatePassword接口
+  return defHttp.put(
+    { url: Api.updatePassword, params },
+    {
+      isTransformResponse: false,
+    }
+  );
 };
 
 /**

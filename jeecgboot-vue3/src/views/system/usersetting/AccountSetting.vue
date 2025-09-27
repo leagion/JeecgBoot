@@ -1,14 +1,15 @@
 <template>
   <div :class="[`${prefixCls}`]">
     <div class="my-account">账户</div>
+    <!-- 移除手机相关功能 -->
+    <!--
     <div class="account-row-item clearfix">
       <div class="account-label gray-75">手机</div>
       <span class="gray" v-if="userDetail.phoneText">{{ userDetail.phoneText }}</span>
       <span class="pointer blue-e5 phone-margin" @click="updatePhone" v-if="userDetail.phone">修改</span>
       <span class="pointer blue-e5 phone-margin" @click="bindPhone" v-else>绑定</span>
-      <!--      <span class="pointer blue-e5" @click="unbindPhone" v-if="userDetail.phone">解绑?</span>-->
-      <!--      <span class="pointer blue-e5" @click="unbindPhone" v-else>绑定?</span>-->
     </div>
+    -->
 
     <div class="account-row-item">
       <div class="account-label gray-75">密码</div>
@@ -22,40 +23,43 @@
     <!--    </div>-->
   </div>
 
-  <UserReplacePhoneModal @register="registerModal" @success="initUserDetail" />
-
+  <!-- 移除手机和第三方登录相关模态框 -->
+  <!-- <UserReplacePhoneModal @register="registerModal" @success="initUserDetail" /> -->
   <UserPasswordModal @register="registerPassModal" @success="initUserDetail" />
-  <UserPasswordNotBindPhone @register="registerPassNotBindPhoneModal" @success="initUserDetail" />
-  <UserCancellationModal @register="registerCancelModal" />
+  <!-- UserPasswordNotBindPhone 组件直接使用，不需要 register -->
+  <!-- <UserCancellationModal @register="registerCancelModal" /> -->
 </template>
 <script lang="ts" setup>
-  import { onMounted, ref, reactive } from 'vue';
-  import { CollapseContainer } from '/@/components/Container';
+  import { onMounted, ref } from 'vue';
   import { getUserData } from './UserSetting.api';
-  import { useUserStore } from '/@/store/modules/user';
-  import UserReplacePhoneModal from './commponents/UserPhoneModal.vue';
-  import UserReplaceEmailModal from './commponents/UserEmailModal.vue';
+  // 移除手机和第三方登录相关导入
+  // import UserReplacePhoneModal from './commponents/UserPhoneModal.vue';
+  // import UserReplaceEmailModal from './commponents/UserEmailModal.vue';
+  // import UserCancellationModal from './commponents/UserCancellationModal.vue';
+  // import { WechatFilled } from '@ant-design/icons-vue';
   import UserPasswordModal from './commponents/UserPasswordModal.vue';
-  import UserPasswordNotBindPhone from './commponents/UserPasswordNotBindPhone.vue';
-  import UserCancellationModal from './commponents/UserCancellationModal.vue';
+  // import UserPasswordNotBindPhone from './commponents/UserPasswordNotBindPhone.vue';
+  // import UserCancellationModal from './commponents/UserCancellationModal.vue';
   import { useModal } from '/@/components/Modal';
-  import { WechatFilled } from '@ant-design/icons-vue';
+  // import { WechatFilled } from '@ant-design/icons-vue';
   import { useDesign } from '/@/hooks/web/useDesign';
 
   const { prefixCls } = useDesign('j-user-account-setting-container');
 
   const userDetail = ref<any>([]);
-  const userStore = useUserStore();
-  const [registerModal, { openModal }] = useModal();
+  // 移除手机相关模态框注册
+  // const [registerModal, { openModal }] = useModal();
 
   const [registerPassModal, { openModal: openPassModal }] = useModal();
-  const [registerPassNotBindPhoneModal, { openModal: openPassNotBindPhoneModal }] = useModal();
-  const [registerCancelModal, { openModal: openCancelModal }] = useModal();
+  // const [registerCancelModal, { openModal: openCancelModal }] = useModal();
 
+  // 移除微信相关数据
+  /*
   const wechatData = reactive<any>({
     bindWechat: false,
     name: '昵称',
   });
+  */
 
   /**
    * 初始化用户数据
@@ -65,30 +69,30 @@
     getUserData().then((res) => {
       if (res.success) {
         userDetail.value = res.result;
+        // 移除手机相关处理
+        /*
         if (res.result.phone) {
           userDetail.value.phoneText = res.result.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
         }
+        */
       }
     });
   }
 
-  /**
-   * 修改手机号
-   */
+  // 移除手机相关函数
+  /*
   function updatePhone() {
     openModal(true, {
       record: { phone: userDetail.value.phone, username: userDetail.value.username, id: userDetail.value.id, phoneText: userDetail.value.phoneText },
     });
   }
 
-  /**
-   * 绑定手机号
-   */
   function bindPhone() {
     openModal(true, {
       record: { username: userDetail.value.username, id: userDetail.value.id },
     });
   }
+  */
 
   /**
    * 密码修改

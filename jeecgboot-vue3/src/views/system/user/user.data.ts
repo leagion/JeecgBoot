@@ -1,6 +1,6 @@
 import { BasicColumn } from '/@/components/Table';
 import { FormSchema } from '/@/components/Table';
-import { getAllRolesListNoByTenant, getAllTenantList } from './user.api';
+import { getAllRolesListNoByTenant } from './user.api';
 import { rules } from '/@/utils/helper/validator';
 import { render } from '/@/utils/common/renderUtils';
 export const columns: BasicColumn[] = [
@@ -124,9 +124,10 @@ export const formSchema: FormSchema[] = [
     component: 'Input',
     required: true,
     componentProps: ({ formModel, formActionType }) => ({
-      onBlur: (e) => {
+      onBlur: () => {
         if (formModel.telephone && formModel.telephone.length >= 6) {
-          const password = formModel.telephone;
+          // 修改默认密码为"123456"而不是座机号
+          const password = '123456';
           formModel.password = password;
           formModel.confirmPassword = password;
           // 自动设置用户账号为座机号

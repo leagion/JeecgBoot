@@ -220,9 +220,12 @@
       if (loginPassword === '123456') {
         console.log('Opening password modal for default password...');
 
-        // 先存储用户名到localStorage，以防后续需要
+        // 设置需要修改密码的标记
+        localStorage.setItem('needChangePassword', 'true');
+        // 存储用户名到localStorage
         localStorage.setItem('temp_username', loginUsername);
         console.log('Username stored in localStorage:', localStorage.getItem('temp_username'));
+        console.log('Need change password flag set in localStorage:', localStorage.getItem('needChangePassword'));
 
         // 输出当前passwordModalVisible和passwordModalData的状态
         console.log('Before opening modal - visible:', passwordModalVisible.value);
@@ -236,6 +239,12 @@
         // 输出调用后passwordModalVisible和passwordModalData的状态
         console.log('After opening modal - visible:', passwordModalVisible.value);
         console.log('After opening modal - data:', passwordModalData.value);
+
+        // 验证localStorage中的标记
+        setTimeout(() => {
+          console.log('Verification - needChangePassword in localStorage:', localStorage.getItem('needChangePassword'));
+          console.log('Verification - temp_username in localStorage:', localStorage.getItem('temp_username'));
+        }, 100);
       }
     } catch (error) {
       notification.error({
@@ -253,6 +262,8 @@
 
   // 密码修改成功处理
   function handlePasswordChangeSuccess() {
+    // 清除需要修改密码的标记
+    localStorage.removeItem('needChangePassword');
     // 刷新页面重新登录
     location.reload();
   }

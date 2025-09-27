@@ -19,7 +19,7 @@
               </div>
               <span class="strength-text">密码强度: {{ passwordStrengthText }}</span>
             </div>
-            <span class="help-text">8-20位，需包含大小写字母、数字和特殊字符</span>
+            <span class="help-text">6-20位，需包含字母、数字</span>
           </div>
           <div class="form-group">
             <label>确认新密码</label>
@@ -80,18 +80,20 @@
 
     let strength = 0;
 
-    // 长度检查
-    if (password.length >= 8) strength += 25;
-    if (password.length >= 12) strength += 10;
+    // 长度检查 (6-20位)
+    if (password.length >= 6) strength += 30;
+    if (password.length >= 12) strength += 20;
+    if (password.length > 20) strength = 0; // 超过20位无效
 
-    // 包含小写字母
-    if (/[a-z]/.test(password)) strength += 15;
-    // 包含大写字母
-    if (/[A-Z]/.test(password)) strength += 15;
+    // 包含字母
+    if (/[a-zA-Z]/.test(password)) strength += 25;
     // 包含数字
-    if (/[0-9]/.test(password)) strength += 15;
-    // 包含特殊字符
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength += 20;
+    if (/[0-9]/.test(password)) strength += 25;
+
+    // 如果不满足基本要求，强度为0
+    if (password.length < 6 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      strength = 0;
+    }
 
     return Math.min(strength, 100);
   });
@@ -120,18 +122,23 @@
       formState.password &&
       formState.confirmPassword &&
       formState.password === formState.confirmPassword &&
-      passwordStrength.value >= 40
-    ); // 至少中等强度
+      passwordStrength.value > 0 && // 只要满足基本要求即可
+      formState.password.length >= 6 &&
+      formState.password.length <= 20
+    );
   });
 
   // 监听props.visible变化
   watch(
     () => props.visible,
     (newVisible) => {
+      console.log('Password modal visible changed:', newVisible);
       if (newVisible) {
+        console.log('Opening password modal with data:', props.data);
         // 重置表单
         formState.oldPassword = '';
         formState.password = '';
+        formState.confirmPassword = '';
 
         // 获取用户名
         if (props.data && props.data.record && props.data.record.username) {
@@ -139,6 +146,7 @@
         } else {
           username.value = localStorage.getItem('temp_username') || '';
         }
+        console.log('Username set to:', username.value);
       }
     },
     { immediate: true }
@@ -176,15 +184,19 @@
         createMessage.error('两次输入的密码不一致');
         return;
       }
-      if (passwordStrength.value < 40) {
+      if (passwordStrength.value === 0) {
         createMessage.error('密码强度不足，请设置更强的密码');
+        return;
+      }
+      if (formState.password.length < 6 || formState.password.length > 20) {
+        createMessage.error('密码长度必须在6-20位之间');
         return;
       }
     }
 
     // 增强的密码强度验证
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,20}$/.test(formState.password)) {
-      createMessage.error('密码必须是8-20位，且包含大小写字母、数字和特殊字符');
+    if (!/^(?=.*[a-zA-Z])(?=.*\d).{6,20}$/.test(formState.password)) {
+      createMessage.error('密码必须6-20位，且包含字母和数字');
       return;
     }
 
@@ -192,8 +204,9 @@
       confirmLoading.value = true;
 
       const values = {
-        oldPassword: formState.oldPassword,
+        oldpassword: formState.oldPassword,
         password: formState.password,
+        confirmpassword: formState.confirmPassword,
         username: username.value,
       };
 

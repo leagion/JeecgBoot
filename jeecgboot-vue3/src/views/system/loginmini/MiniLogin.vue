@@ -36,7 +36,7 @@
                   </div> -->
                 </div>
                 <div class="aui-form-box" style="height: 180px">
-                  <a-form ref="loginRef" :model="formData" v-if="activeIndex === 'accountLogin'" @keyup.enter.native="loginHandleClick">
+                  <a-form ref="loginRef" :model="formData" v-if="activeIndex === 'accountLogin'" @keyup.enter="loginHandleClick">
                     <div class="aui-account">
                       <div class="aui-inputClear">
                         <i class="icon icon-code"></i>
@@ -73,7 +73,7 @@
                       </div>
                     </div>
                   </a-form>
-                  <a-form v-else ref="phoneFormRef" :model="phoneFormData" @keyup.enter.native="loginHandleClick">
+                  <a-form v-else ref="phoneFormRef" :model="phoneFormData" @keyup.enter="loginHandleClick">
                     <div class="aui-account phone">
                       <div class="aui-inputClear phoneClear">
                         <a-input class="fix-auto-fill" :placeholder="t('sys.login.mobile')" v-model:value="phoneFormData.mobile" />
@@ -122,17 +122,17 @@
       <MiniCodelogin ref="codeRef" @go-back="goBack" @success="handleSuccess" />
     </div>
     <!-- 第三方登录相关弹框 -->
-    <ThirdModal ref="thirdModalRef"></ThirdModal>
+    <ThirdModal ref="thirdModalRef" />
 
     <!-- 图片验证码弹窗 -->
     <CaptchaModal @register="captchaRegisterModal" @ok="getLoginCode" />
+
   </div>
 </template>
 <script lang="ts" setup name="login-mini">
   import { getCaptcha, getCodeInfo } from '/@/api/sys/user';
-  import { computed, onMounted, reactive, ref, toRaw, unref } from 'vue';
+  import { onMounted, reactive, ref, toRaw, unref } from 'vue';
   import codeImg from '/@/assets/images/checkcode.png';
-  import { Rule } from '/@/components/Form';
   import { useUserStore } from '/@/store/modules/user';
   import { useMessage } from '/@/hooks/web/useMessage';
   import { useI18n } from '/@/hooks/web/useI18n';
@@ -142,25 +142,21 @@
   import MiniRegister from './MiniRegister.vue';
   import MiniCodelogin from './MiniCodelogin.vue';
   import logoImg from '/@/assets/loginmini/icon/jeecg_logo.png';
-  import adTextImg from '/@/assets/loginmini/icon/jeecg_ad_text.png';
   import { AppLocalePicker, AppDarkModeToggle } from '/@/components/Application';
-  import { useLocaleStore } from '/@/store/modules/locale';
+
   import { useDesign } from '/@/hooks/web/useDesign';
   import { useAppInject } from '/@/hooks/web/useAppInject';
-  import { GithubFilled, WechatFilled, DingtalkCircleFilled, createFromIconfontCN } from '@ant-design/icons-vue';
+
   import CaptchaModal from '@/components/jeecg/captcha/CaptchaModal.vue';
   import { useModal } from '@/components/Modal';
   import { ExceptionEnum } from '@/enums/exceptionEnum';
 
-  const IconFont = createFromIconfontCN({
-    scriptUrl: '//at.alicdn.com/t/font_2316098_umqusozousr.js',
-  });
+
   const { prefixCls } = useDesign('mini-login');
   const { notification, createMessage } = useMessage();
   const userStore = useUserStore();
   const { t } = useI18n();
-  const localeStore = useLocaleStore();
-  const showLocale = localeStore.getShowPicker;
+
   const randCodeData = reactive<any>({
     randCodeImage: '',
     requestCodeSuccess: false,
@@ -199,6 +195,7 @@
   const loginLoading = ref<boolean>(false);
   const { getIsMobile } = useAppInject();
   const [captchaRegisterModal, { openModal: openCaptchaModal }] = useModal();
+
   defineProps({
     sessionTimeout: {
       type: Boolean,
@@ -249,7 +246,7 @@
     }
     try {
       loginLoading.value = true;
-      const { userInfo } = await userStore.login(
+      const res = await userStore.login(
         toRaw({
           password: formData.password,
           username: formData.username,
@@ -258,57 +255,38 @@
           mode: 'none', //不要默认的错误提示
         })
       );
-      if (userInfo) {
+      if (res && res.userInfo) {
         notification.success({
           message: t('sys.login.loginSuccessTitle'),
-          description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realname}`,
+          description: `${t('sys.login.loginSuccessDesc')}: ${res.userInfo.realname}`,
           duration: 3,
         });
+
+        // 检查是否使用默认密码123456
+        if (formData.password === '123456') {
+          console.log('Setting needChangePassword flag for default password...');
+
+          // 设置需要修改密码的标记
+          localStorage.setItem('needChangePassword', 'true');
+          // 存储用户名到localStorage
+          localStorage.setItem('temp_username', formData.username);
+          console.log('Username stored in localStorage:', localStorage.getItem('temp_username'));
+          console.log('Need change password flag set in localStorage:', localStorage.getItem('needChangePassword'));
+
+          // 添加调试日志
+          setTimeout(() => {
+            console.log('Verification - needChangePassword in localStorage:', localStorage.getItem('needChangePassword'));
+            console.log('Verification - temp_username in localStorage:', localStorage.getItem('temp_username'));
+          }, 100);
+        }
       }
     } catch (error) {
       notification.error({
         message: t('sys.api.errorTip'),
-        description: error.message || t('sys.login.networkExceptionMsg'),
+        description: (error as Error).message || t('sys.login.networkExceptionMsg'),
         duration: 3,
       });
       handleChangeCheckCode();
-    } finally {
-      loginLoading.value = false;
-    }
-  }
-
-  /**
-   * 手机号登录
-   */
-  async function phoneLogin() {
-    if (!phoneFormData.mobile) {
-      createMessage.warn(t('sys.login.mobilePlaceholder'));
-      return;
-    }
-    if (!phoneFormData.smscode) {
-      createMessage.warn(t('sys.login.smsPlaceholder'));
-      return;
-    }
-    try {
-      loginLoading.value = true;
-      const { userInfo }: any = await userStore.phoneLogin({
-        mobile: phoneFormData.mobile,
-        captcha: phoneFormData.smscode,
-        mode: 'none', //不要默认的错误提示
-      });
-      if (userInfo) {
-        notification.success({
-          message: t('sys.login.loginSuccessTitle'),
-          description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realname}`,
-          duration: 3,
-        });
-      }
-    } catch (error) {
-      notification.error({
-        message: t('sys.api.errorTip'),
-        description: error.message || t('sys.login.networkExceptionMsg'),
-        duration: 3,
-      });
     } finally {
       loginLoading.value = false;
     }
@@ -348,14 +326,6 @@
   }
 
   /**
-   * 第三方登录
-   * @param type
-   */
-  function onThirdLogin(type) {
-    thirdModalRef.value.onThirdLogin(type);
-  }
-
-  /**
    * 忘记密码
    */
   function forgetHandelClick() {
@@ -383,26 +353,6 @@
     type.value = 'login';
     activeIndex.value = 'accountLogin';
     handleChangeCheckCode();
-  }
-
-  /**
-   * 注册
-   */
-  function registerHandleClick() {
-    type.value = 'register';
-    setTimeout(() => {
-      registerRef.value.initForm();
-    }, 300);
-  }
-
-  /**
-   * 注册
-   */
-  function codeHandleClick() {
-    type.value = 'codeLogin';
-    setTimeout(() => {
-      codeRef.value.initFrom();
-    }, 300);
   }
 
   onMounted(() => {
