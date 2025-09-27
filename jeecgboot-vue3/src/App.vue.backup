@@ -1,0 +1,159 @@
+<template>
+  <config-provider :theme="appTheme" :locale="_getAntdLocale">
+    <app-provider>
+      <router-view />
+    </app-provider>
+    <!-- 密码修改弹窗 -->
+    <UserPasswordNotBindPhone
+      :visible="passwordModalVisible"
+      @update:visible="(value) => (passwordModalVisible = value)"
+      :data="passwordModalData"
+      @success="_handlePasswordChangeSuccess"
+    />
+  </config-provider>
+</template>
+
+<script lang="ts" setup>
+  import { watch, ref, onMounted } from 'vue';
+  import { theme } from 'ant-design-vue';
+  // import { ConfigProvider } from 'ant-design-vue';
+  // import { AppProvider } from '/@/components/Application';
+  import { useTitle } from '/@/hooks/web/useTitle';
+  import { useLocale } from '/@/locales/useLocale';
+  import { useAppStore } from '/@/store/modules/app';
+  import { useRootSetting } from '/@/hooks/setting/useRootSetting';
+  import { ThemeEnum } from '/@/enums/appEnum';
+  import { changeTheme } from '/@/logics/theme/index';
+  // import ChangePasswordPrompt from '/@/views/sys/login/ChangePasswordPrompt.vue';
+  // import UserPasswordNotBindPhone from '/@/views/system/usersetting/commponents/UserPasswordNotBindPhone.vue';
+  import { useModal } from '/@/components/Modal';
+  import { useUserStore } from '/@/store/modules/user';
+
+  const appStore = useAppStore();
+  const _userStore = useUserStore();
+  // 解决日期时间国际化问题
+  import 'dayjs/locale/zh-cn';
+  // support Multi-language
+  const { getAntdLocale: _getAntdLocale } = useLocale();
+
+  useTitle();
+
+  // 密码修改弹窗
+  const [_registerPassModal, { openModal: _openPassModal }] = useModal();
+  const passwordModalVisible = ref(false);
+  const passwordModalData = ref<any>({});
+
+  // 处理稍后修改密码
+  const _handlePasswordChangeLater = () => {
+    console.log('User chose to change password later');
+  };
+
+  // 处理立即修改密码
+  const _handlePasswordChangeNow = () => {
+    console.log('User chose to change password now');
+    // 显示密码修改弹窗
+    const username = localStorage.getItem('temp_username') || '';
+    passwordModalData.value = {
+      record: { username: username },
+    };
+    passwordModalVisible.value = true;
+  };
+
+  // 密码修改成功处理
+  const _handlePasswordChangeSuccess = () => {
+    // 刷新页面重新登录
+    location.reload();
+  };
+
+  // 检查是否需要显示密码修改提示
+  onMounted(() => {
+    // 延迟检查，确保页面加载完成
+    setTimeout(() => {
+      const needChange = localStorage.getItem('needChangePassword') === 'true';
+      if (needChange) {
+        // 显示密码修改弹窗
+        const username = localStorage.getItem('temp_username') || '';
+        passwordModalData.value = {
+          record: { username: username },
+        };
+        passwordModalVisible.value = true;
+      }
+    }, 1000);
+  });
+
+  /**
+   * 2024-04-07
+   * liaozhiyang
+   * 暗黑模式下默认文字白色，白天模式默认文字 #333
+   * */
+  const modeAction = (data) => {
+    if (data.token) {
+      if (getDarkMode.value === ThemeEnum.DARK) {
+        Object.assign(data.token, { colorTextBase: 'fff' });
+      } else {
+        Object.assign(data.token, { colorTextBase: '#333' });
+      }
+
+      // 定义主题色 css 变量
+      if (data.token.colorPrimary) {
+        document.documentElement.style.setProperty('--j-global-primary-color', data.token.colorPrimary);
+      }
+    }
+  };
+
+  // update-begin--author:liaozhiyang---date:20231218---for：【QQYUN-6366】升级到antd4.x
+  const appTheme: any = ref({});
+  const { getDarkMode } = useRootSetting();
+  watch(
+    () => getDarkMode.value,
+    (newValue) => {
+      delete appTheme.value.algorithm;
+      if (newValue === ThemeEnum.DARK) {
+        appTheme.value.algorithm = theme.darkAlgorithm;
+      }
+      // update-begin--author:liaozhiyang---date:20240322---for：【QQYUN-8570】生产环境暗黑模式下主题色不生效
+      if (import.meta.env.PROD) {
+        changeTheme(appStore.getProjectConfig.themeColor);
+      }
+      // update-end--author:liaozhiyang---date:20240322---for：【QQYUN-8570】生产环境暗黑模式下主题色不生效
+      modeAction(appTheme.value);
+      appTheme.value = {
+        ...appTheme.value,
+      };
+    },
+    { immediate: true }
+  );
+  watch(
+    appStore.getProjectConfig,
+    (newValue) => {
+      const primary = newValue.themeColor;
+      const result = {
+        ...appTheme.value,
+        ...{
+          token: {
+            colorPrimary: primary,
+            wireframe: true,
+            fontSize: 14,
+            colorTextBase: '#333',
+            colorSuccess: '#55D187',
+            colorInfo: primary,
+            borderRadius: 4,
+            sizeStep: 4,
+            sizeUnit: 4,
+            colorWarning: '#EFBD47',
+            colorError: '#ED6F6F',
+            fontFamily:
+              '-apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol',
+          },
+        },
+      };
+      appTheme.value = result;
+      modeAction(result);
+    },
+    { immediate: true }
+  );
+  setTimeout(() => {
+    appStore.getProjectConfig?.themeColor && changeTheme(appStore.getProjectConfig.themeColor);
+  }, 300);
+  // update-end--author:liaozhiyang---date:20231218---for：【QQYUN-6366】升级到antd4.x
+</script>

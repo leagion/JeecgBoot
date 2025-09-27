@@ -211,4 +211,26 @@ public class SysUser implements Serializable {
      */
     @TableField(exist = false)
     private boolean izBindThird;
+    
+    /**
+     * 是否首次登录（使用默认密码）
+     */
+    @TableField(exist = false)
+    private boolean firstLoginFlag;
+    
+    /**
+     * 获取是否首次登录
+     * @return
+     */
+    public boolean isFirstLoginFlag() {
+        return firstLoginFlag;
+    }
+    
+    /**
+     * 设置是否首次登录
+     * @param firstLoginFlag
+     */
+    public void setFirstLoginFlag(boolean firstLoginFlag) {
+        this.firstLoginFlag = firstLoginFlag;
+    }
 }

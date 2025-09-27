@@ -31,6 +31,7 @@ import org.jeecg.modules.system.entity.*;
 import org.jeecg.modules.system.model.DepartIdModel;
 import org.jeecg.modules.system.model.SysUserSysDepartModel;
 import org.jeecg.modules.system.service.*;
+import org.jeecg.modules.system.service.ISysUserService;
 import org.jeecg.modules.system.vo.SysDepartUsersVO;
 import org.jeecg.modules.system.vo.SysUserRoleVO;
 import org.jeecg.modules.system.vo.lowapp.DepartAndUserInfo;
@@ -473,27 +474,10 @@ public class SysUserController {
     @RequiresPermissions("system:user:export")
     @RequestMapping(value = "/exportXls")
     public ModelAndView exportXls(SysUser sysUser,HttpServletRequest request) {
-        // Step.1 组装查询条件
-        QueryWrapper<SysUser> queryWrapper = QueryGenerator.initQueryWrapper(sysUser, request.getParameterMap());
-        //Step.2 AutoPoi 导出Excel
         ModelAndView mv = new ModelAndView(new JeecgEntityExcelView());
-        //update-begin--Author:kangxiaolin  Date:20180825 for：[03]用户导出，如果选择数据则只导出相关数据--------------------
-        String selections = request.getParameter("selections");
-       if(!oConvertUtils.isEmpty(selections)){
-           queryWrapper.in("id",selections.split(","));
-       }
-        //update-end--Author:kangxiaolin  Date:20180825 for：[03]用户导出，如果选择数据则只导出相关数据----------------------
-        List<SysUser> pageList = sysUserService.list(queryWrapper);
-
-        //导出文件名称
-        mv.addObject(NormalExcelConstants.FILE_NAME, "用户列表");
-        mv.addObject(NormalExcelConstants.CLASS, SysUser.class);
-		LoginUser user = (LoginUser) SecurityUtils.getSubject().getPrincipal();
-        ExportParams exportParams = new ExportParams("用户列表数据", "导出人:"+user.getRealname(), "导出信息");
-        exportParams.setImageBasePath(upLoadPath);
-        mv.addObject(NormalExcelConstants.PARAMS, exportParams);
-        mv.addObject(NormalExcelConstants.DATA_LIST, pageList);
-        return mv;
+        LoginUser user = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+        // 使用专门的导出方法来控制导出字段
+        return sysUserService.exportUser(sysUser, request, mv, user);
     }
 
     /**
@@ -518,11 +502,44 @@ public class SysUserController {
             params.setHeadRows(1);
             params.setNeedSave(true);
             try {
-                List<SysUser> listSysUsers = ExcelImportUtil.importExcel(file.getInputStream(), SysUser.class, params);
+                List<org.jeecg.modules.system.vo.UserExportImportVo> listSysUsers = ExcelImportUtil.importExcel(file.getInputStream(), org.jeecg.modules.system.vo.UserExportImportVo.class, params);
                 for (int i = 0; i < listSysUsers.size(); i++) {
-                    SysUser sysUserExcel = listSysUsers.get(i);
+                    org.jeecg.modules.system.vo.UserExportImportVo userExportImportVo = listSysUsers.get(i);
+                    // 将UserExportImportVo转换为SysUser
+                    SysUser sysUserExcel = new SysUser();
+                    sysUserExcel.setUsername(userExportImportVo.getUsername());
+                    sysUserExcel.setRealname(userExportImportVo.getRealname());
+                    sysUserExcel.setTelephone(userExportImportVo.getTelephone());
+                    sysUserExcel.setPhone(userExportImportVo.getPhone());
+                    // 设置默认状态和删除标志，确保用户可以正常登录
+                    sysUserExcel.setStatus(1); // 1表示正常状态
+                    sysUserExcel.setDelFlag(0); // 0表示未删除
+                    sysUserExcel.setActivitiSync(1); // 1表示同步工作流引擎
+                    
+                    // 检查是否已存在相同的登录账号
+                    SysUser existingUser = sysUserService.getUserByName(sysUserExcel.getUsername());
+                    if (existingUser != null) {
+                        errorLines++;
+                        int lineNumber = i + 1;
+                        errorMessage.add("第 " + lineNumber + " 行：登录账号 " + sysUserExcel.getUsername() + " 已存在，忽略导入。");
+                        continue;
+                    }
+                    
+                    // 检查是否已存在相同的座机号
+                    if (StringUtils.isNotBlank(sysUserExcel.getTelephone())) {
+                        LambdaQueryWrapper<SysUser> telephoneQueryWrapper = new LambdaQueryWrapper<>();
+                        telephoneQueryWrapper.eq(SysUser::getTelephone, sysUserExcel.getTelephone());
+                        existingUser = sysUserService.getOne(telephoneQueryWrapper);
+                        if (existingUser != null) {
+                            errorLines++;
+                            int lineNumber = i + 1;
+                            errorMessage.add("第 " + lineNumber + " 行：座机号 " + sysUserExcel.getTelephone() + " 已存在，忽略导入。");
+                            continue;
+                        }
+                    }
+                    
                     if (StringUtils.isBlank(sysUserExcel.getPassword())) {
-                        // 密码默认为 “123456”
+                        // 统一使用默认密码"123456"
                         sysUserExcel.setPassword("123456");
                     }
                     // 密码加密加盐
@@ -554,17 +571,19 @@ public class SysUserController {
                         }
                     }
                     // 批量将部门和用户信息建立关联关系
-                    String departIds = sysUserExcel.getDepartIds();
-                    if (StringUtils.isNotBlank(departIds)) {
-                        String userId = sysUserExcel.getId();
-                        String[] departIdArray = departIds.split(",");
-                        List<SysUserDepart> userDepartList = new ArrayList<>(departIdArray.length);
-                        for (String departId : departIdArray) {
-                            userDepartList.add(new SysUserDepart(userId, departId));
-                        }
-                        sysUserDepartService.saveBatch(userDepartList);
+                    // 注意：这里需要根据departNames字段来处理部门关联，而不是departIds
+                    String departNames = userExportImportVo.getDepartNames();
+                    if (StringUtils.isNotBlank(departNames)) {
+                        // 部门处理逻辑将在服务层实现
+                        sysUserService.handleUserDepart(sysUserExcel.getId(), departNames);
                     }
-
+                    
+                    // 角色处理逻辑
+                    String roleNames = userExportImportVo.getRoleNames();
+                    if (StringUtils.isNotBlank(roleNames)) {
+                        // 角色处理逻辑将在服务层实现
+                        sysUserService.handleUserRole(sysUserExcel.getId(), roleNames);
+                    }
                 }
             } catch (Exception e) {
                 errorMessage.add("发生异常：" + e.getMessage());

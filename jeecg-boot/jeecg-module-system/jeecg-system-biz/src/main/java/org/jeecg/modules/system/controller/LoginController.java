@@ -479,6 +479,11 @@ public class LoginController {
 		}
 
 		//3.设置登录用户信息
+        // 判断是否为首次登录（使用默认密码123456）
+        String defaultPassword = "123456";
+        String encodedDefaultPassword = PasswordUtil.encrypt(username, defaultPassword, sysUser.getSalt());
+        boolean firstLoginFlag = encodedDefaultPassword.equals(syspassword);
+        sysUser.setFirstLoginFlag(firstLoginFlag);
 		obj.put("userInfo", sysUser);
 		
 		//4.设置登录部门

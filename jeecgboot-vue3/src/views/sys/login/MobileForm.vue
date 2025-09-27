@@ -40,10 +40,11 @@
   const { t } = useI18n();
   const { handleBackLogin, getLoginState } = useLoginState();
   const { getFormRules } = useFormRules();
-  const { notification, createErrorModal } = useMessage();
+  const { notification } = useMessage();
   const userStore = useUserStore();
   const formRef = ref();
   const loading = ref(false);
+
   const formData = reactive({
     mobile: '',
     sms: '',
@@ -58,21 +59,21 @@
     if (!data) return;
     try {
       loading.value = true;
-      const userInfo = await userStore.phoneLogin(
+      const res = await userStore.phoneLogin(
         toRaw({
           mobile: data.mobile,
           captcha: data.sms,
           mode: 'none', //不要默认的错误提示
-        })
+        }) as any
       );
-      if (userInfo) {
+      if (res && res.userInfo) {
         notification.success({
           message: t('sys.login.loginSuccessTitle'),
-          description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realname}`,
+          description: `${t('sys.login.loginSuccessDesc')}: ${res.userInfo.realname}`,
           duration: 3,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       notification.error({
         message: t('sys.api.errorTip'),
         description: error.message || t('sys.api.networkExceptionMsg'),
@@ -82,10 +83,12 @@
       loading.value = false;
     }
   }
+
   //倒计时执行前的函数
-  function sendCodeApi() {
+  async function sendCodeApi() {
     //update-begin---author:wangshuai---date:2025-07-15---for:【issues/8567】严重：修改密码存在水平越权问题：登录应该用登录模板不应该用忘记密码的模板---
-    return getCaptcha({ mobile: formData.mobile, smsmode: SmsEnum.LOGIN });
+    const result = await getCaptcha({ mobile: formData.mobile, smsmode: SmsEnum.LOGIN });
+    return result;
     //update-end---author:wangshuai---date:2025-07-15---for:【issues/8567】严重：修改密码存在水平越权问题：登录应该用登录模板不应该用忘记密码的模板---
   }
 </script>

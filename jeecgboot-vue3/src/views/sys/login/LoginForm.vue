@@ -54,10 +54,11 @@
       <!-- <Button size="large" class="mt-4 enter-x" block @click="handleRegister">
         {{ t('sys.login.registerButton') }}
       </Button> -->
-      <Button size="large" class="mt-4 enter-x" block >
+      <Button size="large" class="mt-4 enter-x" block>
         {{ t('sys.login.registerButton') }}
       </Button>
-
+      <!-- 测试按钮：直接打开修改密码弹窗 -->
+      <Button size="large" class="mt-4 enter-x" block @click="testOpenPasswordModal"> 测试修改密码弹窗 </Button>
     </FormItem>
     <!-- <ARow class="enter-x">
       <ACol :md="8" :xs="24">
@@ -87,7 +88,19 @@
     </div>
   </Form>
   <!-- 第三方登录相关弹框 -->
-  <ThirdModal ref="thirdModalRef"></ThirdModal>
+  <!-- <ThirdModal ref="thirdModalRef"></ThirdModal> -->
+  <!-- 首次登录修改密码弹窗 -->
+  <FirstLoginPasswordModal @register="registerFirstLoginModal" @success="handlePasswordChangeSuccess" />
+  <!-- 账户设置中的密码修改弹窗 -->
+  <UserPasswordModal @register="registerPassModal" @success="handlePasswordChangeSuccess" />
+  <!-- 默认密码修改弹窗 -->
+  <UserPasswordNotBindPhone
+    ref="passwordNotBindPhoneModalRef"
+    :visible="passwordModalVisible"
+    @update:visible="(value) => (passwordModalVisible = value)"
+    :data="passwordModalData"
+    @success="handlePasswordChangeSuccess"
+  />
 </template>
 <script lang="ts" setup>
   import { reactive, ref, toRaw, unref, computed, onMounted } from 'vue';
@@ -95,7 +108,10 @@
   import { Checkbox, Form, Input, Row, Col, Button, Divider } from 'ant-design-vue';
   import { GithubFilled, WechatFilled, DingtalkCircleFilled, createFromIconfontCN } from '@ant-design/icons-vue';
   import LoginFormTitle from './LoginFormTitle.vue';
-  import ThirdModal from './ThirdModal.vue';
+  // import ThirdModal from './ThirdModal.vue';
+  import FirstLoginPasswordModal from './FirstLoginPasswordModal.vue';
+  import UserPasswordModal from '/@/views/system/usersetting/commponents/UserPasswordModal.vue';
+  import UserPasswordNotBindPhone from '/@/views/system/usersetting/commponents/UserPasswordNotBindPhone.vue';
   import { useI18n } from '/@/hooks/web/useI18n';
   import { useMessage } from '/@/hooks/web/useMessage';
 
@@ -103,6 +119,7 @@
   import { LoginStateEnum, useLoginState, useFormRules, useFormValid } from './useLogin';
   import { useDesign } from '/@/hooks/web/useDesign';
   import { getCodeInfo } from '/@/api/sys/user';
+  import { useModal } from '/@/components/Modal';
   //import { onKeyStroke } from '@vueuse/core';
 
   const ACol = Col;
@@ -113,7 +130,7 @@
     scriptUrl: '//at.alicdn.com/t/font_2316098_umqusozousr.js',
   });
   const { t } = useI18n();
-  const { notification, createErrorModal } = useMessage();
+  const { notification } = useMessage();
   const { prefixCls } = useDesign('login');
   const userStore = useUserStore();
 
@@ -124,6 +141,26 @@
   const thirdModalRef = ref();
   const loading = ref(false);
   const rememberMe = ref(false);
+
+  // 首次登录修改密码弹窗
+  const [registerFirstLoginModal, { openModal: _openFirstLoginModal }] = useModal();
+  // 账户设置中的密码修改弹窗
+  const [registerPassModal, { openModal: _openPassModal }] = useModal();
+  // 使用ref直接控制弹窗
+  const passwordNotBindPhoneModalRef = ref();
+
+  // 控制密码修改弹窗显示/隐藏的状态
+  const passwordModalVisible = ref(false);
+  const passwordModalData = ref<any>({});
+
+  // 打开密码修改弹窗的方法
+  const openPassNotBindPhoneModal = (open: boolean, data?: any) => {
+    passwordModalVisible.value = open;
+    if (data) {
+      passwordModalData.value = data;
+      console.log('Setting password modal data:', data);
+    }
+  };
 
   const formData = reactive({
     account: 'admin',
@@ -145,28 +182,65 @@
   async function handleLogin() {
     const data = await validForm();
     if (!data) return;
+
+    // 保存密码值用于后续检查
+    const loginPassword = data.password;
+    const loginUsername = data.account;
+
     try {
       loading.value = true;
-      const { userInfo } = await userStore.login(
+      const res = await userStore.login(
         toRaw({
-          password: data.password,
-          username: data.account,
+          password: loginPassword,
+          username: loginUsername,
           captcha: data.inputCode,
           checkKey: randCodeData.checkKey,
           mode: 'none', //不要默认的错误提示
         })
       );
-      if (userInfo) {
-        notification.success({
-          message: t('sys.login.loginSuccessTitle'),
-          description: `${t('sys.login.loginSuccessDesc')}: ${userInfo.realname}`,
-          duration: 3,
+
+      // 登录成功后先重置loading状态
+      loading.value = false;
+
+      // 无论login返回什么，只要登录成功（没有抛出异常），就检查是否需要显示修改密码弹窗
+      notification.success({
+        message: t('sys.login.loginSuccessTitle'),
+        description: res && res.userInfo ? `${t('sys.login.loginSuccessDesc')}: ${res.userInfo.realname}` : t('sys.login.loginSuccessTitle'),
+        duration: 3,
+      });
+
+      // 添加调试日志
+      console.log('Login check:', {
+        username: loginUsername,
+        passwordUsed: loginPassword,
+        isDefaultPassword: loginPassword === '123456',
+      });
+
+      // 检查是否使用默认密码123456
+      if (loginPassword === '123456') {
+        console.log('Opening password modal for default password...');
+
+        // 先存储用户名到localStorage，以防后续需要
+        localStorage.setItem('temp_username', loginUsername);
+        console.log('Username stored in localStorage:', localStorage.getItem('temp_username'));
+
+        // 输出当前passwordModalVisible和passwordModalData的状态
+        console.log('Before opening modal - visible:', passwordModalVisible.value);
+        console.log('Before opening modal - data:', passwordModalData.value);
+
+        // 调用我们定义的openPassNotBindPhoneModal方法显示弹窗
+        openPassNotBindPhoneModal(true, {
+          record: { username: loginUsername },
         });
+
+        // 输出调用后passwordModalVisible和passwordModalData的状态
+        console.log('After opening modal - visible:', passwordModalVisible.value);
+        console.log('After opening modal - data:', passwordModalData.value);
       }
     } catch (error) {
       notification.error({
         message: t('sys.api.errorTip'),
-        description: error.message || t('sys.api.networkExceptionMsg'),
+        description: (error as Error).message || t('sys.api.networkExceptionMsg'),
         duration: 3,
       });
       loading.value = false;
@@ -176,11 +250,51 @@
       //update-end-author:taoyan date:2022-5-3 for: issues/41 登录页面，当输入验证码错误时，验证码图片要刷新一下，而不是保持旧的验证码图片不变
     }
   }
+
+  // 密码修改成功处理
+  function handlePasswordChangeSuccess() {
+    // 刷新页面重新登录
+    location.reload();
+  }
+
+  // 测试直接打开修改密码弹窗的方法
+  function testOpenPasswordModal() {
+    console.log('Test button clicked - trying to open password modal');
+
+    const testUsername = 'admin'; // 使用固定的测试用户名
+
+    // 先存储测试用户名到localStorage
+    localStorage.setItem('temp_username', testUsername);
+    console.log('Test username stored in localStorage:', localStorage.getItem('temp_username'));
+
+    // 输出当前状态
+    console.log('Test - Before opening modal - visible:', passwordModalVisible.value);
+    console.log('Test - Before opening modal - data:', passwordModalData.value);
+
+    // 直接设置状态来打开弹窗
+    passwordModalVisible.value = true;
+    passwordModalData.value = {
+      record: { username: testUsername },
+    };
+
+    // 输出设置后状态
+    console.log('Test - After opening modal - visible:', passwordModalVisible.value);
+    console.log('Test - After opening modal - data:', passwordModalData.value);
+
+    // 同时尝试使用ref方式打开，作为备选
+    if (passwordNotBindPhoneModalRef.value && passwordNotBindPhoneModalRef.value.setModalProps) {
+      console.log('Also trying to open via ref setModalProps');
+      passwordNotBindPhoneModalRef.value.setModalProps({ visible: true });
+    } else {
+      console.log('Ref setModalProps is not available');
+    }
+  }
+
   function handleChangeCheckCode() {
     formData.inputCode = '';
     //TODO 兼容mock和接口，暂时这样处理
     //update-begin---author:chenrui ---date:2025/1/7  for：[QQYUN-10775]验证码可以复用 #7674------------
-    randCodeData.checkKey = new Date().getTime() + Math.random().toString(36).slice(-4); // 1629428467008;
+    randCodeData.checkKey = (new Date().getTime() + Math.random().toString(36).slice(-4)) as any; // 1629428467008;
     //update-end---author:chenrui ---date:2025/1/7  for：[QQYUN-10775]验证码可以复用 #7674------------
     getCodeInfo(randCodeData.checkKey).then((res) => {
       randCodeData.randCodeImage = res;

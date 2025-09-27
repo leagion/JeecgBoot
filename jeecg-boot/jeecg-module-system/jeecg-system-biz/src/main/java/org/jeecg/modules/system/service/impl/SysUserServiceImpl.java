@@ -69,9 +69,21 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.jeecgframework.poi.excel.entity.ExportParams;
+import org.jeecgframework.poi.excel.def.NormalExcelConstants;
+import org.springframework.web.servlet.ModelAndView;
+import javax.servlet.http.HttpServletRequest;
+import org.jeecg.common.system.vo.LoginUser;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.jeecg.common.util.oConvertUtils;
+import cn.hutool.core.collection.CollectionUtil;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -255,7 +267,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return Result.ok("密码重置成功!");
     }
 
-    @Override
     @CacheEvict(value = {CacheConstant.SYS_USERS_CACHE}, allEntries = true)
     public Result<?> changePassword(SysUser sysUser) {
         String salt = oConvertUtils.randomGen(8);
@@ -282,7 +293,103 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 		return false;
 	}
 
-	@Override
+    @CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deleteBatchIds(Collection<? extends Serializable> idList) {
+        for (Serializable id : idList) {
+            this.checkUserAdminRejectDel(id.toString());
+        }
+        return this.removeByIds(idList);
+    }
+
+    @CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveUser(SysUser user, String roles, String departments) {
+        String salt = oConvertUtils.randomGen(8);
+        user.setSalt(salt);
+        String password = user.getPassword();
+        String passwordEncode = PasswordUtil.encrypt(user.getUsername(), password, salt);
+        user.setPassword(passwordEncode);
+        this.save(user);
+        if (oConvertUtils.isNotEmpty(roles)) {
+            String[] arr = roles.split(",");
+            for (String roleId : arr) {
+                SysUserRole userRole = new SysUserRole(user.getId(), roleId);
+                this.sysUserRoleMapper.insert(userRole);
+            }
+        }
+        if (oConvertUtils.isNotEmpty(departments)) {
+            String[] arr = departments.split(",");
+            for (String depId : arr) {
+                SysUserDepart userDepart = new SysUserDepart(user.getId(), depId);
+                this.sysUserDepartMapper.insert(userDepart);
+            }
+        }
+        return true;
+    }
+
+    @CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateUser(SysUser user, String roles, String departments) {
+        String password = user.getPassword();
+        if (oConvertUtils.isNotEmpty(password)) {
+            String salt = oConvertUtils.randomGen(8);
+            user.setSalt(salt);
+            String passwordEncode = PasswordUtil.encrypt(user.getUsername(), password, salt);
+            user.setPassword(passwordEncode);
+        }
+        this.updateById(user);
+        //1.先删除用户角色关系
+        this.sysUserRoleMapper.delete(new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, user.getId()));
+        //2.保存用户角色关系
+        if (oConvertUtils.isNotEmpty(roles)) {
+            String[] arr = roles.split(",");
+            for (String roleId : arr) {
+                SysUserRole userRole = new SysUserRole(user.getId(), roleId);
+                this.sysUserRoleMapper.insert(userRole);
+            }
+        }
+        //1.先删除用户部门关系
+        this.sysUserDepartMapper.delete(new LambdaQueryWrapper<SysUserDepart>().eq(SysUserDepart::getUserId, user.getId()));
+        //2.保存用户部门关系
+        if (oConvertUtils.isNotEmpty(departments)) {
+            String[] arr = departments.split(",");
+            for (String depId : arr) {
+                SysUserDepart userDepart = new SysUserDepart(user.getId(), depId);
+                this.sysUserDepartMapper.insert(userDepart);
+            }
+        }
+        return true;
+    }
+    
+    @Override
+    public void updatePasswordNotBindPhone(String oldPassword, String password, String username) {
+        LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
+        //step1 只能修改自己的密码
+        if(!sysUser.getUsername().equals(username)){
+            throw new JeecgBootBizTipException("只允许修改自己的密码！");
+        }
+        //step2 用户不存在禁止修改密码
+        SysUser user = this.getUserByName(username);
+        if(null == user){
+            throw new JeecgBootBizTipException("用户不存在，无法修改密码！");
+        }
+        //setp3 如果手机号存在需要用手机号修改密码的方式
+       // if(oConvertUtils.isNotEmpty(user.getPhone())){
+      //      throw new JeecgBootBizTipException("手机号不为空，请根据手机号进行修改密码操作！");
+        //}
+        //step4 判断旧密码是否正确
+        String passwordEncode = PasswordUtil.encrypt(username, oldPassword, user.getSalt());
+        if (!user.getPassword().equals(passwordEncode)) {
+            throw new JeecgBootBizTipException("旧密码输入错误!");
+        }
+        if (oConvertUtils.isEmpty(password)) {
+            throw new JeecgBootBizTipException("新密码不允许为空!");
+        }
+        //step5 修改密码
+        String newPassWord = PasswordUtil.encrypt(username, password, user.getSalt());
+        this.userMapper.update(new SysUser().setPassword(newPassWord), new LambdaQueryWrapper<SysUser>().eq(SysUser::getId, user.getId()));
+    }
     @CacheEvict(value={CacheConstant.SYS_USERS_CACHE}, allEntries=true)
 	@Transactional(rollbackFor = Exception.class)
 	public boolean deleteBatchUsers(String userIds) {
@@ -1156,7 +1263,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
 	@Override
 	public DepartAndUserInfo searchByKeyword(String keyword) {
-		DepartAndUserInfo departAndUserInfo = new DepartAndUserInfo();
+		org.jeecg.modules.system.vo.lowapp.DepartAndUserInfo departAndUserInfo = new org.jeecg.modules.system.vo.lowapp.DepartAndUserInfo();
 		if(oConvertUtils.isNotEmpty(keyword)){
 			LambdaQueryWrapper<SysUser> query1 = new LambdaQueryWrapper<SysUser>()
 					.like(SysUser::getRealname, keyword);
@@ -1172,7 +1279,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 			}
 			List<SysUser> list1 = this.baseMapper.selectList(query1);
 			if(list1!=null && list1.size()>0){
-				List<UserAvatar> userList = list1.stream().map(v -> new UserAvatar(v)).collect(Collectors.toList());
+				List<org.jeecg.modules.system.vo.UserAvatar> userList = list1.stream().map(v -> new org.jeecg.modules.system.vo.UserAvatar(v)).collect(Collectors.toList());
 				departAndUserInfo.setUserList(userList);
 			}
 
@@ -1183,12 +1290,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 			}
 			List<SysDepart> list2 = sysDepartMapper.selectList(query2);
 			if(list2!=null && list2.size()>0){
-				List<DepartInfo> departList = new ArrayList<>();
+				List<org.jeecg.modules.system.vo.lowapp.DepartInfo> departList = new ArrayList<>();
 				for(SysDepart depart: list2){
 					List<String> orgName = new ArrayList<>();
 					List<String> orgId = new ArrayList<>();
 					getParentDepart(depart, orgName, orgId);
-					DepartInfo departInfo = new DepartInfo();
+					org.jeecg.modules.system.vo.lowapp.DepartInfo departInfo = new org.jeecg.modules.system.vo.lowapp.DepartInfo();
 					departInfo.setId(depart.getId());
 					departInfo.setOrgId(orgId);
 					departInfo.setOrgName(orgName);
@@ -1204,7 +1311,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 	public UpdateDepartInfo getUpdateDepartInfo(String departId) {
 		SysDepart depart = sysDepartMapper.selectById(departId);
 		if(depart!=null){
-			UpdateDepartInfo info = new UpdateDepartInfo(depart);
+			org.jeecg.modules.system.vo.lowapp.UpdateDepartInfo info = new org.jeecg.modules.system.vo.lowapp.UpdateDepartInfo(depart);
 			List<SysDepart> subList = sysDepartMapper.queryDeptByPid(departId);
 			if(subList!=null && subList.size()>0){
 				info.setHasSub(true);
@@ -2354,32 +2461,135 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
     //================================================= end 低代码部门导入导出 ================================================================
 
+
+
     @Override
-    public void updatePasswordNotBindPhone(String oldPassword, String password, String username) {
-        LoginUser sysUser = (LoginUser)SecurityUtils.getSubject().getPrincipal();
-        //step1 只能修改自己的密码
-        if(!sysUser.getUsername().equals(username)){
-            throw new JeecgBootBizTipException("只允许修改自己的密码！");
+    public ModelAndView exportUser(SysUser sysUser, HttpServletRequest request, ModelAndView mv, LoginUser user) {
+        // 获取用户数据
+        QueryWrapper<SysUser> queryWrapper = new QueryWrapper<>();
+        // 复制查询条件
+        if (sysUser != null) {
+            if (oConvertUtils.isNotEmpty(sysUser.getUsername())) {
+                queryWrapper.like("username", sysUser.getUsername());
+            }
+            if (oConvertUtils.isNotEmpty(sysUser.getRealname())) {
+                queryWrapper.like("realname", sysUser.getRealname());
+            }
         }
-        //step2 用户不存在禁止修改密码
-        SysUser user = this.getUserByName(username);
-        if(null == user){
-            throw new JeecgBootBizTipException("用户不存在，无法修改密码！");
+        
+        List<SysUser> userList = this.list(queryWrapper);
+        
+        // 构建导出数据列表
+        List<org.jeecg.modules.system.vo.UserExportImportVo> exportList = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(userList)) {
+            // 获取用户ID列表
+            List<String> userIds = userList.stream().map(SysUser::getId).collect(Collectors.toList());
+            
+            // 获取部门名称
+            Map<String, String> depNamesMap = this.getDepNamesByUserIds(userIds);
+            
+            // 获取角色信息
+            List<SysUserRole> userRoles = sysUserRoleMapper.selectList(new LambdaQueryWrapper<SysUserRole>().in(SysUserRole::getUserId, userIds));
+            Map<String, List<String>> userRoleMap = new HashMap<>();
+            if (CollectionUtil.isNotEmpty(userRoles)) {
+                // 获取所有角色ID
+                List<String> roleIds = userRoles.stream().map(SysUserRole::getRoleId).distinct().collect(Collectors.toList());
+                if (CollectionUtil.isNotEmpty(roleIds)) {
+                    List<SysRole> roles = sysRoleMapper.selectBatchIds(roleIds);
+                    Map<String, String> roleMap = roles.stream().collect(Collectors.toMap(SysRole::getId, SysRole::getRoleName));
+                    
+                    // 构建用户角色映射
+                    for (SysUserRole userRole : userRoles) {
+                        String userId = userRole.getUserId();
+                        String roleId = userRole.getRoleId();
+                        String roleName = roleMap.get(roleId);
+                        if (roleName != null) {
+                            userRoleMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(roleName);
+                        }
+                    }
+                }
+            }
+            
+            // 构建导出VO对象
+            for (SysUser userEntity : userList) {
+                org.jeecg.modules.system.vo.UserExportImportVo exportVo = new org.jeecg.modules.system.vo.UserExportImportVo();
+                exportVo.setUsername(userEntity.getUsername());
+                exportVo.setRealname(userEntity.getRealname());
+                exportVo.setTelephone(userEntity.getTelephone());
+                exportVo.setPhone(userEntity.getPhone());
+                
+                // 设置部门名称
+                String departNames = depNamesMap.get(userEntity.getId());
+                exportVo.setDepartNames(departNames != null ? departNames : "");
+                
+                // 设置角色名称
+                List<String> roleNames = userRoleMap.get(userEntity.getId());
+                if (CollectionUtil.isNotEmpty(roleNames)) {
+                    exportVo.setRoleNames(String.join(",", roleNames));
+                } else {
+                    exportVo.setRoleNames("");
+                }
+                
+                exportList.add(exportVo);
+            }
         }
-        //setp3 如果手机号存在需要用手机号修改密码的方式
-        if(oConvertUtils.isNotEmpty(user.getPhone())){
-            throw new JeecgBootBizTipException("手机号不为空，请根据手机号进行修改密码操作！");
-        }
-        //step4 判断旧密码是否正确
-        String passwordEncode = PasswordUtil.encrypt(username, oldPassword, user.getSalt());
-        if (!user.getPassword().equals(passwordEncode)) {
-            throw new JeecgBootBizTipException("旧密码输入错误!");
-        }
-        if (oConvertUtils.isEmpty(password)) {
-            throw new JeecgBootBizTipException("新密码不允许为空!");
-        }
-        //step5 修改密码
-        String newPassWord = PasswordUtil.encrypt(username, password, user.getSalt());
-        this.userMapper.update(new SysUser().setPassword(newPassWord), new LambdaQueryWrapper<SysUser>().eq(SysUser::getId, user.getId()));
+        
+        // 设置导出参数
+        mv.addObject(NormalExcelConstants.FILE_NAME, "用户列表");
+        mv.addObject(NormalExcelConstants.CLASS, org.jeecg.modules.system.vo.UserExportImportVo.class);
+        ExportParams exportParams = new ExportParams("用户列表数据", "导出人:" + user.getRealname(), "导出信息");
+        mv.addObject(NormalExcelConstants.PARAMS, exportParams);
+        mv.addObject(NormalExcelConstants.DATA_LIST, exportList);
+        return mv;
     }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void handleUserDepart(String userId, String departNames) {
+        //1.先删除用户部门关系
+        LambdaQueryWrapper<SysUserDepart> userDepartWrapper = new LambdaQueryWrapper<>();
+        userDepartWrapper.eq(SysUserDepart::getUserId, userId);
+        this.sysUserDepartMapper.delete(userDepartWrapper);
+        //2.再插入用户部门关系
+        if (StringUtils.isNotBlank(departNames)) {
+            String[] departNameArr = departNames.split(",");
+            for (String departName : departNameArr) {
+                departName = departName.trim();
+                if (StringUtils.isNotBlank(departName)) {
+                    SysDepart depart = this.sysDepartMapper.selectOne(new LambdaQueryWrapper<SysDepart>().eq(SysDepart::getDepartName, departName));
+                    if (depart != null) {
+                        SysUserDepart userDepart = new SysUserDepart(userId, depart.getId());
+                        this.sysUserDepartMapper.insert(userDepart);
+                    }
+                }
+            }
+        }
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void handleUserRole(String userId, String roleNames) {
+        //1.先删除用户角色关系
+        LambdaQueryWrapper<SysUserRole> userRoleWrapper = new LambdaQueryWrapper<>();
+        userRoleWrapper.eq(SysUserRole::getUserId, userId);
+        this.sysUserRoleMapper.delete(userRoleWrapper);
+        //2.再插入用户角色关系
+        if (StringUtils.isNotBlank(roleNames)) {
+            String[] roleNameArr = roleNames.split(",");
+            for (String roleName : roleNameArr) {
+                roleName = roleName.trim();
+                if (StringUtils.isNotBlank(roleName)) {
+                    SysRole role = this.sysRoleMapper.selectOne(new LambdaQueryWrapper<SysRole>().eq(SysRole::getRoleName, roleName));
+                    if (role != null) {
+                        SysUserRole userRole = new SysUserRole();
+                        userRole.setUserId(userId);
+                        userRole.setRoleId(role.getId());
+                        this.sysUserRoleMapper.insert(userRole);
+                    }
+                }
+            }
+        }
+    }
+    
 }
+

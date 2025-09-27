@@ -19,7 +19,7 @@
   </PageWrapper>
 </template>
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { Card } from 'ant-design-vue';
   import { PageWrapper } from '/@/components/Page';
   import WorkbenchHeader from './components/WorkbenchHeader.vue';
@@ -30,7 +30,9 @@
 
   const loading = ref(true);
 
-  setTimeout(() => {
-    loading.value = false;
-  }, 500);
+  onMounted(() => {
+    setTimeout(() => {
+      loading.value = false;
+    }, 500);
+  });
 </script>

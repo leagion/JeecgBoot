@@ -171,7 +171,7 @@ public class QueryGenerator {
 				if (null != value && value.toString().startsWith(COMMA) && value.toString().endsWith(COMMA)) {
 					String multiLikeval = value.toString().replace(",,", COMMA);
 					String[] vals = multiLikeval.substring(1, multiLikeval.length()).split(COMMA);
-					final String field = oConvertUtils.camelToUnderline(column);
+					final String field = column;
 					if(vals.length>1) {
 						queryWrapper.and(j -> {
                             log.info("---查询过滤器，Query规则---field:{}, rule:{}, value:{}", field, "like", vals[0]);
@@ -777,6 +777,11 @@ public class QueryGenerator {
 				String column = rule.getRuleColumn();
 				if(QueryRuleEnum.SQL_RULES.getValue().equals(rule.getRuleConditions())) {
 					column = SQL_RULES_COLUMN+rule.getId();
+				} else {
+					// 检查字段是否对应数据库中的实际列
+					// 如果字段不存在于数据库中，则跳过该规则
+					// 这里我们暂时不检查，因为getRuleMap方法不知道要检查哪个类
+					// 实际的检查会在installAuthJdbc和installAuthMplus方法中进行
 				}
 				ruleMap.put(column, rule);
 			}
@@ -909,11 +914,11 @@ public class QueryGenerator {
 			if (judgedIsUselessField(name)) {
 				continue;
 			}
+			column = ReflectHelper.getTableFieldName(clazz, name);
+			if(column==null){
+				continue;
+			}
 			if(ruleMap.containsKey(name)) {
-				column = ReflectHelper.getTableFieldName(clazz, name);
-				if(column==null){
-					continue;
-				}
 				SysPermissionDataRuleModel dataRule = ruleMap.get(name);
 				QueryRuleEnum rule = QueryRuleEnum.getByValue(dataRule.getRuleConditions());
 				Class propType = origDescriptors[i].getPropertyType();
@@ -926,7 +931,7 @@ public class QueryGenerator {
 				}else {
 					value = NumberUtils.parseNumber(dataRule.getRuleValue(),propType);
 				}
-				String filedSql = SqlConcatUtil.getSingleSqlByRule(rule, oConvertUtils.camelToUnderline(column), value,isString);
+				String filedSql = SqlConcatUtil.getSingleSqlByRule(rule, column, value,isString);
 				sb.append(sqlAnd+filedSql);
 			}
 		}

@@ -13,12 +13,13 @@ import org.jeecg.modules.system.entity.SysRoleIndex;
 import org.jeecg.modules.system.entity.SysUser;
 import org.jeecg.modules.system.model.SysUserSysDepartModel;
 import org.jeecg.modules.system.vo.SysUserExportVo;
+import org.jeecg.modules.system.vo.UserExportImportVo;
 import org.jeecg.modules.system.vo.lowapp.DepartAndUserInfo;
 import org.jeecg.modules.system.vo.lowapp.UpdateDepartInfo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.servlet.http.HttpServletRequest;
+import org.jeecg.common.system.vo.LoginUser;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -462,10 +463,34 @@ public interface ISysUserService extends IService<SysUser> {
 	void userLogOff(JSONObject jsonObject, String username);
 
     /**
+     * 处理用户部门关联
+     * @param userId 用户ID
+     * @param departNames 部门名称列表
+     */
+    void handleUserDepart(String userId, String departNames);
+
+    /**
+     * 处理用户角色关联
+     * @param userId 用户ID
+     * @param roleNames 角色名称列表
+     */
+    void handleUserRole(String userId, String roleNames);
+    
+    /**
      * 获取部门和用户关系的导出信息
      * @param pageList
      */
     List<SysUserExportVo> getDepartAndRoleExportMsg(List<SysUser> pageList);
+
+    /**
+     * 导出用户Excel（仅包含指定字段）
+     * @param sysUser
+     * @param request
+     * @param mv
+     * @param user
+     * @return
+     */
+    ModelAndView exportUser(SysUser sysUser, HttpServletRequest request, ModelAndView mv, LoginUser user);
 
     /**
      * 导入用户

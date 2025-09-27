@@ -12,6 +12,10 @@ server:
     include-message: ALWAYS
   servlet:
     context-path: /aiccg
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   compression:
     enabled: true
     min-response-size: 1024
@@ -24,6 +28,9 @@ management:
         include: metrics,jeecghttptrace
 
 spring:
+  # 添加编码配置
+  messages:
+    encoding: UTF-8
   flyway:
     # 是否启用flyway
     enabled: false
@@ -166,7 +173,7 @@ spring:
           #username: root
           #password: root
           #driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:postgresql://localhost:5432/aiccg_pgdb?stringtype=unspecified
+          url: jdbc:postgresql://localhost:5432/aiccg_pgdb?stringtype=unspecified&charset=UTF-8
           username: aiccgdb
           password: hkzdlq@CCG2025
           driver-class-name: org.postgresql.Driver

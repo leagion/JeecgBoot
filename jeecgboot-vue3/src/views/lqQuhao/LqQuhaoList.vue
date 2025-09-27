@@ -172,7 +172,7 @@
       // 假设后端支持通过设置 pageSize 为一个很大的值来获取全部数据
       const params = { ...queryParam, pageSize: 999999, pageNo: 1 };
       const res = await list(params);
-      console.log('接口返回数据:', res); // 添加日志输出
+      // console.log('接口返回数据:', res); // 添加日志输出
 
       // 检查响应数据格式，直接检查 res.records
       if (res && Array.isArray(res.records)) {

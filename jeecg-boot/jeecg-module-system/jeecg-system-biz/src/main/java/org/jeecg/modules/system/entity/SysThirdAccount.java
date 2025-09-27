@@ -80,4 +80,61 @@ public class SysThirdAccount {
 
 	/**租户id*/
 	private java.lang.Integer tenantId;
+	
+	// 添加缺失的getter和setter方法
+	public java.lang.String getSysUserId() {
+		return sysUserId;
+	}
+	
+	public void setSysUserId(java.lang.String sysUserId) {
+		this.sysUserId = sysUserId;
+	}
+	
+	public java.lang.String getThirdType() {
+		return thirdType;
+	}
+	
+	public void setThirdType(java.lang.String thirdType) {
+		this.thirdType = thirdType;
+	}
+	
+	public java.lang.String getRealname() {
+		return realname;
+	}
+	
+	public void setRealname(java.lang.String realname) {
+		this.realname = realname;
+	}
+	
+	public java.lang.String getAvatar() {
+		return avatar;
+	}
+	
+	public void setAvatar(java.lang.String avatar) {
+		this.avatar = avatar;
+	}
+	
+	public java.lang.String getThirdUserId() {
+		return thirdUserId;
+	}
+	
+	public void setThirdUserId(java.lang.String thirdUserId) {
+		this.thirdUserId = thirdUserId;
+	}
+	
+	public java.lang.Integer getTenantId() {
+		return tenantId;
+	}
+	
+	public void setTenantId(java.lang.Integer tenantId) {
+		this.tenantId = tenantId;
+	}
+	
+	public java.lang.String getThirdUserUuid() {
+		return thirdUserUuid;
+	}
+	
+	public void setThirdUserUuid(java.lang.String thirdUserUuid) {
+		this.thirdUserUuid = thirdUserUuid;
+	}
 }
