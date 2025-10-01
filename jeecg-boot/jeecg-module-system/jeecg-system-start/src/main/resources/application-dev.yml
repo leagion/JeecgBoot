@@ -171,7 +171,7 @@ custom:
           #username: root
           #password: root
           #driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/aiccg_pgdb?stringtype=unspecified
+          url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/aiccg_pgdb?stringtype=unspecified
           username: ${DB_USERNAME:aiccgdb}
           password: ${DB_PASSWORD:hkzdlq@CCG2025}
           driver-class-name: org.postgresql.Driver

@@ -6,13 +6,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # 安装依赖
-RUN npm install
+RUN pnpm install
 
 # 复制源代码
 COPY . .
 
 # 构建应用
-RUN npm run build
+RUN pnpm run build
 
 # 暴露端口（可以通过环境变量覆盖）
 EXPOSE 3000
