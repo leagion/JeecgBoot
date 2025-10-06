@@ -199,6 +199,33 @@ services:
       retries: 3
       start_period: 60s
 
+  # GeoServer地图服务器
+  geoserver:
+    image: kartoza/geoserver:2.23.0
+    container_name: geoserver
+    ports:
+      - "8081:8080"
+    environment:
+      - GEOSERVER_DATA_DIR=/opt/geoserver/data_dir
+      - POSTGRES_JDBC_PROXY=true
+      - POSTGRES_JDBC_HOST=pgDB
+      - POSTGRES_JDBC_PORT=5432
+      - POSTGRES_JDBC_DATABASE=aiccgDB
+      - POSTGRES_JDBC_USER=lq
+      - POSTGRES_JDBC_PASS=${POSTGRES_USER_PASSWORD}
+    volumes:
+      - geoserver_data:/opt/geoserver/data_dir
+    networks:
+      - aiccg-networks
+    depends_on:
+      - pgDB
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/geoserver/web/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
 # 持久化卷配置
 volumes:
   # PostgreSQL数据卷
@@ -216,6 +243,8 @@ volumes:
   rabbitmq_data:
   # Elasticsearch数据卷
   elasticsearch_data:
+  # GeoServer数据卷
+  geoserver_data:
 
 # 网络配置
 networks:
