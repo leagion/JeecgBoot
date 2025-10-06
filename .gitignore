@@ -13,3 +13,38 @@ os_del.cmd
 os_del_doc.cmd
 .svn
 derby.log
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/docker-compose.yml
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/Dockerfile
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/Dockerfile - 副本
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/simhei.ttf
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/simkai.ttf
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/SIMLI.TTF
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/simsun.ttc
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/SIMYOU.TTF
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/仿宋_GB2312.ttf
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/方正小标宋_GBK.TTF
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/方正小标宋简体.ttf
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/fontsCN/楷体_GB2312.ttf
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/local.json
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/run-document-server.sh
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/start.sh
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/Untitled-1.json
+deploy-docker/onlyoffice-redis-node-nginx -不启用RabbitMQ 和redis/构建命令.txt
+deploy-docker/all-docker-lq/fontsCN/simhei.ttf
+deploy-docker/all-docker-lq/fontsCN/simkai.ttf
+deploy-docker/all-docker-lq/fontsCN/SIMLI.TTF
+deploy-docker/all-docker-lq/fontsCN/simsun.ttc
+deploy-docker/all-docker-lq/fontsCN/SIMYOU.TTF
+deploy-docker/all-docker-lq/fontsCN/仿宋_GB2312.ttf
+deploy-docker/all-docker-lq/fontsCN/方正小标宋_GBK.TTF
+deploy-docker/all-docker-lq/fontsCN/方正小标宋简体.ttf
+deploy-docker/all-docker-lq/fontsCN/楷体_GB2312.ttf
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/simhei.ttf
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/simkai.ttf
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/SIMLI.TTF
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/simsun.ttc
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/SIMYOU.TTF
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/仿宋_GB2312.ttf
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/方正小标宋_GBK.TTF
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/方正小标宋简体.ttf
+deploy-docker/onlyoffice-redis-node-nginx/fontsCN/楷体_GB2312.ttf

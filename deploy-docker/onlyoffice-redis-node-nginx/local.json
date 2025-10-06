@@ -1,0 +1,83 @@
+{
+  "services": {
+    "CoAuthoring": {
+      "sql": {
+        "dbhost": "pgDB",
+        "dbport": 5432,
+        "dbname": "onlyofficeDB",
+        "dbuser": "lq",
+        "dbpass": "${ONLYOFFICE_DB_PASS}",
+        "dbtype": "postgres"
+      },
+      "redis": {
+        "enabled": true,
+        "host": "aiccg-boot-redis",
+        "port": 6379,
+        "name": "redis",
+        "password": "${REDIS_PASSWORD}"
+      },
+      "token": {
+        "enable": {
+          "browser": false,
+          "request": {
+            "inbox": false,
+            "outbox": false
+          }
+        },
+        "inbox": {
+          "header": "Authorization",
+          "inBody": false
+        },
+        "outbox": {
+          "header": "Authorization",
+          "inBody": false
+        }
+      },
+      "secret": {
+        "inbox": {
+          "string": ""
+        },
+        "outbox": {
+          "string": ""
+        },
+        "session": {
+          "string": ""
+        }
+      },
+      "request-filtering-agent": {
+        "allowPrivateIPAddress": true,
+        "allowMetaIPAddress": true
+      },
+      "queue": {
+        "type": "rabbitmq"
+      }
+    }
+  },
+  "queue": {
+    "type": "rabbitmq",
+    "options": {
+      "publish": true,
+      "subscribe": true
+    }
+  },
+  "rabbitmq": {
+    "url": "amqp://guest:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672",
+    "connection": {
+      "enabled": true
+    }
+  },
+  "wopi": {
+    "enable": false,
+    "amqp": {
+      "enabled": false
+    }
+  },
+  "log4js": {
+    "categories": {
+      "default": {
+        "level": "info",
+        "appenders": ["console", "file"]
+      }
+    }
+  }
+}

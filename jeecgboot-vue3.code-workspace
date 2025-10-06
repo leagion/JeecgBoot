@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "jeecgboot-vue3"
+		},
+		{
+			"path": "jeecg-boot"
+		}
+	],
+	"settings": {
+		"i18n-ally.localesPaths": [
+			"src/locales",
+			"src/locales/lang",
+			"public/resource/tinymce/langs"
+		]
+	}
+}
