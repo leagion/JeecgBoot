@@ -90,7 +90,7 @@ if %errorlevel% neq 0 (
 cd ..
 
 echo [5/5] 启动Docker容器...
-docker-compose up -d
+docker-compose -f docker-compose-lq.yml up -d
 
 echo.
 echo ========================================

@@ -41,8 +41,9 @@ ENV LANG=zh_CN.UTF-8 \
 RUN mkdir -p /docker-entrypoint-initdb.d && \
     chmod 777 /docker-entrypoint-initdb.d  # 授予所有用户读写执行权限
 
-# 步骤7：复制生成脚本并赋予执行权限
+# 步骤7：复制初始化脚本并赋予执行权限
 COPY init-scripts/generate-init.sh /docker-entrypoint-initdb.d/
+COPY init-scripts/init-all-databases.sql /docker-entrypoint-initdb.d/
 RUN chmod +x /docker-entrypoint-initdb.d/generate-init.sh
 
 # 暴露端口

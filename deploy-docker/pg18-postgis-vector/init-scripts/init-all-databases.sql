@@ -1,40 +1,35 @@
 -- PostgreSQL数据库初始化脚本
 -- 此脚本包含所有必要的数据库创建、用户管理和扩展配置
+-- 使用纯SQL和PL/pgSQL语法确保在Docker环境中兼容性
 
 -- 设置客户端编码和事务隔离级别
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 
--- 1. 首先连接到postgres数据库
-\c postgres;
+-- 注意：在Docker环境中，这个脚本会自动连接到postgres数据库
 
--- 2. 删除旧的oo_user用户（如果存在）
+-- 1. 创建lq用户（如果不存在）
 DO $$ 
 BEGIN 
-  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'oo_user') THEN
-    -- 撤销所有权限
-    REVOKE ALL PRIVILEGES ON ALL DATABASES FROM oo_user;
-    REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM oo_user;
-    REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM oo_user;
-    REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM oo_user;
-    REVOKE USAGE ON SCHEMA public FROM oo_user;
-    
-    -- 如果有数据库依赖此用户，需要先更改数据库所有者
-    UPDATE pg_database SET datdba = (SELECT oid FROM pg_roles WHERE rolname = 'postgres') 
-    WHERE datdba = (SELECT oid FROM pg_roles WHERE rolname = 'oo_user');
-    
-    -- 删除用户
-    DROP ROLE IF EXISTS oo_user;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'lq') THEN
+    CREATE ROLE lq 
+      WITH LOGIN 
+      PASSWORD 'hkzdlq@CCG2025' 
+      NOSUPERUSER 
+      CREATEDB 
+      NOCREATEROLE 
+      INHERIT 
+      CONNECTION LIMIT 100;
   END IF;
 END $$;
 
--- 3. 创建aiccg_lq用户（如果不存在）
+-- 2. 创建onlyoffice用户（如果不存在）
 DO $$ 
 BEGIN 
-  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'aiccg_lq') THEN
-    CREATE ROLE aiccg_lq 
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'onlyoffice') THEN
+    CREATE ROLE onlyoffice 
       WITH LOGIN 
-      PASSWORD 'hkzdlq@CCG2025' 
+      PASSWORD 'onlyoffice' 
       NOSUPERUSER 
       NOCREATEDB 
       NOCREATEROLE 
@@ -43,158 +38,126 @@ BEGIN
   END IF;
 END $$;
 
--- 4. 处理onlyofficeDB数据库（与docker-compose-lq.yml中配置的名称一致）
--- 检查数据库是否存在
-\set onlyoffice_exists `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = 'onlyofficeDB')`
+-- 3. 创建所有数据库（必须在函数外创建）
+CREATE DATABASE "aiccgDB";
+CREATE DATABASE "onlyofficeDB";
+CREATE DATABASE "aiDB";
+CREATE DATABASE "mapDB";
+CREATE DATABASE "redisDB";
+CREATE DATABASE "minioDBs";
+CREATE DATABASE "elasticsearch";
 
-\if :onlyoffice_exists
-  -- 数据库已存在，更改所有者为aiccg_lq
-  ALTER DATABASE onlyofficeDB OWNER TO aiccg_lq;
-\else
-  -- 创建数据库并设置所有者为aiccg_lq
-  CREATE DATABASE onlyofficeDB OWNER aiccg_lq;
-\endif
+-- 4. 授予lq用户对所有数据库的所有权限
+GRANT ALL PRIVILEGES ON DATABASE "aiccgDB" TO lq;
+GRANT ALL PRIVILEGES ON DATABASE "onlyofficeDB" TO lq;
+GRANT ALL PRIVILEGES ON DATABASE "aiDB" TO lq;
+GRANT ALL PRIVILEGES ON DATABASE "mapDB" TO lq;
+GRANT ALL PRIVILEGES ON DATABASE "redisDB" TO lq;
+GRANT ALL PRIVILEGES ON DATABASE "minioDBs" TO lq;
+GRANT ALL PRIVILEGES ON DATABASE "elasticsearch" TO lq;
 
--- 授予aiccg_lq用户对onlyofficeDB数据库的所有权限
-GRANT ALL PRIVILEGES ON DATABASE onlyofficeDB TO aiccg_lq;
-\c onlyofficeDB;
-GRANT USAGE ON SCHEMA public TO aiccg_lq;
-GRANT CREATE ON SCHEMA public TO aiccg_lq;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO aiccg_lq;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO aiccg_lq;
-GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO aiccg_lq;
+-- 5. 授予onlyoffice用户对onlyofficeDB数据库的所有权限
+GRANT ALL PRIVILEGES ON DATABASE "onlyofficeDB" TO onlyoffice;
 
+-- 6. 设置aiccgDB数据库
+\c "aiccgDB";
+ALTER DATABASE "aiccgDB" OWNER TO lq;
+GRANT USAGE ON SCHEMA public TO lq;
+GRANT CREATE ON SCHEMA public TO lq;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public 
-  GRANT ALL PRIVILEGES ON TABLES TO aiccg_lq;
+  GRANT ALL PRIVILEGES ON TABLES TO lq;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public 
-  GRANT ALL PRIVILEGES ON SEQUENCES TO aiccg_lq;
+  GRANT ALL PRIVILEGES ON SEQUENCES TO lq;
 
 -- 数据库配置优化
-ALTER DATABASE onlyofficeDB SET TIME ZONE 'Asia/Shanghai';
-ALTER DATABASE onlyofficeDB SET default_text_search_config = 'pg_catalog.simple';
+ALTER DATABASE "aiccgDB" SET TIME ZONE 'Asia/Shanghai';
+ALTER DATABASE "aiccgDB" SET default_text_search_config = 'pg_catalog.simple';
 
--- onlyofficeDB数据库不启用任何扩展
--- 检查当前已启用的扩展
-SELECT * FROM pg_extension;
-
--- 5. 处理aiccg_pgdb数据库
--- 返回到postgres数据库
-\c postgres;
-
--- 检查数据库是否存在
-\set aiccg_pgdb_exists `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = 'aiccg_pgdb')`
-
-\if :aiccg_pgdb_exists
-  -- 数据库已存在，更改所有者为aiccg_lq
-  ALTER DATABASE aiccg_pgdb OWNER TO aiccg_lq;
-\else
-  -- 创建数据库并设置所有者为aiccg_lq
-  CREATE DATABASE aiccg_pgdb OWNER aiccg_lq;
-\endif
-
--- 授予aiccg_lq用户对aiccg_pgdb数据库的所有权限
-GRANT ALL PRIVILEGES ON DATABASE aiccg_pgdb TO aiccg_lq;
-\c aiccg_pgdb;
-GRANT USAGE ON SCHEMA public TO aiccg_lq;
-GRANT CREATE ON SCHEMA public TO aiccg_lq;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO aiccg_lq;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO aiccg_lq;
-GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO aiccg_lq;
-
+-- 7. 设置onlyofficeDB数据库
+\c "onlyofficeDB";
+ALTER DATABASE "onlyofficeDB" OWNER TO lq;
+GRANT USAGE ON SCHEMA public TO lq;
+GRANT CREATE ON SCHEMA public TO lq;
+GRANT USAGE ON SCHEMA public TO onlyoffice;
+GRANT CREATE ON SCHEMA public TO onlyoffice;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public 
-  GRANT ALL PRIVILEGES ON TABLES TO aiccg_lq;
+  GRANT ALL PRIVILEGES ON TABLES TO lq;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public 
-  GRANT ALL PRIVILEGES ON SEQUENCES TO aiccg_lq;
+  GRANT ALL PRIVILEGES ON SEQUENCES TO lq;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT ALL PRIVILEGES ON TABLES TO onlyoffice;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT ALL PRIVILEGES ON SEQUENCES TO onlyoffice;
 
--- 为aiccg_pgdb数据库启用所需的扩展
+-- 数据库配置优化
+ALTER DATABASE "onlyofficeDB" SET TIME ZONE 'Asia/Shanghai';
+ALTER DATABASE "onlyofficeDB" SET default_text_search_config = 'pg_catalog.simple';
+
+-- 8. 设置aiDB数据库
+\c "aiDB";
+ALTER DATABASE "aiDB" OWNER TO lq;
+GRANT USAGE ON SCHEMA public TO lq;
+GRANT CREATE ON SCHEMA public TO lq;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT ALL PRIVILEGES ON TABLES TO lq;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT ALL PRIVILEGES ON SEQUENCES TO lq;
+
+-- 为aiDB数据库启用所需的扩展：vector和fuzzystrmatch
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+
+-- 数据库配置优化
+ALTER DATABASE "aiDB" SET TIME ZONE 'Asia/Shanghai';
+ALTER DATABASE "aiDB" SET default_text_search_config = 'pg_catalog.simple';
+
+-- 9. 设置mapDB数据库
+\c "mapDB";
+ALTER DATABASE "mapDB" OWNER TO lq;
+GRANT USAGE ON SCHEMA public TO lq;
+GRANT CREATE ON SCHEMA public TO lq;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT ALL PRIVILEGES ON TABLES TO lq;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public 
+  GRANT ALL PRIVILEGES ON SEQUENCES TO lq;
+
+-- 为mapDB数据库启用所需的扩展：postgis、postgis_topology和fuzzystrmatch
 CREATE EXTENSION IF NOT EXISTS postgis;
 CREATE EXTENSION IF NOT EXISTS postgis_topology;
 CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
 
 -- 数据库配置优化
-ALTER DATABASE aiccg_pgdb SET TIME ZONE 'Asia/Shanghai';
-ALTER DATABASE aiccg_pgdb SET default_text_search_config = 'pg_catalog.simple';
+ALTER DATABASE "mapDB" SET TIME ZONE 'Asia/Shanghai';
+ALTER DATABASE "mapDB" SET default_text_search_config = 'pg_catalog.simple';
 
--- 检查已启用的扩展
-SELECT * FROM pg_extension;
+-- 10. 设置redisDB数据库
+\c "redisDB";
+ALTER DATABASE "redisDB" OWNER TO lq;
+GRANT USAGE ON SCHEMA public TO lq;
+GRANT CREATE ON SCHEMA public TO lq;
 
--- 6. 处理其他数据库（如果在POSTGRES_MULTIPLE_DATABASES中指定）
--- 返回到postgres数据库
-\c postgres;
+-- 数据库配置优化
+ALTER DATABASE "redisDB" SET TIME ZONE 'Asia/Shanghai';
 
--- 处理minio数据库（如果存在于POSTGRES_MULTIPLE_DATABASES中）
-\set minio_exists `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = 'minio')`
+-- 11. 设置minioDBs数据库
+\c "minioDBs";
+ALTER DATABASE "minioDBs" OWNER TO lq;
+GRANT USAGE ON SCHEMA public TO lq;
+GRANT CREATE ON SCHEMA public TO lq;
 
-\if :minio_exists
-  -- 数据库已存在，更改所有者为postgres（主用户）
-  ALTER DATABASE minio OWNER TO postgres;
-  
-  -- 授予权限
-  GRANT ALL PRIVILEGES ON DATABASE minio TO postgres;
-  \c minio;
-  GRANT USAGE ON SCHEMA public TO postgres;
-  GRANT CREATE ON SCHEMA public TO postgres;
-  
-  -- 不启用任何扩展
-  SELECT * FROM pg_extension;
-\endif
+-- 数据库配置优化
+ALTER DATABASE "minioDBs" SET TIME ZONE 'Asia/Shanghai';
 
--- 处理elasticsearch数据库（如果存在于POSTGRES_MULTIPLE_DATABASES中）
-\c postgres;
-\set elasticsearch_exists `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = 'elasticsearch')`
+-- 12. 设置elasticsearch数据库
+\c "elasticsearch";
+ALTER DATABASE "elasticsearch" OWNER TO lq;
+GRANT USAGE ON SCHEMA public TO lq;
+GRANT CREATE ON SCHEMA public TO lq;
 
-\if :elasticsearch_exists
-  -- 数据库已存在，更改所有者为postgres（主用户）
-  ALTER DATABASE elasticsearch OWNER TO postgres;
-  
-  -- 授予权限
-  GRANT ALL PRIVILEGES ON DATABASE elasticsearch TO postgres;
-  \c elasticsearch;
-  GRANT USAGE ON SCHEMA public TO postgres;
-  GRANT CREATE ON SCHEMA public TO postgres;
-  
-  -- 不启用任何扩展
-  SELECT * FROM pg_extension;
-\endif
+-- 数据库配置优化
+ALTER DATABASE "elasticsearch" SET TIME ZONE 'Asia/Shanghai';
 
--- 处理rabbitmq数据库（如果存在于POSTGRES_MULTIPLE_DATABASES中）
-\c postgres;
-\set rabbitmq_exists `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = 'rabbitmq')`
-
-\if :rabbitmq_exists
-  -- 数据库已存在，更改所有者为postgres（主用户）
-  ALTER DATABASE rabbitmq OWNER TO postgres;
-  
-  -- 授予权限
-  GRANT ALL PRIVILEGES ON DATABASE rabbitmq TO postgres;
-  \c rabbitmq;
-  GRANT USAGE ON SCHEMA public TO postgres;
-  GRANT CREATE ON SCHEMA public TO postgres;
-  
-  -- 不启用任何扩展
-  SELECT * FROM pg_extension;
-\endif
-
--- 处理application数据库（如果存在于POSTGRES_MULTIPLE_DATABASES中）
-\c postgres;
-\set application_exists `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = 'application')`
-
-\if :application_exists
-  -- 数据库已存在，更改所有者为postgres（主用户）
-  ALTER DATABASE application OWNER TO postgres;
-  
-  -- 授予权限
-  GRANT ALL PRIVILEGES ON DATABASE application TO postgres;
-  \c application;
-  GRANT USAGE ON SCHEMA public TO postgres;
-  GRANT CREATE ON SCHEMA public TO postgres;
-  
-  -- 不启用任何扩展
-  SELECT * FROM pg_extension;
-\endif
-
--- 7. 验证最终状态
+-- 13. 验证最终状态
 \c postgres;
 
 -- 列出所有用户
@@ -203,13 +166,41 @@ SELECT usename FROM pg_user;
 -- 列出所有数据库及其所有者
 SELECT datname, pg_get_userbyid(datdba) as owner FROM pg_database;
 
--- 验证aiccg_pgdb数据库中的扩展
-\c aiccg_pgdb;
+-- 验证aiDB数据库中的扩展
+\c "aiDB";
 SELECT extname FROM pg_extension;
 
--- 验证onlyofficeDB数据库中的扩展
-\c onlyofficeDB;
+-- 验证mapDB数据库中的扩展
+\c "mapDB";
 SELECT extname FROM pg_extension;
+
+-- 14. 创建LiteFlow所需的airag_flow表
+\c "aiccgDB";
+CREATE TABLE IF NOT EXISTS airag_flow (
+    id VARCHAR(64) PRIMARY KEY,
+    application_name VARCHAR(255),
+    chain TEXT,
+    status VARCHAR(20) DEFAULT 'enable',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 添加注释
+COMMENT ON TABLE airag_flow IS 'LiteFlow流程配置表';
+COMMENT ON COLUMN airag_flow.id IS '主键ID';
+COMMENT ON COLUMN airag_flow.application_name IS '应用名称';
+COMMENT ON COLUMN airag_flow.chain IS '流程链配置';
+COMMENT ON COLUMN airag_flow.status IS '状态(enable:启用,disable:禁用)';
+COMMENT ON COLUMN airag_flow.create_time IS '创建时间';
+COMMENT ON COLUMN airag_flow.update_time IS '更新时间';
+
+-- 插入默认的流程配置示例
+INSERT INTO airag_flow (id, application_name, chain, status) VALUES 
+('1', 'default', 'THEN(a, b, c);', 'enable')
+ON CONFLICT (id) DO NOTHING;
+
+-- 授权给lq用户
+GRANT ALL PRIVILEGES ON TABLE airag_flow TO lq;
 
 -- 完成初始化
 SELECT '数据库初始化完成！' AS status;

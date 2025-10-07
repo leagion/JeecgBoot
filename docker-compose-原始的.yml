@@ -79,8 +79,8 @@ services:
   jeecg-vue:
     build:
       context: ./jeecgboot-vue3
-    container_name: jeecgboot-vue3-nginx
-    image: jeecgboot-vue3
+    container_name: aiccg-vue3
+    image: aiccg-vue3
     depends_on:
       - jeecg-boot-system
     networks:

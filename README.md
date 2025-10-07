@@ -140,7 +140,7 @@ JeecgBoot平台提供了一套完善的AI应用管理系统模块，是一套类
 - 41.数据变更记录日志，可记录数据每次变更内容，通过版本对比功能查看历史变化。
 - 42.提供简单易用的打印插件，支持谷歌、火狐、IE11+等各种浏览器。
 - 43.后端采用Maven分模块开发方式；前端支持菜单动态路由。
-- 44.提供丰富的示例代码，涵盖了常用的业务场景，便于学习和参考。
+- 44.提供丰富的示例代码，涵盖了常用的业务场景，便于学习和参考.
 
 
 
@@ -199,24 +199,30 @@ JeecgBoot平台提供了一套完善的AI应用管理系统模块，是一套类
 > - [单体快速切换微服务](https://help.jeecg.com/java/springcloud/switchcloud/monomer)
 > - [Docker一键启动微服务前后端](https://help.jeecg.com/java/docker/quickcloud)
 
+## 自动化部署说明
 
+### Docker Compose 自动化配置
 
-- 1、服务注册和发现 Nacos √
-- 2、统一配置中心 Nacos  √
-- 3、路由网关 gateway(三种加载方式) √
-- 4、分布式 http feign √
-- 5、熔断降级限流 Sentinel √
-- 6、分布式文件 Minio、阿里OSS √ 
-- 7、统一权限控制 JWT + Shiro √
-- 8、服务监控 SpringBootAdmin√
-- 9、链路跟踪 Skywalking   [参考文档](https://help.jeecg.com/java/springcloud/super/skywarking)
-- 10、消息中间件 RabbitMQ  √
-- 11、分布式任务 xxl-job  √ 
-- 12、分布式事务 Seata
-- 13、轻量分布式日志 Loki+grafana套件
-- 14、支持 docker-compose、k8s、jenkins
-- 15、CAS 单点登录   √
-- 16、路由限流   √
+项目采用全自动化的 Docker Compose 配置，确保服务在构建和启动时能够正确配置，避免手动干预导致的问题。
+
+#### 自动化初始化机制
+
+1. **RabbitMQ 用户自动创建**：通过定义文件自动创建 `onlyoffice` 用户并配置权限
+2. **PostgreSQL 用户和数据库自动创建**：在初始化脚本中预先创建所需用户和数据库
+3. **服务依赖和健康检查**：使用健康检查确保服务按正确顺序启动
+
+#### 启动脚本
+
+- **Windows CMD 版本**：`start-docker-compose-lq.bat`
+- **PowerShell 版本**：`start-docker-compose-lq.ps1`
+
+#### 配置文件
+
+- 主配置文件：`docker-compose-lq.yml`
+- RabbitMQ 定义文件：`deploy-docker/pg18-postgis-vector/init-scripts/rabbitmq-definitions.json`
+- PostgreSQL 初始化脚本：`deploy-docker/pg18-postgis-vector/init-scripts/init-all-databases.sql`
+
+详细说明请参考：[构建docker-compose.md](deploy-docker/构建docker-compose.md)
 
 #### 微服务架构图
 ![微服务架构图](https://jeecgos.oss-cn-beijing.aliyuncs.com/files/jeecgboot_springcloud2022.png "在这里输入图片标题")

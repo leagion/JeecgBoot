@@ -36,7 +36,7 @@ spring:
     encoding: UTF-8
   flyway:
     # 是否启用flyway
-    enabled: false
+    enabled: true
     # 是否关闭要清除已有库下的表功能,生产环境必须为true,否则会删库，非常重要！！！
     clean-disabled: true
   servlet:
@@ -166,7 +166,7 @@ spring:
           slow-sql-millis: 5000
       datasource:
         master:
-          url: jdbc:postgresql://pgDB:5432/onlyofficeDB?stringtype=unspecified&charset=UTF-8
+          url: jdbc:postgresql://pgDB:5432/aiccgDB?stringtype=unspecified&charset=UTF-8
           username: lq
           password: ${POSTGRES_USER_PASSWORD}
           driver-class-name: org.postgresql.Driver
@@ -206,6 +206,27 @@ mybatis-plus:
     #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     # 返回类型为Map,显示null对应的字段
     call-setters-on-nulls: true
+
+# LiteFlow配置
+liteflow:
+  enable: true
+  rule-source:
+    - com.yomahub.liteflow.parser.sql.SQLXmlELParser
+  jdbc:
+    # 指定使用master数据源
+    datasource-name: master
+    # 指定表名
+    table-name: airag_flow
+    # 指定字段名
+    application-name-field: application_name
+    chain-field: chain
+    status-field: status
+    where-condition: status = 'enable'
+  # 添加额外配置确保使用正确的数据源
+  spring:
+    datasource:
+      name: master
+
 #jeecg专用配置
 minidao:
   base-package: org.jeecg.modules.jmreport.*,org.jeecg.modules.drag.*
@@ -229,8 +250,8 @@ jeecg:
     embed-store:
       host: pgDB
       port: 5432
-      database: aiccg_pgdb
-      user: aiccg_lq
+      database: aiDB
+      user: lq
       password: ${POSTGRES_USER_PASSWORD}
       table: embeddings
   # 平台上线安全配置
