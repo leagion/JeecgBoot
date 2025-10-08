@@ -1,0 +1,52 @@
+{
+  "services": {
+    "CoAuthoring": {
+      "sql": {
+        "type": "postgres",
+        "dbHost": "pgDB",
+        "dbPort": "5432",
+        "dbName": "onlyofficeDB",
+        "dbUser": "onlyoffice",
+        "dbPass": "hkzdlq@CCG2025"
+      },
+      "redis": {
+        "host": "aiccg-boot-redis",
+        "port": "6379",
+        "password": "redispassword123"
+      },
+      "rabbitmq": {
+        "url": "amqp://onlyoffice:onlyoffice@rabbitmq:5672"
+      },
+      "token": {
+        "enable": {
+          "request": {
+            "inbox": true,
+            "outbox": true
+          },
+          "browser": true
+        },
+        "secret": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP",
+        "inbox": {
+          "header": "Authorization"
+        },
+        "outbox": {
+          "header": "Authorization"
+        }
+      },
+      "secret": {
+        "inbox": {
+          "string": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP"
+        },
+        "outbox": {
+          "string": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP"
+        },
+        "session": {
+          "string": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP"
+        }
+      }
+    }
+  },
+  "wopi": {
+    "enable": false
+  }
+}

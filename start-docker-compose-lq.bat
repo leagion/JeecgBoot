@@ -29,6 +29,14 @@ where pnpm > nul 2>&1 || (
     exit /b 1
 )
 
+echo [1.5/5] 创建OnlyOffice证书目录...
+if not exist "deploy-docker\docker-finished-all\onlyoffice-config\certs" (
+    mkdir "deploy-docker\docker-finished-all\onlyoffice-config\certs"
+    echo 已创建证书目录: deploy-docker\docker-finished-all\onlyoffice-config\certs
+) else (
+    echo 证书目录已存在
+)
+
 echo [2/5] 设置 hosts 文件...
 :: 添加必要的hosts条目
 set "entry1=127.0.0.1   aiccg-boot-system"

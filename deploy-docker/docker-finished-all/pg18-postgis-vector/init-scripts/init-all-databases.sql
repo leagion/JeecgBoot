@@ -29,7 +29,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'onlyoffice') THEN
     CREATE ROLE onlyoffice 
       WITH LOGIN 
-      PASSWORD 'onlyoffice' 
+      PASSWORD 'hkzdlq@CCG2025' 
       NOSUPERUSER 
       NOCREATEDB 
       NOCREATEROLE 
@@ -72,6 +72,12 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 -- 数据库配置优化
 ALTER DATABASE "aiccgDB" SET TIME ZONE 'Asia/Shanghai';
 ALTER DATABASE "aiccgDB" SET default_text_search_config = 'pg_catalog.simple';
+
+-- 为aiccgDB数据库启用所需的扩展：vector、postgis、postgis_topology和fuzzystrmatch
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis_topology;
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
 
 -- 7. 设置onlyofficeDB数据库
 \c "onlyofficeDB";

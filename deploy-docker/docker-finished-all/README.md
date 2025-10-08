@@ -1,4 +1,68 @@
-# Docker 一键部署包
+# Docker一键部署包 (docker-finished-all)
+
+## 概述
+
+此目录包含已验证的Docker一键部署配置，确保所有服务能够正确启动和集成。
+
+## 已验证的配置
+
+### 1. RabbitMQ集成修复
+- **问题**: OnlyOffice无法连接到RabbitMQ，显示`ECONNREFUSED 127.0.0.1:5672`
+- **解决方案**: 
+  - 更新了`docker-compose-lq.yml`中的RabbitMQ配置，移除了挂载文件的只读限制
+  - 修正了OnlyOffice配置文件中的RabbitMQ URL为`amqp://onlyoffice:onlyoffice@rabbitmq:5672`
+
+### 2. OnlyOffice配置修复
+- **问题**: OnlyOffice配置文件格式错误和权限问题
+- **解决方案**:
+  - 修复了`onlyoffice-config/local.json`文件格式
+  - 确保配置文件挂载为可写模式
+
+### 3. 网络连接修复
+- **问题**: 服务间网络连接问题
+- **解决方案**: 使用Docker Compose服务名称而非IP地址进行服务发现
+
+## 核心文件说明
+
+- `docker-compose-lq.yml`: 主要的Docker Compose配置文件
+- `onlyoffice-config/local.json`: OnlyOffice服务配置文件
+- `pg18-postgis-vector/init-scripts/rabbitmq-definitions.json`: RabbitMQ用户和权限定义
+
+## 需要删除的多余脚本
+
+以下脚本已被整合到主配置中，可以安全删除：
+
+1. `fix-rabbitmq-config.sh`
+2. `fix-rabbitmq-connection.sh`
+3. `fix-rabbitmq-env.sh`
+4. `fix-rabbitmq-guest-access.ps1`
+5. `fix-rabbitmq-guest-access.sh`
+6. `reset-rabbitmq-credentials.ps1`
+7. `update-rabbitmq-config-encoded.sh`
+8. `update-rabbitmq-config.sh`
+9. `update-rabbitmq-password.sh`
+10. `fix-onlyoffice-locale-simple.ps1`
+11. `comprehensive-fix.ps1`
+12. `english-fix.ps1`
+
+## 使用方法
+
+```bash
+# 启动所有服务
+docker-compose -f docker-compose-lq.yml up -d
+
+# 查看服务状态
+docker-compose -f docker-compose-lq.yml ps
+
+# 停止所有服务
+docker-compose -f docker-compose-lq.yml down
+```
+
+## 版本信息
+
+- 版本: 1.0
+- 最后更新: 2025-10-08
+- 状态: 已验证可正常工作
 
 ## 概述
 
@@ -57,14 +121,14 @@
 
 1. 编译后端项目：
    ```bash
-   cd jeecg-boot
+   cd ../jeecg-boot
    mvn clean install -Pdocker
    cd ..
    ```
 
 2. 编译前端项目：
    ```bash
-   cd jeecgboot-vue3
+   cd ../jeecgboot-vue3
    pnpm install
    pnpm run build:docker
    cd ..
@@ -74,6 +138,33 @@
    ```bash
    docker-compose -f docker-compose-lq.yml up -d
    ```
+
+## 解决中文乱码问题
+
+如果在运行脚本时遇到中文乱码问题，请使用以下方法之一：
+
+### 方法 1: 使用 UTF-8 编码的 PowerShell 脚本
+```bash
+powershell -ExecutionPolicy Bypass -File verify-deployment-utf8.ps1
+```
+
+### 方法 2: 手动设置 CMD 编码
+在运行脚本前执行以下命令：
+```bash
+chcp 65001
+verify-deployment.bat
+```
+
+### 方法 3: 在 PowerShell 中设置编码
+```
+# 设置 UTF-8 编码
+$OutputEncoding = New-Object -typename System.Text.UTF8Encoding
+[Console]::InputEncoding = New-Object -typename System.Text.UTF8Encoding
+[Console]::OutputEncoding = New-Object -typename System.Text.UTF8Encoding
+
+# 然后运行脚本
+.\verify-deployment.bat
+```
 
 ## 服务访问地址
 
@@ -122,6 +213,126 @@ PostgreSQL 镜像包含了以下扩展：
 1. 数据库服务优先启动
 2. 中间件服务（Redis、RabbitMQ等）随后启动
 3. 应用服务最后启动
+
+## OnlyOffice 故障排除
+
+### 常见问题和解决方案
+
+#### 1. 文档无法打开或显示错误
+
+**问题现象**: 打开文档时提示"Error while downloading the document file to be converted"或其他错误
+
+**解决方案**:
+1. 检查 OnlyOffice 容器日志：
+   ```bash
+   docker logs onlyoffice
+   ```
+
+2. 检查配置文件权限：
+   ```bash
+   # 创建配置目录并设置权限
+   mkdir -p ./onlyoffice-config
+   chmod 755 ./onlyoffice-config
+   ```
+
+3. 重启 OnlyOffice 服务：
+   ```bash
+   docker-compose -f docker-compose-lq.yml restart onlyoffice
+   ```
+
+#### 2. 中文显示为方块或乱码
+
+**问题现象**: 文档中的中文显示为方块或乱码
+
+**解决方案**:
+1. 确认字体文件已正确挂载：
+   ```bash
+   docker exec -it onlyoffice ls /usr/share/fonts/truetype/fontsCN
+   ```
+
+2. 检查字体配置：
+   ```bash
+   docker exec -it onlyoffice fc-list :lang=zh
+   ```
+
+#### 3. OnlyOffice 服务无法连接数据库
+
+**问题现象**: OnlyOffice 无法连接 PostgreSQL 数据库
+
+**解决方案**:
+1. 检查数据库连接参数：
+   - 确认 `DB_HOST` 设置为 `pgDB`
+   - 确认 `DB_PORT` 设置为 `5432`
+   - 确认数据库用户和密码正确
+
+2. 验证数据库连接：
+   ```bash
+   docker-compose -f docker-compose-lq.yml exec pgDB pg_isready
+   ```
+
+#### 4. OnlyOffice 服务无法连接 RabbitMQ
+
+**问题现象**: OnlyOffice 无法连接 RabbitMQ 消息队列
+
+**解决方案**:
+1. 检查 RabbitMQ 连接参数：
+   - 确认 `AMQP_URI` 设置正确
+   - 确认 RabbitMQ 用户 `onlyoffice` 已创建并具有正确权限
+
+2. 验证 RabbitMQ 连接：
+   ```bash
+   docker-compose -f docker-compose-lq.yml exec rabbitmq rabbitmqctl list_users
+   ```
+
+#### 5. 文档下载失败 (错误代码 -4)
+
+**问题现象**: 错误信息显示 "Download failed"，错误代码 -4
+
+**解决方案**:
+1. 检查网络连接：
+   ```bash
+   # 运行网络诊断脚本
+   powershell -ExecutionPolicy Bypass -File check-network.ps1
+   ```
+
+2. 检查 OnlyOffice 配置文件：
+   ```bash
+   # 确认配置文件存在且正确
+   cat ./onlyoffice-config/local.json
+   ```
+
+3. 重启 OnlyOffice 服务：
+   ```bash
+   docker-compose -f docker-compose-lq.yml restart onlyoffice
+   ```
+
+4. 检查防火墙设置：
+   - 确保 Docker 容器可以访问应用服务器
+   - 检查 Windows 防火墙是否阻止了连接
+
+### 诊断工具
+
+#### 1. 使用 PowerShell 检查 OnlyOffice 状态
+```bash
+powershell -ExecutionPolicy Bypass -File check-onlyoffice.ps1
+```
+
+#### 2. 网络连接检查
+```bash
+powershell -ExecutionPolicy Bypass -File check-network.ps1
+```
+
+#### 3. 手动检查服务
+```bash
+# 检查容器状态
+docker ps --filter "name=onlyoffice"
+
+# 查看日志
+docker logs --tail 50 onlyoffice
+
+# 进入容器检查
+docker exec -it onlyoffice bash
+```
 
 ## 故障排除
 

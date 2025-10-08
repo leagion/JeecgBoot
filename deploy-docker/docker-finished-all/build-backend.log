@@ -1,0 +1,442 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] JEECG BOOT 3.8.2                                                   [pom]
+[INFO] jeecg-boot-base-core                                               [jar]
+[INFO] jeecg-module-system                                                [pom]
+[INFO] jeecg-system-api                                                   [pom]
+[INFO] jeecg-system-local-api                                             [jar]
+[INFO] jeecg-system-cloud-api                                             [jar]
+[INFO] jeecg-boot-module                                                  [pom]
+[INFO] jeecg-boot-module-airag                                            [jar]
+[INFO] jeecg-system-biz                                                   [jar]
+[INFO] jeecg-module-demo                                                  [jar]
+[INFO] jeecg-system-start                                                 [jar]
+[INFO] 
+[INFO] -------------< org.jeecgframework.boot:jeecg-boot-parent >--------------
+[INFO] Building JEECG BOOT 3.8.2 3.8.2                                   [1/11]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-boot-parent ---
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-boot-parent ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-boot-parent\3.8.2\jeecg-boot-parent-3.8.2.pom
+[INFO] 
+[INFO] ------------< org.jeecgframework.boot:jeecg-boot-base-core >------------
+[INFO] Building jeecg-boot-base-core 3.8.2                               [2/11]
+[INFO]   from jeecg-boot-base-core\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:resources (default-resources)'
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:testResources (default-testResources)'
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-boot-base-core ---
+[INFO] Deleting E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\target
+[INFO] 
+[INFO] --- resources:3.1.0:resources (default-resources) @ jeecg-boot-base-core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 7 resources
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ jeecg-boot-base-core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 196 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\target\classes
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-base-core/src/main/java/org/jeecg/common/util/ReflectHelper.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-base-core/src/main/java/org/jeecg/common/util/ReflectHelper.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-base-core/src/main/java/org/jeecg/common/util/oConvertUtils.java: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\src\main\java\org\jeecg\common\util\oConvertUtils.java 使用或覆盖了标记为待删除的已过时 API。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-base-core/src/main/java/org/jeecg/common/util/oConvertUtils.java: 有关详细信息, 请使用 -Xlint:removal 重新编译。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-base-core/src/main/java/org/jeecg/common/util/ImportExcelUtil.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-base-core/src/main/java/org/jeecg/common/util/ImportExcelUtil.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] 
+[INFO] --- resources:3.1.0:testResources (default-testResources) @ jeecg-boot-base-core ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ jeecg-boot-base-core ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\target\test-classes
+[INFO] 
+[INFO] --- surefire:2.22.2:test (default-test) @ jeecg-boot-base-core ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.2.2:jar (default-jar) @ jeecg-boot-base-core ---
+[INFO] Building jar: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\target\jeecg-boot-base-core-3.8.2.jar
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-boot-base-core ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\target\jeecg-boot-base-core-3.8.2.jar to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-boot-base-core\3.8.2\jeecg-boot-base-core-3.8.2.jar
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-base-core\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-boot-base-core\3.8.2\jeecg-boot-base-core-3.8.2.pom
+[INFO] 
+[INFO] ------------< org.jeecgframework.boot:jeecg-module-system >-------------
+[INFO] Building jeecg-module-system 3.8.2                                [3/11]
+[INFO]   from jeecg-module-system\pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-module-system ---
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-module-system ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-module-system\3.8.2\jeecg-module-system-3.8.2.pom
+[INFO] 
+[INFO] --------------< org.jeecgframework.boot:jeecg-system-api >--------------
+[INFO] Building jeecg-system-api 3.8.2                                   [4/11]
+[INFO]   from jeecg-module-system\jeecg-system-api\pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-system-api ---
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-system-api ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-system-api\3.8.2\jeecg-system-api-3.8.2.pom
+[INFO] 
+[INFO] -----------< org.jeecgframework.boot:jeecg-system-local-api >-----------
+[INFO] Building jeecg-system-local-api 3.8.2                             [5/11]
+[INFO]   from jeecg-module-system\jeecg-system-api\jeecg-system-local-api\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:resources (default-resources)'
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:testResources (default-testResources)'
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-system-local-api ---
+[INFO] Deleting E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-local-api\target
+[INFO] 
+[INFO] --- resources:3.1.0:resources (default-resources) @ jeecg-system-local-api ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-local-api\src\main\resources
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ jeecg-system-local-api ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-local-api\target\classes
+[INFO] 
+[INFO] --- resources:3.1.0:testResources (default-testResources) @ jeecg-system-local-api ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-local-api\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ jeecg-system-local-api ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:2.22.2:test (default-test) @ jeecg-system-local-api ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.2.2:jar (default-jar) @ jeecg-system-local-api ---
+[INFO] Building jar: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-local-api\target\jeecg-system-local-api-3.8.2.jar
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-system-local-api ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-local-api\target\jeecg-system-local-api-3.8.2.jar to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-system-local-api\3.8.2\jeecg-system-local-api-3.8.2.jar
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-local-api\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-system-local-api\3.8.2\jeecg-system-local-api-3.8.2.pom
+[INFO] 
+[INFO] -----------< org.jeecgframework.boot:jeecg-system-cloud-api >-----------
+[INFO] Building jeecg-system-cloud-api 3.8.2                             [6/11]
+[INFO]   from jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:resources (default-resources)'
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:testResources (default-testResources)'
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-system-cloud-api ---
+[INFO] Deleting E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\target
+[INFO] 
+[INFO] --- resources:3.1.0:resources (default-resources) @ jeecg-system-cloud-api ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\src\main\resources
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ jeecg-system-cloud-api ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 7 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\target\classes
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-api/jeecg-system-cloud-api/src/main/java/org/jeecg/common/system/api/fallback/SysBaseAPIFallback.java: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\src\main\java\org\jeecg\common\system\api\fallback\SysBaseAPIFallback.java使用或覆盖了已过时的 API。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-api/jeecg-system-cloud-api/src/main/java/org/jeecg/common/system/api/fallback/SysBaseAPIFallback.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] 
+[INFO] --- resources:3.1.0:testResources (default-testResources) @ jeecg-system-cloud-api ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ jeecg-system-cloud-api ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:2.22.2:test (default-test) @ jeecg-system-cloud-api ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.2.2:jar (default-jar) @ jeecg-system-cloud-api ---
+[INFO] Building jar: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\target\jeecg-system-cloud-api-3.8.2.jar
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-system-cloud-api ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\target\jeecg-system-cloud-api-3.8.2.jar to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-system-cloud-api\3.8.2\jeecg-system-cloud-api-3.8.2.jar
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-api\jeecg-system-cloud-api\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-system-cloud-api\3.8.2\jeecg-system-cloud-api-3.8.2.pom
+[INFO] 
+[INFO] -------------< org.jeecgframework.boot:jeecg-boot-module >--------------
+[INFO] Building jeecg-boot-module 3.8.2                                  [7/11]
+[INFO]   from jeecg-boot-module\pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-boot-module ---
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-boot-module ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-boot-module\3.8.2\jeecg-boot-module-3.8.2.pom
+[INFO] 
+[INFO] ----------< org.jeecgframework.boot:jeecg-boot-module-airag >-----------
+[INFO] Building jeecg-boot-module-airag 3.8.2                            [8/11]
+[INFO]   from jeecg-boot-module\jeecg-boot-module-airag\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:resources (default-resources)'
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:testResources (default-testResources)'
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-boot-module-airag ---
+[INFO] Deleting E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-boot-module-airag\target
+[INFO] 
+[INFO] --- resources:3.1.0:resources (default-resources) @ jeecg-boot-module-airag ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 4 resources
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ jeecg-boot-module-airag ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 39 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-boot-module-airag\target\classes
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-module/jeecg-boot-module-airag/src/main/java/org/jeecg/modules/airag/llm/document/TikaDocumentParser.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-module/jeecg-boot-module-airag/src/main/java/org/jeecg/modules/airag/llm/document/TikaDocumentParser.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] 
+[INFO] --- resources:3.1.0:testResources (default-testResources) @ jeecg-boot-module-airag ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-boot-module-airag\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ jeecg-boot-module-airag ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 4 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-boot-module-airag\target\test-classes
+[INFO] 
+[INFO] --- surefire:2.22.2:test (default-test) @ jeecg-boot-module-airag ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.2.2:jar (default-jar) @ jeecg-boot-module-airag ---
+[INFO] Building jar: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-boot-module-airag\target\jeecg-boot-module-airag-3.8.2.jar
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-boot-module-airag ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-boot-module-airag\target\jeecg-boot-module-airag-3.8.2.jar to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-boot-module-airag\3.8.2\jeecg-boot-module-airag-3.8.2.jar
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-boot-module-airag\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-boot-module-airag\3.8.2\jeecg-boot-module-airag-3.8.2.pom
+[INFO] 
+[INFO] --------------< org.jeecgframework.boot:jeecg-system-biz >--------------
+[INFO] Building jeecg-system-biz 3.8.2                                   [9/11]
+[INFO]   from jeecg-module-system\jeecg-system-biz\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:resources (default-resources)'
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:testResources (default-testResources)'
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-system-biz ---
+[INFO] Deleting E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-biz\target
+[INFO] 
+[INFO] --- resources:3.1.0:resources (default-resources) @ jeecg-system-biz ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 535 resources
+[INFO] Copying 37 resources
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ jeecg-system-biz ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 347 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-biz\target\classes
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/service/impl/SysBaseApiImpl.java: 某些输入文件使用或覆盖了已过时的 API。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/service/impl/SysBaseApiImpl.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/service/impl/ThirdAppDingtalkServiceImpl.java: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-biz\src\main\java\org\jeecg\modules\system\service\impl\ThirdAppDingtalkServiceImpl.java 使用或覆盖了标记为待删除的已过时 API。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/service/impl/ThirdAppDingtalkServiceImpl.java: 有关详细信息, 请使用 -Xlint:removal 重新编译。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/service/impl/SysDepartRoleUserServiceImpl.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-biz/src/main/java/org/jeecg/modules/system/service/impl/SysDepartRoleUserServiceImpl.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] 
+[INFO] --- resources:3.1.0:testResources (default-testResources) @ jeecg-system-biz ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-biz\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ jeecg-system-biz ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:2.22.2:test (default-test) @ jeecg-system-biz ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.2.2:jar (default-jar) @ jeecg-system-biz ---
+[INFO] Building jar: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-biz\target\jeecg-system-biz-3.8.2.jar
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-system-biz ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-biz\target\jeecg-system-biz-3.8.2.jar to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-system-biz\3.8.2\jeecg-system-biz-3.8.2.jar
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-biz\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-system-biz\3.8.2\jeecg-system-biz-3.8.2.pom
+[INFO] 
+[INFO] -------------< org.jeecgframework.boot:jeecg-module-demo >--------------
+[INFO] Building jeecg-module-demo 3.8.2                                 [10/11]
+[INFO]   from jeecg-boot-module\jeecg-module-demo\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:resources (default-resources)'
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:testResources (default-testResources)'
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-module-demo ---
+[INFO] Deleting E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-module-demo\target
+[INFO] 
+[INFO] --- resources:3.1.0:resources (default-resources) @ jeecg-module-demo ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 136 resources
+[INFO] Copying 54 resources
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ jeecg-module-demo ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 130 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-module-demo\target\classes
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-module/jeecg-module-demo/src/main/java/org/jeecg/modules/demo/test/service/impl/JeecgDemoServiceImpl.java: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-module-demo\src\main\java\org\jeecg\modules\demo\test\service\impl\JeecgDemoServiceImpl.java使用了未经检查或不安全的操作。
+[INFO] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-boot-module/jeecg-module-demo/src/main/java/org/jeecg/modules/demo/test/service/impl/JeecgDemoServiceImpl.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] 
+[INFO] --- resources:3.1.0:testResources (default-testResources) @ jeecg-module-demo ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-module-demo\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ jeecg-module-demo ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:2.22.2:test (default-test) @ jeecg-module-demo ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.2.2:jar (default-jar) @ jeecg-module-demo ---
+[INFO] Building jar: E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-module-demo\target\jeecg-module-demo-3.8.2.jar
+[INFO] 
+[INFO] --- install:2.5.2:install (default-install) @ jeecg-module-demo ---
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-module-demo\target\jeecg-module-demo-3.8.2.jar to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-module-demo\3.8.2\jeecg-module-demo-3.8.2.jar
+[INFO] Installing E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-boot-module\jeecg-module-demo\pom.xml to C:\Users\LQ\.m2\repository\org\jeecgframework\boot\jeecg-module-demo\3.8.2\jeecg-module-demo-3.8.2.pom
+[INFO] 
+[INFO] -------------< org.jeecgframework.boot:jeecg-system-start >-------------
+[INFO] Building jeecg-system-start 3.8.2                                [11/11]
+[INFO]   from jeecg-module-system\jeecg-system-start\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:resources (default-resources)'
+[WARNING] Parameter 'propertiesEncoding' is unknown for plugin 'maven-resources-plugin:3.1.0:testResources (default-testResources)'
+[INFO] 
+[INFO] --- clean:3.2.0:clean (default-clean) @ jeecg-system-start ---
+[INFO] Deleting E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-start\target
+[INFO] 
+[INFO] --- resources:3.1.0:resources (default-resources) @ jeecg-system-start ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 23 resources
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- compiler:3.10.1:compile (default-compile) @ jeecg-system-start ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 4 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-start\target\classes
+[INFO] 
+[INFO] --- resources:3.1.0:testResources (default-testResources) @ jeecg-system-start ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-start\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.10.1:testCompile (default-testCompile) @ jeecg-system-start ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 9 source files to E:\GitProjcetLQ\AIccgLQ\jeecg-boot\jeecg-module-system\jeecg-system-start\target\test-classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[6,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[7,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[8,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[9,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[10,33] 找不到符号
+  符号:   类 CommonConstant
+  位置: 程序包 org.jeecg.common.constant
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[11,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[12,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[13,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[14,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[16,29] 找不到符号
+  符号:   类 DySmsHelper
+  位置: 程序包 org.jeecg.common.util
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/smallTools/TestStr.java:[5,29] 找不到符号
+  符号:   类 DateUtils
+  位置: 程序包 org.jeecg.common.util
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[6,24] 程序包org.jeecg.config不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[7,46] 程序包org.jeecg.config.firewall.SqlInjection不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[21,5] 找不到符号
+  符号:   类 IDictTableWhiteListHandler
+  位置: 类 org.jeecg.modules.system.test.SysTableWhiteCheckTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[26,5] 找不到符号
+  符号:   类 JeecgBaseConfig
+  位置: 类 org.jeecg.modules.system.test.SysTableWhiteCheckTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[6,31] 程序包org.jeecg.common.api.vo不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[9,24] 程序包org.jeecg.config不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[10,38] 程序包org.jeecg.modules.base.service不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[64,13] 找不到符号
+  符号:   类 BaseCommonService
+  位置: 类 org.jeecg.modules.system.test.SysUserApiTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[79,13] 找不到符号
+  符号:   类 JeecgBaseConfig
+  位置: 类 org.jeecg.modules.system.test.SysUserApiTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/MockControllerTest.java:[3,24] 程序包org.jeecg.config不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/MockControllerTest.java:[26,13] 找不到符号
+  符号:   类 BaseCommonService
+  位置: 类 org.jeecg.modules.system.test.MockControllerTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/MockControllerTest.java:[28,13] 找不到符号
+  符号:   类 JeecgBaseConfig
+  位置: 类 org.jeecg.modules.system.test.MockControllerTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/TestMain.java:[4,29] 找不到符号
+  符号:   类 RestUtil
+  位置: 程序包 org.jeecg.common.util
+[INFO] 24 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for JEECG BOOT 3.8.2 3.8.2:
+[INFO] 
+[INFO] JEECG BOOT 3.8.2 ................................... SUCCESS [  0.446 s]
+[INFO] jeecg-boot-base-core ............................... SUCCESS [ 24.059 s]
+[INFO] jeecg-module-system ................................ SUCCESS [  0.023 s]
+[INFO] jeecg-system-api ................................... SUCCESS [  0.021 s]
+[INFO] jeecg-system-local-api ............................. SUCCESS [  3.776 s]
+[INFO] jeecg-system-cloud-api ............................. SUCCESS [  3.721 s]
+[INFO] jeecg-boot-module .................................. SUCCESS [  0.010 s]
+[INFO] jeecg-boot-module-airag ............................ SUCCESS [  9.906 s]
+[INFO] jeecg-system-biz ................................... SUCCESS [ 35.375 s]
+[INFO] jeecg-module-demo .................................. SUCCESS [ 14.217 s]
+[INFO] jeecg-system-start ................................. FAILURE [ 14.352 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:46 min
+[INFO] Finished at: 2025-10-08T01:04:18+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:testCompile (default-testCompile) on project jeecg-system-start: Compilation failure: Compilation failure: 
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[6,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[7,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[8,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[9,40] 程序包org.jeecg.common.api.dto.message不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[10,33] 找不到符号
+[ERROR]   符号:   类 CommonConstant
+[ERROR]   位置: 程序包 org.jeecg.common.constant
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[11,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[12,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[13,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[14,39] 程序包org.jeecg.common.constant.enums不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/message/test/SendMessageTest.java:[16,29] 找不到符号
+[ERROR]   符号:   类 DySmsHelper
+[ERROR]   位置: 程序包 org.jeecg.common.util
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/smallTools/TestStr.java:[5,29] 找不到符号
+[ERROR]   符号:   类 DateUtils
+[ERROR]   位置: 程序包 org.jeecg.common.util
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[6,24] 程序包org.jeecg.config不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[7,46] 程序包org.jeecg.config.firewall.SqlInjection不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[21,5] 找不到符号
+[ERROR]   符号:   类 IDictTableWhiteListHandler
+[ERROR]   位置: 类 org.jeecg.modules.system.test.SysTableWhiteCheckTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysTableWhiteCheckTest.java:[26,5] 找不到符号
+[ERROR]   符号:   类 JeecgBaseConfig
+[ERROR]   位置: 类 org.jeecg.modules.system.test.SysTableWhiteCheckTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[6,31] 程序包org.jeecg.common.api.vo不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[9,24] 程序包org.jeecg.config不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[10,38] 程序包org.jeecg.modules.base.service不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[64,13] 找不到符号
+[ERROR]   符号:   类 BaseCommonService
+[ERROR]   位置: 类 org.jeecg.modules.system.test.SysUserApiTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/SysUserApiTest.java:[79,13] 找不到符号
+[ERROR]   符号:   类 JeecgBaseConfig
+[ERROR]   位置: 类 org.jeecg.modules.system.test.SysUserApiTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/MockControllerTest.java:[3,24] 程序包org.jeecg.config不存在
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/MockControllerTest.java:[26,13] 找不到符号
+[ERROR]   符号:   类 BaseCommonService
+[ERROR]   位置: 类 org.jeecg.modules.system.test.MockControllerTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/modules/system/test/MockControllerTest.java:[28,13] 找不到符号
+[ERROR]   符号:   类 JeecgBaseConfig
+[ERROR]   位置: 类 org.jeecg.modules.system.test.MockControllerTest
+[ERROR] /E:/GitProjcetLQ/AIccgLQ/jeecg-boot/jeecg-module-system/jeecg-system-start/src/test/java/org/jeecg/TestMain.java:[4,29] 找不到符号
+[ERROR]   符号:   类 RestUtil
+[ERROR]   位置: 程序包 org.jeecg.common.util
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :jeecg-system-start

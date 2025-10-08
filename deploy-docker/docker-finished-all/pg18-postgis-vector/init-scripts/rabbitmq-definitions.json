@@ -2,7 +2,7 @@
   "users": [
     {
       "name": "guest",
-      "password": "guest",
+      "password": "rabbitmqpassword123",
       "tags": "administrator"
     },
     {

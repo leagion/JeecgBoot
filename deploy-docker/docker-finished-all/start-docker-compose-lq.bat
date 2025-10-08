@@ -58,28 +58,114 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+echo [2.5/5] 准备OnlyOffice配置...
+:: 创建OnlyOffice所需的证书目录
+IF NOT EXIST .\onlyoffice-config\certs (
+    mkdir .\onlyoffice-config\certs
+    echo 证书目录创建成功
+) ELSE (
+    echo 证书目录已存在
+)
+
+:: 检查并修复local.json配置文件
+IF NOT EXIST .\onlyoffice-config\local.json (
+    IF EXIST .\onlyoffice-config\local.json.bak (
+        echo 检测到配置备份文件，正在恢复...
+        COPY .\onlyoffice-config\local.json.bak .\onlyoffice-config\local.json
+        echo 配置文件恢复成功
+    ) ELSE (
+        echo 警告：未找到配置文件，将创建默认配置文件
+        echo {
+        echo   "services": {
+        echo     "CoAuthoring": {
+        echo       "sql": {
+        echo         "type": "postgres",
+        echo         "dbHost": "pgDB",
+        echo         "dbPort": "5432",
+        echo         "dbName": "onlyofficeDB",
+        echo         "dbUser": "onlyoffice",
+        echo         "dbPass": "hkzdlq@CCG2025"
+        echo       },
+        echo       "redis": {
+        echo         "host": "aiccg-boot-redis",
+        echo         "port": "6379",
+        echo         "password": "redispassword123"
+        echo       },
+        echo       "rabbitmq": {
+        echo         "url": "amqp://onlyoffice:onlyoffice@rabbitmq:5672"
+        echo       },
+        echo       "token": {
+        echo         "enable": {
+        echo           "request": {
+        echo             "inbox": true,
+        echo             "outbox": true
+        echo           },
+        echo           "browser": true
+        echo         },
+        echo         "secret": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP",
+        echo         "inbox": {
+        echo           "header": "Authorization"
+        echo         },
+        echo         "outbox": {
+        echo           "header": "Authorization"
+        echo         }
+        echo       },
+        echo       "secret": {
+        echo         "inbox": {
+        echo           "string": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP"
+        echo         },
+        echo         "outbox": {
+        echo           "string": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP"
+        echo         },
+        echo         "session": {
+        echo           "string": "qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP"
+        echo         }
+        echo       }
+        echo     }
+        echo   },
+        echo   "wopi": {
+        echo     "enable": false
+        echo   }
+        echo } > .\onlyoffice-config\local.json
+        echo 默认配置文件已创建
+    )
+) ELSE (
+    echo 配置文件已存在，检查RabbitMQ连接配置
+    :: 验证local.json中的RabbitMQ配置是否正确
+    FINDSTR /c:"amqp://onlyoffice:onlyoffice@rabbitmq:5672" .\onlyoffice-config\local.json >nul
+    IF ERRORLEVEL 1 (
+        echo 警告：local.json中的RabbitMQ配置不正确，正在修复...
+        powershell -Command "(Get-Content .\onlyoffice-config\local.json) -replace 'amqp://[^@]+@rabbitmq:5672', 'amqp://onlyoffice:onlyoffice@rabbitmq:5672' | Set-Content .\onlyoffice-config\local.json"
+        echo RabbitMQ配置已修复
+    ) ELSE (
+        echo RabbitMQ配置正确
+    )
+)
+
 echo [3/5] 编译后端项目...
+:: 切换到项目根目录的jeecg-boot目录
+cd ..\..\
 cd jeecg-boot
-call mvn clean install -Pdocker > build-backend.log 2>&1
+call mvn clean install -Pdocker > ..\deploy-docker\docker-finished-all\build-backend.log 2>&1
 if %errorlevel% neq 0 (
-    echo [错误] 后端编译失败！详细信息请查看 build-backend.log
+    echo [错误] 后端编译失败！详细信息请查看 ..\deploy-docker\docker-finished-all\build-backend.log
     exit /b 1
 )
-cd ..
 
 echo [4/5] 编译前端项目...
-cd jeecgboot-vue3
-call pnpm install > build-frontend-install.log 2>&1
+:: 切换到项目根目录的jeecgboot-vue3目录
+cd ..\jeecgboot-vue3
+call pnpm install > ..\deploy-docker\docker-finished-all\build-frontend-install.log 2>&1
 if %errorlevel% neq 0 (
-    echo [错误] 前端依赖安装失败！详细信息请查看 build-frontend-install.log
+    echo [错误] 前端依赖安装失败！详细信息请查看 ..\deploy-docker\docker-finished-all\build-frontend-install.log
     exit /b 1
 )
-call pnpm run build:docker > build-frontend.log 2>&1
+call pnpm run build:docker > ..\deploy-docker\docker-finished-all\build-frontend.log 2>&1
 if %errorlevel% neq 0 (
-    echo [错误] 前端编译失败！详细信息请查看 build-frontend.log
+    echo [错误] 前端编译失败！详细信息请查看 ..\deploy-docker\docker-finished-all\build-frontend.log
     exit /b 1
 )
-cd ..
+cd ..\deploy-docker\docker-finished-all
 
 echo [5/5] 启动Docker容器...
 echo 正在启动服务，依赖关系:
@@ -201,5 +287,16 @@ echo Elasticsearch:    http://localhost:9200
 echo GeoServer:        http://localhost:8081/geoserver/web
 echo ========================================
 echo.
-echo 服务启动完成，所有检查已完成。请稍等1-2分钟让所有服务完全启动。
+echo [6/5] 配置OnlyOffice服务...
+echo 正在配置OnlyOffice容器，复制配置文件并设置权限...
+powershell -ExecutionPolicy Bypass -File "%~dp0start-onlyoffice-config.ps1"
+
+if %errorlevel% equ 0 (
+    echo [✓] OnlyOffice服务配置成功
+) else (
+    echo [✗] OnlyOffice服务配置可能未成功，请查看详细错误信息
+)
+
+echo.
+echo 服务启动完成，所有检查和配置已完成。请稍等1-2分钟让所有服务完全启动。
 echo.

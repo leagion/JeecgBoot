@@ -29,7 +29,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'onlyoffice') THEN
     CREATE ROLE onlyoffice 
       WITH LOGIN 
-      PASSWORD 'onlyoffice' 
+      PASSWORD 'hkzdlq@CCG2025' 
       NOSUPERUSER 
       NOCREATEDB 
       NOCREATEROLE 
