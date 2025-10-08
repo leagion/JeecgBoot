@@ -43,7 +43,7 @@ rabbitmq:
   environment:
     - RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit management_load_definitions /etc/rabbitmq/definitions.json
   volumes:
-    - ./deploy-docker/pg18-postgis-vector/init-scripts/rabbitmq-definitions.json:/etc/rabbitmq/definitions.json:ro
+    - ./pg18-postgis-vector/init-scripts/rabbitmq-definitions.json:/etc/rabbitmq/definitions.json:ro
 ```
 
 ### 2. PostgreSQL 用户和数据库自动创建
@@ -152,7 +152,7 @@ FATAL: password authentication failed for user "onlyoffice"
 ### 1. 检查服务状态
 
 ```bash
-docker-compose -f docker-compose-lq.yml ps
+docker-compose -f deploy-docker/docker-finished-all/docker-compose-lq.yml ps
 ```
 
 ### 2. 验证 RabbitMQ 用户

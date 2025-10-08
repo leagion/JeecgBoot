@@ -116,32 +116,26 @@
 - 修复了OnlyOffice与RabbitMQ的连接问题
 - 修正了配置文件格式和权限问题
 - 优化了Docker Compose服务依赖关系
+- 改进了启动脚本的健壮性
 
 ### 已解决的问题
 1. **RabbitMQ连接失败**: 修复了OnlyOffice服务连接RabbitMQ时出现的`ECONNREFUSED 127.0.0.1:5672`错误
 2. **配置文件格式错误**: 修复了OnlyOffice配置文件中的JSON格式问题
 3. **权限问题**: 解决了RabbitMQ定义文件的只读权限问题
 4. **服务依赖**: 优化了服务启动顺序和健康检查
+5. **路径问题**: 修正了docker-compose文件中引用的相对路径
 
 ### 配置变更
 - RabbitMQ URL更新为: `amqp://onlyoffice:onlyoffice@rabbitmq:5672`
 - 移除了RabbitMQ定义文件的只读挂载限制
 - 修正了OnlyOffice配置文件格式
+- 更新了docker-compose文件中的构建上下文路径
 
-### 可删除的脚本
-以下脚本已整合到主配置中，可以安全删除：
-- `fix-rabbitmq-config.sh`
-- `fix-rabbitmq-connection.sh`
-- `fix-rabbitmq-env.sh`
-- `fix-rabbitmq-guest-access.ps1`
-- `fix-rabbitmq-guest-access.sh`
-- `reset-rabbitmq-credentials.ps1`
-- `update-rabbitmq-config-encoded.sh`
-- `update-rabbitmq-config.sh`
-- `update-rabbitmq-password.sh`
-- `fix-onlyoffice-locale-simple.ps1`
-- `comprehensive-fix.ps1`
-- `english-fix.ps1`
+### 脚本改进
+- 增强了启动脚本的错误处理能力
+- 添加了对工具缺失的检查和警告
+- 改进了服务状态检查逻辑
+- 添加了更详细的日志输出
 
 ## 验证状态
 - [x] 所有服务正常启动
@@ -149,6 +143,7 @@
 - [x] PostgreSQL数据库正常初始化
 - [x] Redis缓存服务正常工作
 - [x] 服务间网络连接正常
+- [x] 启动脚本运行正常
 
 ---
 **注意**: 此版本已通过完整测试，可作为稳定版本使用。

@@ -218,7 +218,7 @@ services:
   # AICCG Boot系统服务
   aiccg-boot-system:
     build:
-      context: ../jeecg-boot/jeecg-module-system/jeecg-system-start
+      context: ../../jeecg-boot/jeecg-module-system/jeecg-system-start
     restart: on-failure
     depends_on:
       # 使用服务名称而不是容器名称
@@ -253,7 +253,7 @@ services:
   # Vue前端服务
   aiccg-vue:
     build:
-      context: ../jeecgboot-vue3
+      context: ../../jeecgboot-vue3
     container_name: aiccg-vue3
     image: aiccg-vue3
     depends_on:
