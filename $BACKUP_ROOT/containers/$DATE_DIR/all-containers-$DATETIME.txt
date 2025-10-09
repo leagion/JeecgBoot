@@ -1,0 +1,10 @@
+﻿CONTAINER ID   IMAGE                                                     COMMAND                  CREATED       STATUS                        PORTS     NAMES
+b96358feb784   onlyoffice/documentserver:latest                          "/app/ds/run-documen…"   2 hours ago   Exited (137) 48 minutes ago             onlyoffice
+fb5668fddaf9   rabbitmq:3-management                                     "docker-entrypoint.s…"   2 hours ago   Exited (137) 48 minutes ago             rabbitmq
+bf85e4e67ad2   aiccg-vue3                                                "/docker-entrypoint.…"   3 hours ago   Exited (0) 48 minutes ago               aiccg-vue3
+ee316b824ffa   aiccg-boot-system                                         "/bin/sh -c 'java -D…"   3 hours ago   Exited (143) 48 minutes ago             aiccg-boot-system
+b5101feaabb1   docker.xuanyuan.me/kartoza/geoserver:2.23.0               "/bin/bash /scripts/…"   3 hours ago   Exited (143) 48 minutes ago             geoserver
+6eaea6921d88   pg18-pgvector-postgis:v1.0                                "docker-entrypoint.s…"   3 hours ago   Exited (0) 48 minutes ago               pgDB
+2da38a867ce1   elasticsearch:8.14.0                                      "/bin/tini -- /usr/l…"   3 hours ago   Exited (143) 48 minutes ago             elasticsearch
+0450c75eb121   minio/minio:RELEASE.2023-03-20T20-16-18Z                  "/usr/bin/docker-ent…"   3 hours ago   Exited (0) 48 minutes ago               aiccg-boot-minio
+a1f3718c0e81   registry.cn-hangzhou.aliyuncs.com/jeecgdocker/redis:5.0   "docker-entrypoint.s…"   3 hours ago   Exited (0) 48 minutes ago               aiccg-boot-redis

@@ -1,0 +1,11 @@
+﻿REPOSITORY                                            TAG                            IMAGE ID       CREATED         SIZE
+pg18-pgvector-postgis                                 v1.0                           7a1de8b5077b   23 hours ago    918MB
+aiccg-boot-system                                     latest                         f37b5e390197   24 hours ago    1.41GB
+aiccg-vue3                                            latest                         39ce327b6651   24 hours ago    292MB
+onlyoffice/documentserver                             latest                         93642f434071   2 months ago    5.55GB
+rabbitmq                                              3-management                   5d57d4d53ebf   12 months ago   398MB
+elasticsearch                                         8.14.0                         dfd92a293809   16 months ago   1.88GB
+docker.xuanyuan.me/kartoza/geoserver                  2.23.0                         98eee4fc9c46   2 years ago     2.37GB
+minio/minio                                           RELEASE.2023-03-20T20-16-18Z   6d770d7f255c   2 years ago     365MB
+registry.cn-hangzhou.aliyuncs.com/jeecgdocker/redis   5.0                            0b2348685ec7   2 years ago     162MB
+rabbitmq                                              3.8-management                 4206c16c09a5   3 years ago     380MB
