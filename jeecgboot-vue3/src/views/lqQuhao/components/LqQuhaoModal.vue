@@ -69,9 +69,21 @@
     visible.value = false;
   }
 
+  /**
+   * 按类型新增
+   */
+  function addByType(numberType: string) {
+    title.value = `新增${numberType}`;
+    visible.value = true;
+    nextTick(() => {
+      registerForm.value.addByType(numberType);
+    });
+  }
+
   defineExpose({
     add,
     edit,
+    addByType,
     disableSubmit,
   });
 </script>

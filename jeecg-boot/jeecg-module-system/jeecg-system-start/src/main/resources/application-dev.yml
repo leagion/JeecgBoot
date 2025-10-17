@@ -171,8 +171,8 @@ custom:
           #username: root
           #password: root
           #driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/aiccg_pgdb?stringtype=unspecified
-          username: ${DB_USERNAME:aiccgdb}
+          url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/aiccgDB?stringtype=unspecified
+          username: ${DB_USERNAME:postgres}
           password: ${DB_PASSWORD:hkzdlq@CCG2025}
           driver-class-name: org.postgresql.Driver
 
@@ -181,7 +181,7 @@ custom:
     database: 0
     host: ${REDIS_HOST:127.0.0.1}
     port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
+    password: ${REDIS_PASSWORD:redispassword123}
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/**/xml/*Mapper.xml

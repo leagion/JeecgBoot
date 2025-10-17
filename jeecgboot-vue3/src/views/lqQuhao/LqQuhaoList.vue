@@ -92,6 +92,9 @@
       <!--插槽:table标题-->
       <template #tableTitle>
         <a-button type="primary" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
+        <a-button type="default" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAddByType('处队号')" preIcon="ant-design:file-text-outlined"> 处队号</a-button>
+        <a-button type="default" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAddByType('专网号')" preIcon="ant-design:global-outlined"> 专网号</a-button>
+        <a-button type="default" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAddByType('情况号')" preIcon="ant-design:info-circle-outlined"> 情况号</a-button>
         <a-button type="primary" v-auth="'lqQuhao:lq_quhao:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
         <j-upload-button type="primary" v-auth="'lqQuhao:lq_quhao:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls"
           >导入</j-upload-button
@@ -149,7 +152,7 @@
   import { BasicTable, useTable, TableAction } from '/@/components/Table';
   import { useListPage } from '/@/hooks/system/useListPage';
   import { columns, superQuerySchema } from './LqQuhao.data';
-  import { list, deleteOne, batchDelete, getImportUrl, getExportUrl, getTop3DocHandlersByDept } from './LqQuhao.api';
+  import { list, deleteOne, batchDelete, getImportUrl, getExportUrl, getTop3DocHandlersByDept, getMaxChunumByType } from './LqQuhao.api';
   import { downloadFile } from '/@/utils/common/renderUtils';
   import LqQuhaoModal from './components/LqQuhaoModal.vue';
   import { useUserStore } from '/@/store/modules/user';
@@ -315,6 +318,14 @@
   function handleAdd() {
     registerModal.value.disableSubmit = false;
     registerModal.value.add();
+  }
+
+  /**
+   * 按类型新增事件
+   */
+  function handleAddByType(numberType: string) {
+    registerModal.value.disableSubmit = false;
+    registerModal.value.addByType(numberType);
   }
 
   /**

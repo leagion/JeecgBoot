@@ -255,3 +255,102 @@ LIMIT 20;
 本设计方案整合了航空执法数据、执法日报和办公网盘三大核心功能模块，为数据中心提供了全面的业务支持。方案采用模块化设计，确保各模块既可独立运行又可协同工作，为执法单位提供高效的数据管理和协作平台。
 
 通过本方案的实施，将有效提升航空执法效率、规范执法日报管理、优化办公文件处理流程，为构建智能化、一体化的数据中心奠定坚实基础。
+
+## 八、命名规范与字段约束
+
+### 8.1 命名规范
+- 表名、列名一律使用小写+下划线风格（snake_case），避免缩写不明。
+- 主键统一命名为 `id`（UUID 类型，建议 `gen_random_uuid()` 生成），唯一业务键以 `_number`、`_code` 结尾。
+- 外键命名：`<refer_table>_id`，如 `workspace_id`、`unit_id`。
+- 约束命名：`pk_<table>`、`uk_<table>_<cols>`、`fk_<table>_<refer_table>`、`ck_<table>_<rule>`、`idx_<table>_<cols>`。
+
+### 8.2 审计与通用字段
+- `create_time TIMESTAMPTZ NOT NULL DEFAULT now()`、`create_by VARCHAR(64)`、`update_time TIMESTAMPTZ`、`update_by VARCHAR(64)`、`is_deleted BOOLEAN NOT NULL DEFAULT false`。
+- 业务时间字段使用 `TIMESTAMPTZ`，日期用 `DATE`，金额 `NUMERIC(18,2)`，长文本 `TEXT`。
+
+### 8.3 约束与数据质量
+- 外键明确 `ON UPDATE`/`ON DELETE` 策略（`RESTRICT`/`CASCADE` 依业务）。
+- 状态字段提供 `CHECK` 约束或枚举表；布尔字段统一 `BOOLEAN` 类型。
+- 具有业务唯一性的列加 `UNIQUE` 约束并建立相应唯一索引。
+
+## 九、权限与安全（PostgreSQL）
+
+### 9.1 角色模型
+- 系统角色（admin、auditor、user）+ 模块角色（air、daily_report、drive）+ 资源级 ACL（文件/工作区）。
+
+### 9.2 行级安全（RLS）示例
+```sql
+ALTER TABLE "data_center_file" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "p_user_owns_or_shared" ON "data_center_file"
+USING (
+  creator_id = current_setting('app.current_user_id', true)
+  OR EXISTS (
+    SELECT 1 FROM data_center_file_permission p
+    WHERE p.file_id = data_center_file.id
+      AND p.user_id = current_setting('app.current_user_id', true)
+  )
+);
+```
+
+### 9.3 审计日志
+- 下载、删除、共享变更、审核通过等写入审计表，记录操作者、时间、来源IP、UA。
+
+## 十、性能优化与分区
+
+### 10.1 索引策略
+- 外键列、常用过滤列、排序列建 B-Tree 索引；时间查询用（time DESC, id）复合索引。
+- JSONB 常用键表达式索引：`CREATE INDEX ... ON t ((payload->>'key'));`
+
+### 10.2 时间分区示例
+```sql
+CREATE TABLE IF NOT EXISTS data_center_file_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  file_id UUID NOT NULL,
+  user_id VARCHAR(64) NOT NULL,
+  access_time TIMESTAMPTZ NOT NULL DEFAULT now(),
+  access_type VARCHAR(16) NOT NULL
+) PARTITION BY RANGE (access_time);
+
+CREATE TABLE IF NOT EXISTS data_center_file_history_2025_10
+PARTITION OF data_center_file_history
+FOR VALUES FROM ('2025-10-01') TO ('2025-11-01');
+```
+
+### 10.3 并发建议
+- 批量导入用 `COPY`/批处理；避免长事务；队列消费可用 `SKIP LOCKED`。
+
+## 十一、物化视图
+
+```sql
+CREATE MATERIALIZED VIEW IF NOT EXISTS mv_enforcement_daily_report_summary AS
+SELECT report_date,
+       count(*) AS cnt,
+       sum(total_cases) AS total_cases
+FROM enforcement_daily_report
+GROUP BY report_date;
+
+REFRESH MATERIALIZED VIEW CONCURRENTLY mv_enforcement_daily_report_summary;
+```
+
+## 十二、实施检查清单
+
+- [ ] 新表含审计字段，主键 UUID。
+- [ ] 外键具备索引并声明 ON DELETE/UPDATE 策略。
+- [ ] 关键查询有复合/表达式索引。
+- [ ] 大表按时间分区并有归档计划。
+- [ ] 报表使用物化视图并配置刷新。
+- [ ] 敏感表评估 RLS/脱敏，审计完善。
+- [ ] DDL 版本化可回滚，预生产验证通过。
+
+## 十三、迁移与回滚
+
+- 采用版本化迁移；大表变更走“新表-回填-切换”在线方案。
+
+## 十四、调度与一致性
+
+- 使用 Outbox/事件表实现跨模块最终一致性；定时任务登记与幂等键明确。
+
+## 十五、PostgreSQL 运维建议
+
+- 调优 `work_mem`、`maintenance_work_mem`、`shared_buffers`、`effective_cache_size`；
+- 针对热点/大表调整 `autovacuum`，监控膨胀并重建索引。

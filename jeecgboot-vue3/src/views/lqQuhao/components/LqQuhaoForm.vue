@@ -21,6 +21,11 @@
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
+                <a-form-item label="取号类型" v-bind="validateInfos.quhaoType" id="LqQuhaoForm-quhaoType" name="quhaoType">
+                  <j-dict-select-tag v-model:value="formData.quhaoType" dictCode="numberType" placeholder="请选择取号类型" allow-clear size="small" />
+                </a-form-item>
+              </a-col>
+              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="取号(数字）" v-bind="validateInfos.chunum" id="LqQuhaoForm-chunum" name="chunum">
                   <a-input-number v-model:value="formData.chunum" placeholder="请输入取号(数字）" style="width: 100%" size="small" />
                 </a-form-item>
@@ -103,7 +108,7 @@
   import JSwitch from '/@/components/Form/src/jeecg/components/JSwitch.vue';
   import JUpload from '/@/components/Form/src/jeecg/components/JUpload/JUpload.vue';
   import { getValueType } from '/@/utils';
-  import { saveOrUpdate, getMaxChunum } from '../LqQuhao.api';
+  import { saveOrUpdate, getMaxChunum, getMaxChunumByType } from '../LqQuhao.api';
   import { Form, Modal } from 'ant-design-vue';
   import JFormContainer from '/@/components/Form/src/container/JFormContainer.vue';
   const props = defineProps({
@@ -118,6 +123,7 @@
     id: '',
     returnfile: '',
     chunum: undefined,
+    quhaoType: '处队号',
     datatimeQuhao: '',
     name: '',
     dochandler: '',
@@ -140,6 +146,7 @@
     chunum: [{ required: true, message: '请输入取号(数字）!' }],
     name: [{ required: true, message: '请输入文件名称!' }],
     dochandler: [{ required: true, message: '请输入承办人!' }],
+    quhaoType: [{ required: true, message: '请选择取号类型!' }],
   });
   const { resetFields, validate, validateInfos } = useForm(formData, validatorRules, { immediate: false });
 
@@ -181,6 +188,34 @@
       formData.chunum = 1;
     }
   }
+
+  async function autoFillChunumByType(numberType: string) {
+    try {
+      const res = await getMaxChunumByType(numberType);
+
+      // 直接处理数字类型的返回值
+      let maxNum = typeof res === 'number' ? res : 0;
+
+      // 新取号 = 最大号 + 1
+      const newNum = maxNum + 1;
+
+      // 确保赋值为数字类型
+      formData.chunum = Number(newNum);
+
+      if (!isNaN(newNum)) {
+        createMessage.success({
+          content: `已自动填充${numberType}取号: ${newNum} (当前最大号: ${maxNum})`,
+          duration: 5, // 设置显示时长为5秒
+        });
+      } else {
+        throw new Error('计算新取号失败');
+      }
+    } catch (error) {
+      console.error('获取取号异常:', error);
+      createMessage.warning('获取取号失败，已默认设置为1');
+      formData.chunum = 1;
+    }
+  }
   function getToday() {
     const d = new Date();
     const yyyy = d.getFullYear();
@@ -193,6 +228,13 @@
     edit({});
     autoFillChunum();
   }
+
+  function addByType(numberType: string) {
+    edit({});
+    formData.quhaoType = numberType;
+    autoFillChunumByType(numberType);
+  }
+
   function edit(record) {
     nextTick(() => {
       resetFields();
@@ -308,7 +350,7 @@
                     },
                   },
                   [
-                    h('div', `您的"${formData.name}"取号为`),
+                    h('div', `您的"${formData.name}"${formData.quhaoType}取号为`),
                     h(
                       'div',
                       {
@@ -351,6 +393,7 @@
   defineExpose({
     add,
     edit,
+    addByType,
     submitForm,
   });
 </script>

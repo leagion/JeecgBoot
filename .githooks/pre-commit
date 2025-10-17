@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Windows Git Bash friendly hook to ensure AI docs are present before commit
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+
+if command -v powershell.exe >/dev/null 2>&1; then
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$ROOT_DIR/scripts/ensure-ai-docs.ps1" | sed 's/\r$//'
+else
+  echo "[warn] powershell.exe not found, skip ensure-ai-docs"
+fi
+
+exit 0
+
+
+

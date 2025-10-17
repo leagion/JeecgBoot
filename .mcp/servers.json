@@ -1,0 +1,79 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schemas/servers.schema.json",
+  "version": 1,
+  "servers": [
+    {
+      "name": "project-tools",
+      "type": "local",
+      "description": "AIccgLQ 项目常用脚本与文档",
+      "tools": [
+        {
+          "name": "build-backend",
+          "command": "cmd",
+          "args": ["/C", "build-backend.bat"],
+          "cwd": "${workspaceRoot}"
+        },
+        {
+          "name": "build-frontend",
+          "command": "cmd",
+          "args": ["/C", "build-frontend.bat"],
+          "cwd": "${workspaceRoot}"
+        },
+        {
+          "name": "start-backend",
+          "command": "cmd",
+          "args": ["/C", "startboot.bat"],
+          "cwd": "${workspaceRoot}"
+        },
+        {
+          "name": "start-frontend",
+          "command": "cmd",
+          "args": ["/C", "startweb.bat"],
+          "cwd": "${workspaceRoot}"
+        },
+        {
+          "name": "docker-backup-full",
+          "command": "powershell",
+          "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "docker-full-backup.ps1"],
+          "cwd": "${workspaceRoot}"
+        },
+        {
+          "name": "docker-backup-incremental",
+          "command": "powershell",
+          "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "docker-incremental-backup.ps1"],
+          "cwd": "${workspaceRoot}"
+        },
+        {
+          "name": "docker-restore",
+          "command": "powershell",
+          "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "docker-restore.ps1"],
+          "cwd": "${workspaceRoot}"
+        }
+      ],
+      "contexts": [
+        {
+          "name": "rules",
+          "path": "${workspaceRoot}/docs/RULES.md",
+          "type": "file"
+        },
+        {
+          "name": "memories",
+          "path": "${workspaceRoot}/docs/AI_MEMORIES.md",
+          "type": "file"
+        },
+        {
+          "name": "architecture",
+          "path": "${workspaceRoot}/docs/ARCHITECTURE.md",
+          "type": "file"
+        },
+        {
+          "name": "docker-compose-final",
+          "path": "${workspaceRoot}/deploy-docker/docker-finished-all/docker-compose-lq.yml",
+          "type": "file"
+        }
+      ]
+    }
+  ]
+}
+
+

@@ -219,6 +219,24 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 	}
 
 	/**
+	 * 按部门编码和取号类型获取最大取号
+	 * @param sysOrgCode 部门编码
+	 * @param numberType 取号类型
+	 * @return
+	 */
+	@GetMapping("/getMaxChunumByOrgCodeAndType")
+	public Result<Integer> getMaxChunumByOrgCodeAndType(
+			@RequestParam(name = "sysOrgCode") String sysOrgCode,
+			@RequestParam(name = "numberType") String numberType) {
+		try {
+			Integer maxNum = lqQuhaoService.getMaxChunumByOrgCodeAndType(sysOrgCode, numberType);
+			return Result.OK(maxNum);
+		} catch (Exception e) {
+			return Result.error("获取最大取号失败：" + e.getMessage());
+		}
+	}
+
+	/**
 	 * 分页列表查询
 	 * @param lqQuhao
 	 * @param pageNo

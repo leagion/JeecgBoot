@@ -14,6 +14,7 @@ enum Api {
   exportXls = '/lqQuhao/lqQuhao/exportXls',
   getMaxChunum = '/lqQuhao/lqQuhao/getMaxChunum', // 添加这个接口
   getMaxChunumByOrgCode = '/lqQuhao/lqQuhao/getMaxChunumByOrgCode', // 修改为按部门获取最大号
+  getMaxChunumByOrgCodeAndType = '/lqQuhao/lqQuhao/getMaxChunumByOrgCodeAndType', // 按部门和类型获取最大号
 
   // 新增办文前三的接口
   getTop3DocHandlersByDept = '/lqQuhao/lqQuhao/getTop3DocHandlersByDept',
@@ -61,6 +62,18 @@ export const getFileList = (params) => {
 export const getMaxChunum = () => {
   // return defHttp.get({ url: Api.getMaxChunum });
   return getMaxChunumByOrgCode(); // 使用带部门编码的方法
+};
+
+/**
+ * 获取指定类型取号的最大取号
+ */
+export const getMaxChunumByType = (numberType: string) => {
+  const userStore = useUserStore();
+  const sysOrgCode = userStore.getUserInfo?.orgCode;
+  return defHttp.get({
+    url: Api.getMaxChunumByOrgCodeAndType,
+    params: { sysOrgCode, numberType },
+  });
 };
 
 /**

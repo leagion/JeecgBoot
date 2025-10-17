@@ -1,5 +1,4 @@
 @echo off
-:: JEECG Boot 本地开发启动脚本 - 连接Docker容器服务
 chcp 65001 > nul
 
 echo.
@@ -9,9 +8,9 @@ echo    连接Docker容器: PostgreSQL + Redis + MinIO
 echo ============================================
 echo.
 echo 请选择启动方式：
-echo [1] 编译后运行 (首次运行或代码有修改)
-echo [2] 直接运行 (已编译过，快速启动)
-echo [3] Maven开发模式 (热重载，推荐开发使用)
+echo [1] 编译后运行
+echo [2] 直接运行
+echo [3] Maven开发模式 (推荐)
 echo [4] 检查Docker容器状态
 echo [5] 退出
 echo.
@@ -32,15 +31,6 @@ echo ============================================
 echo    检查Docker容器状态
 echo ============================================
 echo.
-call :check_docker_status
-echo.
-echo 详细容器信息：
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | findstr -E "(pgDB|aiccg-boot-redis|aiccg-boot-minio|aiccg-boot-system)"
-echo.
-pause
-goto menu
-
-:check_docker_status
 echo 检查PostgreSQL容器...
 docker ps | findstr "pgDB" > nul
 if %errorlevel% neq 0 (
@@ -64,7 +54,13 @@ if %errorlevel% neq 0 (
 ) else (
     echo [✅] MinIO容器 (aiccg-boot-minio) 运行正常
 )
-return
+
+echo.
+echo 详细容器信息：
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | findstr -E "(pgDB|aiccg-boot-redis|aiccg-boot-minio|aiccg-boot-system)"
+echo.
+pause
+goto menu
 
 :compile_and_run
 echo.
@@ -75,12 +71,9 @@ where mvn > nul 2>&1 || (
     exit /b 1
 )
 
-echo [2/4] 检查Docker容器状态...
-call check-docker-simple.bat
-
-echo [3/4] 编译后端项目...
+echo [2/4] 编译后端项目...
 cd jeecg-boot
-call mvn clean install -DskipTests
+call mvn clean package -DskipTests
 if %errorlevel% neq 0 (
     echo [错误] 后端编译失败！
     pause
@@ -101,14 +94,7 @@ goto start_service
 
 :direct_run
 echo.
-echo [1/3] 检查必要工具...
-where java > nul 2>&1 || (
-    echo [错误] 未安装 Java
-    pause
-    exit /b 1
-)
-
-echo [2/3] 检查JAR文件...
+echo [1/3] 检查JAR文件...
 if not exist "jeecg-boot\jeecg-module-system\jeecg-system-start\target\jeecg-system-start-3.8.2.jar" (
     echo [错误] JAR文件不存在，请先选择编译后运行！
     pause
@@ -188,12 +174,13 @@ cd jeecg-boot\jeecg-module-system\jeecg-system-start
 echo.
 echo ============================================
 echo 正在启动后端服务...
-echo 配置文件: application.yml
+echo 连接服务: PostgreSQL, Redis, MinIO (Docker容器)
+echo 配置文件: application-dev.yml
 echo 编码: UTF-8
 echo ============================================
 echo.
 
-:: 设置环境变量
+:: 设置环境变量 - 连接Docker容器
 set DB_HOST=localhost
 set DB_PORT=5432
 set DB_USERNAME=postgres
@@ -202,6 +189,9 @@ set REDIS_HOST=localhost
 set REDIS_PORT=6379
 set REDIS_PASSWORD=redispassword123
 set POSTGRES_USER_PASSWORD=hkzdlq@CCG2025
+set MINIO_ROOT_USER=minioadmin
+set MINIO_ROOT_PASSWORD=minioadmin
+set ELASTIC_PASSWORD=elasticpassword123
 
 java -Dfile.encoding=UTF-8 ^
      -Dsun.jnu.encoding=UTF-8 ^
@@ -212,7 +202,29 @@ cd ..\..\..
 echo.
 echo 应用已停止
 pause
-exit /b 0
+goto menu
+
+:check_docker_status
+docker ps | findstr "pgDB" > nul
+if %errorlevel% neq 0 (
+    echo [❌] PostgreSQL容器未运行
+    return 1
+)
+
+docker ps | findstr "aiccg-boot-redis" > nul
+if %errorlevel% neq 0 (
+    echo [❌] Redis容器未运行
+    return 1
+)
+
+docker ps | findstr "aiccg-boot-minio" > nul
+if %errorlevel% neq 0 (
+    echo [❌] MinIO容器未运行
+    return 1
+)
+
+echo [✅] 所有容器运行正常
+return 0
 
 :menu
 echo.
@@ -228,3 +240,11 @@ goto :eof
 :exit
 echo 退出程序
 exit /b 0
+
+
+
+
+
+
+
+

@@ -41,6 +41,11 @@ public class LqQuhao implements Serializable {
 	@Excel(name = "取号(数字）", width = 15)
     @Schema(description = "取号(数字）")
     private java.lang.Integer chunum;
+	/**取号类型*/
+	@Excel(name = "取号类型", width = 15, dicCode = "numberType")
+	@Dict(dicCode = "numberType")
+    @Schema(description = "取号类型")
+    private java.lang.String numberType;
 	/**日期时间*/
 	@Excel(name = "日期时间", width = 15, format = "yyyy-MM-dd")
 	@JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
