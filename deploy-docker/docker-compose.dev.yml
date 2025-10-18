@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: aiccg-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aiccgDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "hkzdlq@CCG2025"
+      TZ: Asia/Shanghai
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pg_data_dev:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: aiccg-redis-dev
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "redispassword123"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "redispassword123", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_data_dev:/data
+
+volumes:
+  pg_data_dev:
+  redis_data_dev:
+
+

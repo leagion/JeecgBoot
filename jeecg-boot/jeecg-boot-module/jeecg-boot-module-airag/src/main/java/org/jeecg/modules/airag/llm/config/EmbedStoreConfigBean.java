@@ -29,11 +29,11 @@ public class EmbedStoreConfigBean {
     /**
      * 数据库
      */
-    private String database = "aiccg_pgdb";
+    private String database = "aiccgDB";
     /**
      * 用户名
      */
-    private String user = "aiccgdb";
+    private String user = "lq";
     /**
      * 密码
      */

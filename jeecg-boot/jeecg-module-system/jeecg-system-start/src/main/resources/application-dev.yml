@@ -1,5 +1,5 @@
 server:
-  port: 8386
+  port: 8080
   undertow:
     decode-url: true # 启用URL解码
     # max-http-post-size: 10MB # 平替 tomcat server.tomcat.max-swallow-siz， undertow该值默认为-1
@@ -171,17 +171,17 @@ custom:
           #username: root
           #password: root
           #driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/aiccgDB?stringtype=unspecified
-          username: ${DB_USERNAME:postgres}
-          password: ${DB_PASSWORD:hkzdlq@CCG2025}
+          url: jdbc:postgresql://localhost:${DB_PORT:5432}/aiccgDB?stringtype=unspecified
+          username: lq
+          password: hkzdlq@CCG2025
           driver-class-name: org.postgresql.Driver
 
   #redis 配置
   redis:
     database: 0
-    host: ${REDIS_HOST:127.0.0.1}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:redispassword123}
+    host: localhost
+    port: 6379
+    password: 
 #mybatis plus 设置
 mybatis-plus:
   mapper-locations: classpath*:org/jeecg/**/xml/*Mapper.xml
@@ -219,10 +219,10 @@ jeecg:
   # AIRag向量库
   ai-rag:
     embed-store:
-      host: 127.0.0.1
+      host: localhost
       port: 5432
-      database: aiccg_pgdb
-      user: aiccgdb
+      database: aiccgDB
+      user: lq
       password: ${POSTGRES_USER_PASSWORD}
       table: embeddings
   # 平台上线安全配置
@@ -297,8 +297,8 @@ jeecg:
     logRetentionDays: 30
   #分布式锁配置
   redisson:
-    address: 127.0.0.1:6379
-    password: ${REDIS_PASSWORD}
+    address: localhost:6379
+    password: 
     type: STANDALONE
     enabled: true
   # 百度开放API配置
@@ -324,30 +324,8 @@ knife4j:
     username: jeecg
     password: jeecg1314
 #第三方登录
-justauth:
-  enabled: true
-  type:
-    GITHUB:
-      client-id: ??
-      client-secret: ??
-      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/github/callback
-    WECHAT_ENTERPRISE:
-      client-id: ??
-      client-secret: ??
-      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/wechat_enterprise/callback
-      agent-id: ??
-    DINGTALK:
-      client-id: ??
-      client-secret: ??
-      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/dingtalk/callback
-    WECHAT_OPEN:
-      client-id: ??
-      client-secret: ??
-      redirect-uri: http://sso.test.com:8080/jeecg-boot/sys/thirdLogin/wechat_open/callback
-  cache:
-    type: default
-    prefix: "demo::"
-    timeout: 1h
+# 已取消第三方登录功能，注释以下配置
+#
 
 mindmap:
   encrypt-key: temp-encryption-key-for-testing

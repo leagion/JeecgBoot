@@ -52,7 +52,7 @@ export function getAppShortName(): string {
  * 获取API域名
  */
 export function getDomainUrl(): string {
-  return getDynamicEnv('VITE_GLOB_DOMAIN_URL', 'http://localhost:8386/aiccg');
+  return getDynamicEnv('VITE_GLOB_DOMAIN_URL', 'http://localhost:8080/aiccg');
 }
 
 /**

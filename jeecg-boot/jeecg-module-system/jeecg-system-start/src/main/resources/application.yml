@@ -1,8 +1,9 @@
 server:
   port: 8080
   undertow:
+    decode-url: true # 启用URL解码
     # max-http-post-size: 10MB # 平替 tomcat server.tomcat.max-swallow-siz， undertow该值默认为-1
-    worker-threads: 16  # 4核CPU标准配置
+    worker-threads: 16 # 4核CPU标准配置
     buffers:
       websocket: 8192 # WebSocket缓冲 以字节为单位，这里设置为8 KB
       io: 16384 # IO操作缓冲 以字节为单位，这里设置为16 KB
@@ -11,24 +12,11 @@ server:
     include-stacktrace: ALWAYS
     include-message: ALWAYS
   servlet:
-    context-path: /jeecg-boot
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
+    context-path: /aiccg
   compression:
     enabled: true
     min-response-size: 1024
     mime-types: application/javascript,application/json,application/xml,text/html,text/xml,text/plain,text/css,image/*
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: metrics,jeecghttptrace
-  endpoint:
-    health:
-      show-details: always
 
 spring:
   # 添加编码配置
@@ -166,7 +154,7 @@ spring:
           slow-sql-millis: 5000
       datasource:
         master:
-          url: jdbc:postgresql://${DB_HOST:pgDB}:${DB_PORT:5432}/aiccgDB?stringtype=unspecified&charset=UTF-8
+          url: jdbc:postgresql://localhost:${DB_PORT:5432}/aiccgDB?stringtype=unspecified&charset=UTF-8
           username: ${DB_USERNAME:lq}
           password: ${DB_PASSWORD:${POSTGRES_USER_PASSWORD}}
           driver-class-name: org.postgresql.Driver
@@ -174,9 +162,9 @@ spring:
   #redis 配置
   redis:
     database: 0
-    host: ${REDIS_HOST:aiccg-boot-redis}
+    host: localhost
     port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD}
+    password: 
     timeout: 2000ms
     lettuce:
       pool:
@@ -186,8 +174,8 @@ spring:
         max-wait: 2000ms
   #分布式锁配置
   redisson:
-    address: ${REDIS_HOST:aiccg-boot-redis}:${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD}
+    address: localhost:${REDIS_PORT:6379}
+    password: 
     type: STANDALONE
     enabled: true
 #mybatis plus 设置
@@ -248,7 +236,7 @@ jeecg:
   # AIRag向量库
   ai-rag:
     embed-store:
-      host: pgDB
+      host: localhost
       port: 5432
       database: aiDB
       user: lq
@@ -299,7 +287,7 @@ jeecg:
   file-view-domain: http://fileview.jeecg.com
   # minio文件上传
   minio:
-    minio_url: http://aiccg-boot-minio:9000
+    minio_url: http://localhost:9000
     minio_name: minioadmin
     minio_pass: ${MINIO_ROOT_PASSWORD}
     bucketName: otatest
