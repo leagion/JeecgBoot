@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.jeecg.modules.demo.lqQuhao.entity.LqQuhao;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @Description: 文件取号
  * @Author: jeecg-boot
@@ -31,4 +34,11 @@ public interface ILqQuhaoService extends IService<LqQuhao> {
    * @return 最大取号
    */
   Integer getMaxChunumByOrgCodeAndType(String sysOrgCode, String numberType);
+  
+  /**
+   * 获取指定部门办文数量排名前3的承办人
+   * @param sysOrgCode 部门编码
+   * @return 排名前3的承办人列表
+   */
+  List<Map<String, Object>> getTop3DocHandlersByDept(String sysOrgCode);
 }

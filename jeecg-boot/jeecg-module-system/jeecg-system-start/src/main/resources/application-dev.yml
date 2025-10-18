@@ -173,7 +173,7 @@ custom:
           #driver-class-name: com.mysql.cj.jdbc.Driver
           url: jdbc:postgresql://localhost:${DB_PORT:5432}/aiccgDB?stringtype=unspecified
           username: lq
-          password: hkzdlq@CCG2025
+          password: ${POSTGRES_PASSWORD:hkzdlq@CCG2025}
           driver-class-name: org.postgresql.Driver
 
   #redis 配置

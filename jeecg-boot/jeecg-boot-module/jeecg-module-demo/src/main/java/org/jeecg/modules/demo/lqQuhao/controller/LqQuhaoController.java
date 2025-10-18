@@ -82,7 +82,7 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 		IPage<LqQuhao> pageList = lqQuhaoService.page(page, queryWrapper);
 		return Result.OK(pageList);
 	}
-**/
+	**/
 	/**
 	 * 添加
 	 *
@@ -233,6 +233,22 @@ public class LqQuhaoController extends JeecgController<LqQuhao, ILqQuhaoService>
 			return Result.OK(maxNum);
 		} catch (Exception e) {
 			return Result.error("获取最大取号失败：" + e.getMessage());
+		}
+	}
+
+	/**
+	 * 获取当前部门办文数量排名前 3 的承办人
+	 * @param sysOrgCode 部门编码
+	 * @return 排名前3的承办人列表
+	 */
+	@GetMapping("/getTop3DocHandlersByDept")
+	public Result<List<Map<String, Object>>> getTop3DocHandlersByDept(
+			@RequestParam(name = "sysOrgCode") String sysOrgCode) {
+		try {
+			List<Map<String, Object>> top3 = lqQuhaoService.getTop3DocHandlersByDept(sysOrgCode);
+			return Result.OK(top3);
+		} catch (Exception e) {
+			return Result.error("获取办文数量排名失败：" + e.getMessage());
 		}
 	}
 

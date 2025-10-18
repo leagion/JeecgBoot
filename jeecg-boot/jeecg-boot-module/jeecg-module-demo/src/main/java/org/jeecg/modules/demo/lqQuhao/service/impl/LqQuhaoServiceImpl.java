@@ -11,6 +11,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Description: 文件取号
@@ -90,7 +92,7 @@ public class LqQuhaoServiceImpl extends ServiceImpl<LqQuhaoMapper, LqQuhao> impl
         QueryWrapper<LqQuhao> queryWrapper = new QueryWrapper<>();
         queryWrapper.select("COALESCE(MAX(chunum), 0) as maxNum")
                 .eq("sys_org_code", sysOrgCode)
-                .eq("quhao_type", numberType)
+                .eq("number_type", numberType)
                 .apply("datatime_quhao::text LIKE {0}", currentYear + "-%"); // 匹配当前年份的取号记录
 
         // 执行查询并返回结果
@@ -100,5 +102,23 @@ public class LqQuhaoServiceImpl extends ServiceImpl<LqQuhaoMapper, LqQuhao> impl
                 .map(obj -> (Integer) obj)
                 .orElse(0);
     }
-
+    
+    @Override
+    public List<Map<String, Object>> getTop3DocHandlersByDept(String sysOrgCode) {
+        // 获取当前年份
+        String currentYear = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy"));
+        
+        // 构建SQL查询语句，按承办人分组统计当年的办文数量，取前3名
+        QueryWrapper<LqQuhao> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("dochandler", "COUNT(*) as fileCount")
+                .eq("sys_org_code", sysOrgCode)
+                .apply("datatime_quhao::text LIKE {0}", currentYear + "-%")
+                .isNotNull("dochandler")
+                .groupBy("dochandler")
+                .orderByDesc("fileCount")
+                .last("LIMIT 3");
+                
+        // 执行查询并返回结果
+        return this.baseMapper.selectMaps(queryWrapper);
+    }
 }

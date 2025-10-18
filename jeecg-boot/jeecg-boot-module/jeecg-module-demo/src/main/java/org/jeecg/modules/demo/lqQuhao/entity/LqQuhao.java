@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableField;
 import org.jeecg.common.constant.ProvinceCityArea;
 import org.jeecg.common.util.SpringContextUtils;
 import lombok.Data;
@@ -44,6 +45,7 @@ public class LqQuhao implements Serializable {
 	/**取号类型*/
 	@Excel(name = "取号类型", width = 15, dicCode = "numberType")
 	@Dict(dicCode = "numberType")
+    @TableField("number_type") // 显式指定数据库字段名
     @Schema(description = "取号类型")
     private java.lang.String numberType;
 	/**日期时间*/

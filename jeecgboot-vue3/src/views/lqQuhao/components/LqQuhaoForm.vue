@@ -12,7 +12,7 @@
                 <a-form-item label="日期时间" v-bind="validateInfos.datatimeQuhao" id="LqQuhaoForm-datatimeQuhao" name="datatimeQuhao">
                   <a-date-picker
                     placeholder="请选择日期时间"
-                    v-model:value="formData.datatimeQuhao"
+                    v-model:value="formState.datatimeQuhao"
                     value-format="YYYY-MM-DD"
                     style="width: 100%"
                     size="small"
@@ -21,66 +21,61 @@
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
-                <a-form-item label="取号类型" v-bind="validateInfos.quhaoType" id="LqQuhaoForm-quhaoType" name="quhaoType">
-                  <j-dict-select-tag v-model:value="formData.quhaoType" dictCode="numberType" placeholder="请选择取号类型" allow-clear size="small" />
-                </a-form-item>
-              </a-col>
-              <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="取号(数字）" v-bind="validateInfos.chunum" id="LqQuhaoForm-chunum" name="chunum">
-                  <a-input-number v-model:value="formData.chunum" placeholder="请输入取号(数字）" style="width: 100%" size="small" />
+                  <a-input-number v-model:value="formState.chunum" placeholder="请输入取号(数字）" style="width: 100%" size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="24" style="margin-bottom: 4px; padding-left: 0; padding-right: 0">
                 <a-form-item label="文件名称" v-bind="validateInfos.name" id="LqQuhaoForm-name" name="name">
-                  <a-input v-model:value="formData.name" placeholder="请输入文件名称" allow-clear size="middle" />
+                  <a-input v-model:value="formState.name" placeholder="请输入文件名称" allow-clear size="middle" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="承办人" v-bind="validateInfos.dochandler" id="LqQuhaoForm-dochandler" name="dochandler">
-                  <a-input v-model:value="formData.dochandler" placeholder="请输入承办人" allow-clear size="small" />
+                  <a-input v-model:value="formState.dochandler" placeholder="请输入承办人" allow-clear size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="文件类型" v-bind="validateInfos.filetype" id="LqQuhaoForm-filetype" name="filetype">
-                  <j-dict-select-tag v-model:value="formData.filetype" dictCode="fileType" placeholder="请选择文件类型" allow-clear size="small" />
+                  <j-dict-select-tag v-model:value="formState.filetype" dictCode="fileType" placeholder="请选择文件类型" allow-clear size="small" />
                 </a-form-item>
               </a-col>
 
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="来文/主送单位" v-bind="validateInfos.primaryrecipient" id="LqQuhaoForm-primaryrecipient" name="primaryrecipient">
-                  <a-input v-model:value="formData.primaryrecipient" placeholder="请输入主送单位" allow-clear size="small" />
+                  <a-input v-model:value="formState.primaryrecipient" placeholder="请输入主送单位" allow-clear size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="抄送单位" v-bind="validateInfos.ccorganization" id="LqQuhaoForm-ccorganization" name="ccorganization">
-                  <a-input v-model:value="formData.ccorganization" placeholder="请输入抄送单位" allow-clear size="small" />
+                  <a-input v-model:value="formState.ccorganization" placeholder="请输入抄送单位" allow-clear size="small" />
                 </a-form-item>
               </a-col>
 
               <a-divider dashed style="border-color: #222">以下为文件办理完毕后填写</a-divider>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="正式文件号" v-bind="validateInfos.filenum" id="LqQuhaoForm-filenum" name="filenum">
-                  <a-input v-model:value="formData.filenum" placeholder="请输入正式文件号" allow-clear size="small" />
+                  <a-input v-model:value="formState.filenum" placeholder="请输入正式文件号" allow-clear size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="存储位置" v-bind="validateInfos.storagelocation" id="LqQuhaoForm-storagelocation" name="storagelocation">
-                  <a-input v-model:value="formData.storagelocation" placeholder="请输入存储位置" allow-clear size="small" />
+                  <a-input v-model:value="formState.storagelocation" placeholder="请输入存储位置" allow-clear size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="领导批示" v-bind="validateInfos.leaderinstructions" id="LqQuhaoForm-leaderinstructions" name="leaderinstructions">
-                  <a-textarea v-model:value="formData.leaderinstructions" :rows="2" placeholder="请输入领导批示" size="small" />
+                  <a-textarea v-model:value="formState.leaderinstructions" :rows="2" placeholder="请输入领导批示" size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="后续待办" v-bind="validateInfos.pendingactions" id="LqQuhaoForm-pendingactions" name="pendingactions">
-                  <a-textarea v-model:value="formData.pendingactions" :rows="2" placeholder="请输入后续待办" size="small" />
+                  <a-textarea v-model:value="formState.pendingactions" :rows="2" placeholder="请输入后续待办" size="small" />
                 </a-form-item>
               </a-col>
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="备注" v-bind="validateInfos.remark" id="LqQuhaoForm-remark" name="remark">
-                  <a-textarea v-model:value="formData.remark" :rows="2" placeholder="请输入备注" size="small" />
+                  <a-textarea v-model:value="formState.remark" :rows="2" placeholder="请输入备注" size="small" />
                 </a-form-item>
               </a-col>
               <!-- <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
@@ -90,7 +85,7 @@
               </a-col> -->
               <a-col :xs="24" :sm="12" style="margin-bottom: 4px">
                 <a-form-item label="是否办结" v-bind="validateInfos.returnfile" id="LqQuhaoForm-returnfile" name="returnfile">
-                  <j-switch v-model:value="formData.returnfile" />
+                  <j-switch v-model:value="formState.returnfile" />
                 </a-form-item>
               </a-col>
             </a-row>
@@ -106,7 +101,6 @@
   import { useMessage } from '/@/hooks/web/useMessage';
   import JDictSelectTag from '/@/components/Form/src/jeecg/components/JDictSelectTag.vue';
   import JSwitch from '/@/components/Form/src/jeecg/components/JSwitch.vue';
-  import JUpload from '/@/components/Form/src/jeecg/components/JUpload/JUpload.vue';
   import { getValueType } from '/@/utils';
   import { saveOrUpdate, getMaxChunum, getMaxChunumByType } from '../LqQuhao.api';
   import { Form, Modal } from 'ant-design-vue';
@@ -119,11 +113,11 @@
   const formRef = ref();
   const useForm = Form.useForm;
   const emit = defineEmits(['register', 'ok']);
-  const formData = reactive<Record<string, any>>({
+  const formState = reactive<Record<string, any>>({
     id: '',
     returnfile: '',
     chunum: undefined,
-    quhaoType: '处队号',
+    // quhaoType 已移除，因为会根据按钮自动填充
     datatimeQuhao: '',
     name: '',
     dochandler: '',
@@ -146,9 +140,9 @@
     chunum: [{ required: true, message: '请输入取号(数字）!' }],
     name: [{ required: true, message: '请输入文件名称!' }],
     dochandler: [{ required: true, message: '请输入承办人!' }],
-    quhaoType: [{ required: true, message: '请选择取号类型!' }],
+    // 移除了 quhaoType 的验证规则
   });
-  const { resetFields, validate, validateInfos } = useForm(formData, validatorRules, { immediate: false });
+  const { resetFields, validate, validateInfos } = useForm(formState, validatorRules, { immediate: false });
 
   // 表单禁用
   const disabled = computed(() => {
@@ -172,7 +166,7 @@
       const newNum = maxNum + 1;
 
       // 确保赋值为数字类型
-      formData.chunum = Number(newNum);
+      formState.chunum = Number(newNum);
 
       if (!isNaN(newNum)) {
         createMessage.success({
@@ -185,7 +179,7 @@
     } catch (error) {
       console.error('获取取号异常:', error);
       createMessage.warning('获取取号失败，已默认设置为1');
-      formData.chunum = 1;
+      formState.chunum = 1;
     }
   }
 
@@ -200,7 +194,7 @@
       const newNum = maxNum + 1;
 
       // 确保赋值为数字类型
-      formData.chunum = Number(newNum);
+      formState.chunum = Number(newNum);
 
       if (!isNaN(newNum)) {
         createMessage.success({
@@ -213,7 +207,7 @@
     } catch (error) {
       console.error('获取取号异常:', error);
       createMessage.warning('获取取号失败，已默认设置为1');
-      formData.chunum = 1;
+      formState.chunum = 1;
     }
   }
   function getToday() {
@@ -231,7 +225,8 @@
 
   function addByType(numberType: string) {
     edit({});
-    formData.quhaoType = numberType;
+    // 自动填充取号类型到 formData 中
+    (formState as any).quhaoType = numberType;
     autoFillChunumByType(numberType);
   }
 
@@ -239,15 +234,15 @@
     nextTick(() => {
       resetFields();
       const tmpData = {};
-      Object.keys(formData).forEach((key) => {
+      Object.keys(formState).forEach((key) => {
         if (record.hasOwnProperty(key)) {
           tmpData[key] = record[key];
         }
       });
-      Object.assign(formData, tmpData);
+      Object.assign(formState, tmpData);
       // 日期自动填充今日
-      if (!formData.datatimeQuhao) {
-        formData.datatimeQuhao = getToday();
+      if (!formState.datatimeQuhao) {
+        formState.datatimeQuhao = getToday();
       }
     });
   }
@@ -296,19 +291,33 @@
       await validate();
 
       // 设置更新标志
-      const isUpdate = formData.id ? true : false;
-      let model = formData;
+      const isUpdate = formState.id ? true : false;
+      let model = formState;
 
       // 只在新增时检查取号
       if (!isUpdate) {
-        // 获取数据库最大取号
-        const dbMaxNum = await getMaxChunum();
-        const currentNum = Number(formData.chunum);
+        // 获取当前使用的取号类型
+        const currentType = (formState as any).quhaoType;
+        let dbMaxNum = 0;
+        
+        // 根据是否有取号类型，选择合适的API获取最大取号
+        if (currentType) {
+          // 如果有取号类型，获取该类型下的最大取号
+          dbMaxNum = await getMaxChunumByType(currentType);
+          // 将quhaoType映射到实体类的numberType字段
+          model.numberType = currentType;
+        } else {
+          // 没有取号类型时，获取全局最大取号
+          dbMaxNum = await getMaxChunum();
+        }
+        
+        const currentNum = Number(formState.chunum);
 
         // 如果数据库最大号大于等于当前取号，则自动加1
         if (dbMaxNum >= currentNum) {
           const newNum = dbMaxNum + 1;
-          formData.chunum = newNum;
+          formState.chunum = newNum;
+          model.chunum = newNum; // 同时更新model中的值
           createMessage.warning({
             content: `检测到取号冲突，已自动修改为: ${newNum}`,
             duration: 3,
@@ -350,7 +359,7 @@
                     },
                   },
                   [
-                    h('div', `您的"${formData.name}"${formData.quhaoType}取号为`),
+                    h('div', `您的"${formState.name}"${formState.quhaoType}取号为`),
                     h(
                       'div',
                       {
@@ -361,7 +370,7 @@
                           margin: '12px 0',
                         },
                       },
-                      formData.chunum
+                      formState.chunum
                     ),
                     h('div', '文件办结后，请及时更新信息！'),
                   ]

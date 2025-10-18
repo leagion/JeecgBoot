@@ -50,13 +50,21 @@
       
       // 检查是否需要显示密码修改弹窗
       const checkPasswordChangeNeeded = () => {
-        // 同时检查localStorage和sessionStorage
-        const needPasswordChange = localStorage.getItem('need_password_change') || sessionStorage.getItem('need_password_change');
+        // 检查是否已经检测过密码修改需求（确保会话期间只检测一次）
+        const hasCheckedPasswordChange = sessionStorage.getItem('has_checked_password_change');
+        if (hasCheckedPasswordChange === 'true') {
+          console.log('[LayoutFeatures] Password change already checked in this session, skipping');
+          return;
+        }
+        
+        // 同时检查localStorage和sessionStorage中的两个不同键名
+        const needPasswordChange1 = localStorage.getItem('need_password_change') || sessionStorage.getItem('need_password_change');
+        const needPasswordChange2 = localStorage.getItem('needChangePassword') || sessionStorage.getItem('needChangePassword');
         const tempUsername = localStorage.getItem('temp_username') || sessionStorage.getItem('temp_username');
         
-        console.log('[LayoutFeatures] Checking password change needed:', { needPasswordChange, tempUsername });
+        console.log('[LayoutFeatures] Checking password change needed:', { needPasswordChange1, needPasswordChange2, tempUsername });
         
-        if (needPasswordChange === 'true' && tempUsername) {
+        if ((needPasswordChange1 === 'true' || needPasswordChange2 === 'true') && tempUsername) {
           console.log('[LayoutFeatures] Need to show password change modal for user:', tempUsername);
           
           // 使用友好的提示框告知用户需要修改密码
@@ -79,13 +87,19 @@
               createMessage.warning('建议您尽快修改默认密码，以保障账户安全');
             }
           });
-          
-          // 清除标记，避免重复提示
-          localStorage.removeItem('need_password_change');
-          localStorage.removeItem('temp_username');
-          sessionStorage.removeItem('need_password_change');
-          sessionStorage.removeItem('temp_username');
         }
+        
+        // 清除所有可能的标记，避免重复提示
+        localStorage.removeItem('need_password_change');
+        localStorage.removeItem('needChangePassword');
+        localStorage.removeItem('temp_username');
+        sessionStorage.removeItem('need_password_change');
+        sessionStorage.removeItem('needChangePassword');
+        sessionStorage.removeItem('temp_username');
+        
+        // 设置会话级检测标记，确保整个会话期间只检测一次
+        sessionStorage.setItem('has_checked_password_change', 'true');
+        console.log('[LayoutFeatures] Set password change checked flag for this session');
       };
 
       // 密码修改成功处理

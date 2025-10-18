@@ -91,10 +91,33 @@
     <BasicTable @register="registerTable" :rowSelection="rowSelection" @row-db-click="handleDetail">
       <!--插槽:table标题-->
       <template #tableTitle>
-        <a-button type="primary" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAdd" preIcon="ant-design:plus-outlined"> 新增</a-button>
-        <a-button type="default" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAddByType('处队号')" preIcon="ant-design:file-text-outlined"> 处队号</a-button>
-        <a-button type="default" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAddByType('专网号')" preIcon="ant-design:global-outlined"> 专网号</a-button>
-        <a-button type="default" v-auth="'lqQuhao:lq_quhao:add'" @click="handleAddByType('情况号')" preIcon="ant-design:info-circle-outlined"> 情况号</a-button>
+        <a-button
+          type="primary"
+          v-auth="'lqQuhao:lq_quhao:add_chudui'"
+          @click="handleAddByType('处队号')"
+          preIcon="ant-design:file-text-outlined"
+          style="margin-right: 8px; background-color: #1890ff; border-color: #1890ff"
+        >
+          处队号</a-button
+        >
+        <a-button
+          type="primary"
+          v-auth="'lqQuhao:lq_quhao:add_zhuanwang'"
+          @click="handleAddByType('专网号')"
+          preIcon="ant-design:global-outlined"
+          style="margin-right: 8px; background-color: #52c41a; border-color: #52c41a"
+        >
+          专网号</a-button
+        >
+        <a-button
+          type="primary"
+          v-auth="'lqQuhao:lq_quhao:add_qingkuang'"
+          @click="handleAddByType('情况号')"
+          preIcon="ant-design:info-circle-outlined"
+          style="background-color: #faad14; border-color: #faad14"
+        >
+          情况号</a-button
+        >
         <a-button type="primary" v-auth="'lqQuhao:lq_quhao:exportXls'" preIcon="ant-design:export-outlined" @click="onExportXls"> 导出</a-button>
         <j-upload-button type="primary" v-auth="'lqQuhao:lq_quhao:importExcel'" preIcon="ant-design:import-outlined" @click="onImportXls"
           >导入</j-upload-button
@@ -172,8 +195,9 @@
   // 获取全部数据
   async function fetchAllData() {
     try {
-      // 假设后端支持通过设置 pageSize 为一个很大的值来获取全部数据
-      const params = { ...queryParam, pageSize: 999999, pageNo: 1 };
+      // 添加部门过滤条件，仅获取本部门数据
+      const deptFilter = { sysOrgCode: userStore.currentUser?.orgCode };
+      const params = { ...queryParam, ...deptFilter, pageSize: 999999, pageNo: 1 };
       const res = await list(params);
       // console.log('接口返回数据:', res); // 添加日志输出
 
@@ -273,7 +297,9 @@
         fixed: 'right',
       },
       beforeFetch: async (params) => {
-        return Object.assign(params, queryParam);
+        // 添加部门过滤条件，仅显示本部门数据
+        const deptFilter = { sysOrgCode: userStore.currentUser?.orgCode };
+        return Object.assign(params, queryParam, deptFilter);
       },
     },
     exportConfig: {
@@ -462,12 +488,12 @@
   .rank-list {
     display: inline-block;
   }
-
   .rank-item {
     display: inline-block;
     margin-right: 16px;
     padding: 4px 8px;
     border-radius: 4px;
+    background-color: #f5f5f5;
   }
   .rank-1 {
     background-color: #ffd700; /* 第一名金色背景 */
@@ -495,3 +521,16 @@
     font-size: 0.9em;
   }
 </style>
+
+<script lang="ts">
+  export default {
+    name: 'LqQuhaoList',
+    auth: [
+      'lqQuhao:lq_quhao:add_chudui',
+      'lqQuhao:lq_quhao:add_zhuanwang',
+      'lqQuhao:lq_quhao:add_qingkuang',
+      'lqQuhao:lq_quhao:edit',
+      'lqQuhao:lq_quhao:delete',
+    ],
+  };
+</script>

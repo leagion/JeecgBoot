@@ -3,8 +3,8 @@
     {
       "id": "base_layer",
       "name": "基础地理图层",
-      "url": "http://localhost:8080/geoserver/wms",
-      "layers": "nurc:Arc_Sample",
+      "url": "${BASE_LAYER_URL:-http://localhost:8080/geoserver/wms}",
+      "layers": "${BASE_LAYER_LAYERS:-nurc:Arc_Sample}",
       "parameters": {
         "service": "WMS",
         "version": "1.1.0",
@@ -18,8 +18,8 @@
     {
       "id": "road_layer",
       "name": "道路图层",
-      "url": "http://localhost:8080/geoserver/wms",
-      "layers": "workspace:roads",
+      "url": "${ROAD_LAYER_URL:-http://localhost:8080/geoserver/wms}",
+      "layers": "${ROAD_LAYER_LAYERS:-workspace:roads}",
       "parameters": {
         "service": "WMS",
         "version": "1.1.0",
@@ -32,8 +32,8 @@
     {
       "id": "building_layer",
       "name": "建筑物图层",
-      "url": "http://localhost:8080/geoserver/wms",
-      "layers": "workspace:buildings",
+      "url": "${BUILDING_LAYER_URL:-http://localhost:8080/geoserver/wms}",
+      "layers": "${BUILDING_LAYER_LAYERS:-workspace:buildings}",
       "parameters": {
         "service": "WMS",
         "version": "1.1.0",
@@ -46,8 +46,8 @@
     {
       "id": "vegetation_layer",
       "name": "植被图层",
-      "url": "http://localhost:8080/geoserver/wms",
-      "layers": "workspace:vegetation",
+      "url": "${VEGETATION_LAYER_URL:-http://localhost:8080/geoserver/wms}",
+      "layers": "${VEGETATION_LAYER_LAYERS:-workspace:vegetation}",
       "parameters": {
         "service": "WMS",
         "version": "1.1.0",
@@ -60,8 +60,8 @@
     {
       "id": "water_layer",
       "name": "水域图层",
-      "url": "http://localhost:8080/geoserver/wms",
-      "layers": "ne:boundary_lines",
+      "url": "${WATER_LAYER_URL:-http://localhost:8080/geoserver/wms}",
+      "layers": "${WATER_LAYER_LAYERS:-ne:boundary_lines}",
       "parameters": {
         "service": "WMS",
         "version": "1.1.0",
