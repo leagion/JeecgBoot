@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: onlyoffice
+    ports:
+      - "8000:80"
+    environment:
+      - DB_TYPE=postgres
+      - DB_HOST=pgDB
+      - DB_PORT=5432
+      - DB_NAME=onlyofficeDB
+      - DB_USER=onlyoffice
+      - DB_PASS=hkzdlq@CCG2025
+      - REDIS_SERVER_HOST=aiccg-boot-redis
+      - REDIS_SERVER_PORT=6379
+      - REDIS_SERVER_PWD=redispassword123
+      - AMQP_URI=amqp://onlyoffice:onlyoffice@rabbitmq:5672
+      - JWT_ENABLED=true
+      - JWT_SECRET=qlv6dgceNgPoUyXgWDg3X3nWtvUYScSP
+      - LANG=zh_CN.UTF-8
+      - LC_ALL=zh_CN.UTF-8
+      - DB_SSL_MODE=disable
+      - AMQP_CONNECTION_TIMEOUT=30000
+      - AMQP_HEARTBEAT=60
+    depends_on:
+      pgDB:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      aiccg-boot-redis:
+        condition: service_healthy
+    volumes:
+      - ../onlyoffice_data:/var/www/onlyoffice/Data
+      - ../onlyoffice_logs:/var/log/onlyoffice
+      - ../onlyoffice_lib:/var/lib/onlyoffice
+    networks:
+      - aiccg-networks
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  onlyoffice_data:
+    external: false
+  onlyoffice_logs:
+    external: false
+  onlyoffice_lib:
+    external: false
+
+networks:
+  aiccg-networks:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

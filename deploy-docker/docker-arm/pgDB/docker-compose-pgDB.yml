@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  pgDB:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pg18-pgvector-postgis:v1.0
+    platform: linux/arm64
+    container_name: pgDB
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=aiccgDB
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_MULTIPLE_DATABASES=onlyofficeDB,redisDB,minioDBs,elasticsearch,aiDB,mapDB
+      - POSTGRES_MULTIPLE_USERS=lq:${POSTGRES_USER_PASSWORD}
+      - ENABLE_EXTENSIONS=mapDB:postgis,postgis_topology,fuzzystrmatch;aiDB:vector,fuzzystrmatch
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/backup
+    networks:
+      - aiccg-networks
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    external: false
+    name: docker-arm_postgres_data
+  postgres_backup:
+    external: false
+    name: docker-arm_postgres_backup
+
+networks:
+  aiccg-networks:
+    external: true

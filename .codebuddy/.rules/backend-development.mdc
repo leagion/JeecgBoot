@@ -1,0 +1,36 @@
+---
+description: 
+alwaysApply: false
+enabled: true
+updatedAt: 2025-10-24T16:11:57.224Z
+provider: 
+---
+
+# 后端开发指南
+
+## 项目结构
+- **主启动类**: [jeecg-boot/jeecg-module-system/jeecg-system-start/src/main/java/org/jeecg/JeecgSystemApplication.java](mdc:jeecg-boot/jeecg-module-system/jeecg-system-start/src/main/java/org/jeecg/JeecgSystemApplication.java)
+- **核心配置**: [jeecg-boot/pom.xml](mdc:jeecg-boot/pom.xml)
+- **业务模块**: jeecg-boot/jeecg-module-system/jeecg-system-biz/
+
+## 编译命令
+```bash
+# 清理并编译
+cd jeecg-boot && mvn clean compile -DskipTests
+
+# 仅编译特定模块
+cd jeecg-boot && mvn clean compile -DskipTests -rf :jeecg-system-biz
+
+# 启动应用
+cd jeecg-boot/jeecg-module-system/jeecg-system-start && mvn spring-boot:run
+```
+
+## 关键依赖
+- LiteFlow 流程引擎: 用于 AI 模块的业务流程处理
+- Spring Boot 2.7.18
+- Java 17
+
+## 常见问题
+1. **FlowExecutor bean 缺失**: 确保 AI 模块包含 liteflow-spring-boot-starter 依赖
+2. **编译错误**: 检查 Java 版本是否为 17
+3. **端口冲突**: 默认端口 8080

@@ -75,6 +75,13 @@
         </dependency>
         <!-- end 这两个依赖太多每个包50M左右，如果你发布需要使用，请把<scope>provided</scope>删掉 -->
 
+        <!-- LiteFlow 核心依赖 -->
+        <dependency>
+            <groupId>com.yomahub</groupId>
+            <artifactId>liteflow-spring-boot-starter</artifactId>
+            <version>${liteflow.version}</version>
+        </dependency>
+        
         <!-- aiflow 脚本依赖 -->
         <dependency>
             <groupId>com.yomahub</groupId>

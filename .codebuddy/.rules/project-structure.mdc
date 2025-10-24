@@ -1,0 +1,28 @@
+---
+description: 
+alwaysApply: true
+enabled: true
+updatedAt: 2025-10-24T16:11:44.986Z
+provider: 
+---
+
+# AIccgLQ 项目结构指南
+
+## 项目概述
+这是一个基于 JEECG Boot 的全栈项目，包含后端 Spring Boot 应用和前端 Vue3 应用。
+
+## 主要目录结构
+- **后端项目**: [jeecg-boot/](mdc:jeecg-boot/) - Spring Boot 后端应用
+- **前端项目**: [jeecgboot-vue3/](mdc:jeecgboot-vue3/) - Vue3 前端应用
+- **部署配置**: [deploy-docker/](mdc:deploy-docker/) - Docker 部署配置
+- **文档**: [docs/](mdc:docs/) - 项目文档
+
+## 技术栈
+- 后端: Spring Boot 2.7.18, Java 17
+- 前端: Vue3, Ant Design Vue, Vite
+- 数据库: PostgreSQL
+- 部署: Docker, Docker Compose
+
+## 启动方式
+- 后端启动: `cd jeecg-boot/jeecg-module-system/jeecg-system-start && mvn spring-boot:run`
+- 前端启动: `cd jeecgboot-vue3 && npm run dev`

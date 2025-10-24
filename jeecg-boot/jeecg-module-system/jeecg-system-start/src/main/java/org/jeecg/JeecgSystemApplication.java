@@ -1,5 +1,6 @@
 package org.jeecg;
 
+import com.yomahub.liteflow.spring.annotation.EnableLiteflow;
 import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.util.oConvertUtils;
 import org.springframework.boot.SpringApplication;
@@ -19,6 +20,7 @@ import java.util.Map;
 */
 @Slf4j
 @SpringBootApplication
+@EnableLiteflow
 public class JeecgSystemApplication extends SpringBootServletInitializer {
 
     @Override

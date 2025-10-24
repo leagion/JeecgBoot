@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  aiccg-boot-redis:
+    image: redis:5.0
+    restart: always
+    hostname: aiccg-boot-redis
+    container_name: aiccg-boot-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - aiccg-networks
+    volumes:
+      - ../redis_data:/data
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  redis_data:
+    external: false
+
+networks:
+  aiccg-networks:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

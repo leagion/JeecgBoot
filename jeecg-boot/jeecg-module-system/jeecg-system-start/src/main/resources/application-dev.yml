@@ -171,7 +171,7 @@ custom:
           #username: root
           #password: root
           #driver-class-name: com.mysql.cj.jdbc.Driver
-          url: jdbc:postgresql://localhost:${DB_PORT:5432}/aiccgDB?stringtype=unspecified
+          url: jdbc:postgresql://localhost:${DB_PORT:5433}/aiccgDB?stringtype=unspecified
           username: lq
           password: ${POSTGRES_PASSWORD:hkzdlq@CCG2025}
           driver-class-name: org.postgresql.Driver
@@ -306,6 +306,12 @@ jeecg:
     app-id: ??
     api-key: ??
     secret-key: ??
+
+mindmap:
+  encrypt-key: temp-encryption-key-for-testing
+  auto-save-interval: 30000 # 自动保存间隔(毫秒)
+  max-content-size: 10485760 # 最大内容大小(10MB)
+
 #cas单点登录
 cas:
   prefixUrl: http://cas.example.org:8443/cas
@@ -326,8 +332,3 @@ knife4j:
 #第三方登录
 # 已取消第三方登录功能，注释以下配置
 #
-
-mindmap:
-  encrypt-key: temp-encryption-key-for-testing
-  auto-save-interval: 30000 # 自动保存间隔(毫秒)
-  max-content-size: 10485760 # 最大内容大小(10MB)

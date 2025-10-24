@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  aiccg-boot-system:
+    image: aiccg-boot-system-arm64
+    restart: on-failure
+    depends_on:
+      - pgDB
+      - aiccg-boot-redis
+      - aiccg-boot-minio
+      - elasticsearch
+      - rabbitmq
+      - onlyoffice
+      - geoserver
+    container_name: aiccg-boot-system
+    hostname: aiccg-boot-system
+    ports:
+      - 8082:8080
+    environment:
+      - POSTGRES_USER_PASSWORD=hkzdlq@CCG2025
+      - REDIS_PASSWORD=redispassword123
+      - MINIO_ROOT_PASSWORD=minioadmin
+      # CAS配置
+      - cas.prefixUrl=http://cas.example.org:8443/cas
+      # Mindmap配置
+      - mindmap.encrypt-key=jeecgboot
+    networks:
+      - aiccg-networks
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/aiccgboot/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+networks:
+  aiccg-networks:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

@@ -54,7 +54,7 @@ services:
 
   # Redis缓存服务
   aiccg-boot-redis:
-    image: registry.cn-hangzhou.aliyuncs.com/jeecgdocker/redis:5.0
+    image: redis:5.0
     restart: always
     hostname: aiccg-boot-redis
     container_name: aiccg-boot-redis
@@ -190,24 +190,19 @@ services:
 
   # GeoServer地图服务器
   geoserver:
-    image: docker.xuanyuan.me/kartoza/geoserver:2.23.0
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/kartoza/geoserver:2.27.2
     container_name: geoserver
     ports:
       - "8081:8080"
     environment:
       - GEOSERVER_DATA_DIR=/opt/geoserver/data_dir
-      - POSTGRES_JDBC_PROXY=true
-      - POSTGRES_JDBC_HOST=pgDB
-      - POSTGRES_JDBC_PORT=5432
-      - POSTGRES_JDBC_DATABASE=mapDB
-      - POSTGRES_JDBC_USER=lq
-      - POSTGRES_JDBC_PASS=${POSTGRES_USER_PASSWORD}
+      - GEOSERVER_ADMIN_PASSWORD=geoserver
+      - GEOSERVER_ADMIN_USER=admin
     volumes:
       - geoserver_data:/opt/geoserver/data_dir
     networks:
       - aiccg-networks
-    depends_on:
-      - pgDB
+
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/geoserver/web/"]
       interval: 30s
@@ -244,7 +239,7 @@ services:
     networks:
       - aiccg-networks
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/jeecg-boot/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8088/aiccgboot/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -273,21 +268,31 @@ services:
 volumes:
   # PostgreSQL数据卷
   postgres_data:
+    external: false
   postgres_backup:
+    external: false
   # OnlyOffice数据卷
   onlyoffice_data:
+    external: false
   onlyoffice_logs:
+    external: false
   onlyoffice_lib:
+    external: false
   # MinIO数据卷
   minio_data:
+    external: false
   # Redis数据卷
   redis_data:
+    external: false
   # RabbitMQ数据卷
   rabbitmq_data:
+    external: false
   # Elasticsearch数据卷
   elasticsearch_data:
+    external: false
   # GeoServer数据卷
   geoserver_data:
+    external: false
 
 # 网络配置
 networks:

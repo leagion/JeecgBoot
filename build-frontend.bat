@@ -8,11 +8,11 @@ cd jeecgboot-vue3
 
 REM 安装依赖
 echo 安装前端依赖...
-npm install
+pnpm install
 
 REM 构建前端项目
 echo 构建前端项目...
-npm run build
+pnpm run build
 
 REM 构建Docker镜像
 echo 构建aiccg-vue3 Docker镜像...

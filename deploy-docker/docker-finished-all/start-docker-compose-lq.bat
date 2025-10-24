@@ -11,7 +11,7 @@ echo   AICCG 系统全自动部署启动脚本
 echo ========================================
 echo.
 
-echo [1/5] 检查必要工具...
+echo [1/7] 检查必要工具...
 where docker > nul 2>&1 || (
     echo [错误] 未安装 docker，请先安装 Docker Desktop
     exit /b 1
@@ -29,7 +29,7 @@ where pnpm > nul 2>&1 || (
     exit /b 1
 )
 
-echo [2/5] 设置 hosts 文件...
+echo [2/7] 设置 hosts 文件...
 :: 添加必要的hosts条目
 set "entry1=127.0.0.1   aiccg-boot-system"
 set "entry2=127.0.0.1   pgDB"
@@ -58,7 +58,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo [2.5/5] 准备OnlyOffice配置...
+echo [2.5/7] 准备OnlyOffice配置...
 :: 创建OnlyOffice所需的证书目录
 IF NOT EXIST .\onlyoffice-config\certs (
     mkdir .\onlyoffice-config\certs
@@ -142,37 +142,45 @@ IF NOT EXIST .\onlyoffice-config\local.json (
     )
 )
 
-echo [3/5] 编译后端项目...
-:: 切换到项目根目录的jeecg-boot目录
+echo [3/7] 构建PostgreSQL镜像...
 cd ..\..\
-cd jeecg-boot
-call mvn clean install -Pdocker > ..\deploy-docker\docker-finished-all\build-backend.log 2>&1
+cd deploy-docker\docker-finished-all\pg18-postgis-vector
+docker build -t pg18-pgvector-postgis:v1.0 .
 if %errorlevel% neq 0 (
-    echo [错误] 后端编译失败！详细信息请查看 ..\deploy-docker\docker-finished-all\build-backend.log
+    echo [错误] PostgreSQL镜像构建失败！
     exit /b 1
 )
+echo [✓] PostgreSQL镜像构建成功
 
-echo [4/5] 编译前端项目...
-:: 切换到项目根目录的jeecgboot-vue3目录
-cd ..\jeecgboot-vue3
-call pnpm install > ..\deploy-docker\docker-finished-all\build-frontend-install.log 2>&1
+echo [4/7] 构建后端镜像...
+cd ..\..\..
+cd jeecg-boot\jeecg-module-system\jeecg-system-start
+docker build -t aiccg-boot-system .
 if %errorlevel% neq 0 (
-    echo [错误] 前端依赖安装失败！详细信息请查看 ..\deploy-docker\docker-finished-all\build-frontend-install.log
+    echo [错误] 后端镜像构建失败！
     exit /b 1
 )
-call pnpm run build:docker > ..\deploy-docker\docker-finished-all\build-frontend.log 2>&1
+echo [✓] 后端镜像构建成功
+
+echo [5/7] 构建前端镜像...
+cd ..\..\..
+cd jeecgboot-vue3
+docker build -t aiccg-vue3 .
 if %errorlevel% neq 0 (
-    echo [错误] 前端编译失败！详细信息请查看 ..\deploy-docker\docker-finished-all\build-frontend.log
+    echo [错误] 前端镜像构建失败！
     exit /b 1
 )
+echo [✓] 前端镜像构建成功
+
+echo [6/7] 返回脚本目录...
 cd ..\deploy-docker\docker-finished-all
 
-echo [5/5] 启动Docker容器...
+echo [7/7] 启动Docker容器...
 echo 正在启动服务，依赖关系:
 echo - OnlyOffice 依赖于: pgDB, rabbitmq, aiccg-boot-redis
 echo - AICCG Boot系统 依赖于: pgDB, aiccg-boot-redis, aiccg-boot-minio
 echo - Vue前端 依赖于: aiccg-boot-system
-echo - GeoServer 依赖于: pgDB
+
 docker-compose -f docker-compose-lq.yml up -d
 
 echo.
@@ -218,7 +226,7 @@ if %errorlevel% equ 0 (
 )
 
 :: 检查后端服务
-curl -f http://localhost:8080/jeecg-boot/actuator/health > nul 2>&1
+curl -f http://localhost:8080/aiccgboot/actuator/health > nul 2>&1
 if %errorlevel% equ 0 (
     echo [✓] AICCG Boot 后端服务运行正常
 ) else (
@@ -278,7 +286,7 @@ echo ========================================
 echo   AICCG启动完成
 echo ========================================
 echo 前端访问:         http://localhost
-echo 后端API:          http://localhost:8080/jeecg-boot
+echo 后端API:          http://localhost:8080/aiccgboot
 echo PostgreSQL数据库:  127.0.0.1:5432
 echo OnlyOffice:       http://localhost:8000
 echo MinIO:            http://localhost:9001
@@ -287,7 +295,7 @@ echo Elasticsearch:    http://localhost:9200
 echo GeoServer:        http://localhost:8081/geoserver/web
 echo ========================================
 echo.
-echo [6/5] 配置OnlyOffice服务...
+echo [8/7] 配置OnlyOffice服务...
 echo 正在配置OnlyOffice容器，复制配置文件并设置权限...
 powershell -ExecutionPolicy Bypass -File "%~dp0start-onlyoffice-config.ps1"
 

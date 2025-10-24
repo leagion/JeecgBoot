@@ -12,7 +12,7 @@ server:
     include-stacktrace: ALWAYS
     include-message: ALWAYS
   servlet:
-    context-path: /aiccg
+    context-path: /aiccgboot
   compression:
     enabled: true
     min-response-size: 1024
@@ -154,10 +154,13 @@ spring:
           slow-sql-millis: 5000
       datasource:
         master:
-          url: jdbc:postgresql://localhost:${DB_PORT:5432}/aiccgDB?stringtype=unspecified&charset=UTF-8
+          url: jdbc:postgresql://localhost:${DB_PORT:5433}/aiccgDB?stringtype=unspecified&charset=UTF-8
           username: ${DB_USERNAME:lq}
-          password: ${DB_PASSWORD:${POSTGRES_USER_PASSWORD}}
+          password: ${POSTGRES_PASSWORD:hkzdlq@CCG2025}
           driver-class-name: org.postgresql.Driver
+          # 添加初始化SQL以确保权限正确
+          connection-init-sqls:
+            - "SET SCHEMA 'public'"
 
   #redis 配置
   redis:
@@ -197,7 +200,7 @@ mybatis-plus:
 
 # LiteFlow配置
 liteflow:
-  enable: true
+  enable: false
   rule-source:
     - com.yomahub.liteflow.parser.sql.SQLXmlELParser
   jdbc:
@@ -289,7 +292,7 @@ jeecg:
   minio:
     minio_url: http://localhost:9000
     minio_name: minioadmin
-    minio_pass: ${MINIO_ROOT_PASSWORD}
+    minio_pass: ${MINIO_ROOT_PASSWORD:minioadmin}
     bucketName: otatest
   #大屏报表参数设置
   jmreport:
@@ -307,3 +310,19 @@ jeecg:
     adminAddresses: http://127.0.0.1:9080/xxl-job-admin
     appname: ${spring.application.name}
     accessToken: ''
+
+#cas单点登录
+cas:
+  prefixUrl: http://cas.example.org:8443/cas
+
+# 思维导图配置
+mindmap:
+  encrypt-key: temp-encryption-key-for-testing
+  auto-save-interval: 30000 # 自动保存间隔(毫秒)
+  max-content-size: 10485760 # 最大内容大小(10MB)
+
+#Mybatis输出sql日志
+logging:
+  level:
+    com.jeecg:
+      mapper: debug

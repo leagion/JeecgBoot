@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  aiccg-vue:
+    build:
+      context: ../../../jeecgboot-vue3
+      dockerfile: Dockerfile
+    image: aiccg-vue3-arm64
+    container_name: aiccg-vue3
+    depends_on:
+      - aiccg-boot-system
+    networks:
+      - aiccg-networks
+    ports:
+      - 80:80
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  aiccg-networks:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
